@@ -1,0 +1,17 @@
+SetEnv APPLICATION_ENV "development"
+
+# Send all requests except real files & directories 
+# through the Zend application
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteCond %{REQUEST_FILENAME} -s [OR]
+	RewriteCond %{REQUEST_FILENAME} -l [OR]
+	RewriteCond %{REQUEST_FILENAME} -d
+	RewriteRule ^.*$ - [NC,L]
+	RewriteRule ^.*$ index.php [NC,L]
+</IfModule>
+
+# Send version information in HTTP headers
+<IfModule mod_headers.c>
+	Header add X-Software "Barcode Ticket System/0.0.1-alpha, Zend Framework/1.10.6"
+</IfModule>
