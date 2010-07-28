@@ -10,6 +10,12 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
        	));
        	return $autoloader;
     }
-
+	protected function _initDb ()
+	{
+		if($this->hasPluginResource('db')) {
+			$dbResource = $this->getPluginResource('db');
+			Zend_Registry::set('db', $dbResource);
+		}
+	}
 }
 
