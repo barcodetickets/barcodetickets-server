@@ -15,6 +15,9 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 		$contextSwitch = Zend_Controller_Action_HelperBroker::getStaticHelper('contextSwitch');
 		if(!is_null($contextSwitch->getCurrentContext()))
 			$this->responseType = $contextSwitch->getCurrentContext();
+		else {
+			$contextSwitch->initContext('json');
+		}
 	}
 	/**
 	 * Takes a PHP array and converts it to an XML document in a <response>
