@@ -68,11 +68,11 @@ class Api_Model_Authentication
 		$digest = base64_encode(hash_hmac('sha1', $stringToSign, $apiKey, true));
 		return $digest;
 	}
-	public function validateSignature($httpVerb, $uri, array $params)
+	public function validateSignature ($httpVerb, $uri, array $params)
 	{
 		try {
 			$generated = $this->generateSignature($httpVerb, $uri, $params);
-		} catch(Zend_Exception $e) {
+		} catch (Zend_Exception $e) {
 			return false;
 		}
 		return ($generated == $params['signature']);
