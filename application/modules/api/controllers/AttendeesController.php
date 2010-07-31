@@ -12,12 +12,6 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		'create' => true ,
 		'exists' => true ,
 		'balance' => true);
-	private $clientAuth = null;
-	public function init ()
-	{
-		parent::init();
-		$this->clientAuth = new Api_Model_ClientAuthentication();
-	}
 	public function createAction ()
 	{
 		$this->view->response = array();

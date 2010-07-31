@@ -17,16 +17,6 @@ class Api_TicketsController extends Api_Controller_Abstract
 		'invalidate-barcode' => true ,
 		'check-in' => true ,
 		'check-in-barcode' => true);
-	private $clientAuth = null;
-	public function init ()
-	{
-		$this->_helper->viewRenderer->setNoRender();
-		$this->_helper->contextSwitch->initContext();
-		if (is_null($this->_helper->contextSwitch->getCurrentContext())) {
-			$this->_helper->contextSwitch->initContext('json');
-		}
-		$this->clientAuth = new Api_Model_ClientAuthentication();
-	}
 	public function activateAction ()
 	{
 		$this->view->response = array();

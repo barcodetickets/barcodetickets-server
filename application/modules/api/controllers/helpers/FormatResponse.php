@@ -6,9 +6,13 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	 * @var string
 	 */
 	private $responseType = 'json';
+	/**
+	 * An instance of the ContextSwitch helper.
+	 * @var Zend_Controller_Action_Helper_ContextSwitch
+	 */
 	private $contextSwitch = null;
 	/**
-	 * Upon load of this helper, customize the Context Switch helper for our needs.
+	 * Customizes the ContextSwitch helper for our needs upon load of this helper.
 	 */
 	public function init ()
 	{
@@ -64,6 +68,7 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	 * Takes a PHP array and converts it to an XML document in a <response>
 	 * root element.
 	 * @param array $data
+	 * @return string
 	 */
 	public function arrayToXml (array $data)
 	{
@@ -75,6 +80,7 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	/**
 	 * Converts a PHP array into a JSON string.
 	 * @param array $data
+	 * @return string
 	 */
 	public function arrayToJson (array $data)
 	{
@@ -94,6 +100,11 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 		}
 		$this->getResponse()->setBody($response);
 	}
+	/**
+	 * Sends the appropriate response body in XML using the variables of the
+	 * view; is invoked automatically by the customized ContextSwitch helper on
+	 * post dispatch of the XML context.
+	 */
 	public function xmlContext ()
 	{
 		$viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('viewRenderer');
@@ -103,6 +114,11 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 			$this->getResponse()->setBody($vars);
 		}
 	}
+	/**
+	 * Sends the appropriate response body in JSON using the variables of the
+	 * view; is invoked automatically by the customized ContextSwitch helper on
+	 * post dispatch of the JSON context.
+	 */
 	public function jsonContext ()
 	{
 		$viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('viewRenderer');

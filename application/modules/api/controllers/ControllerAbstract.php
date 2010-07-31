@@ -1,7 +1,28 @@
 <?php
+/**
+ * A specific kind of Zend_Controller_Action which contains methods used for
+ * the BTS API.
+ *
+ * @author	Frederick Ding
+ * @version	$Id$
+ * @see		Zend_Controller_Action
+ */
 abstract class Api_Controller_Abstract extends Zend_Controller_Action
 {
+	/**
+	 * An associative array indicating which actions support which contexts.
+	 * @var array
+	 */
 	public $contexts = array();
+	/**
+	 * An instance of the client authentication model.
+	 * @var Api_Model_ClientAuthentication
+	 */
+	private $clientAuth = null;
+	/**
+	 * Sets up the controller per our needs, including activation of the Context
+	 * Switch helper and instantiation of a client authentication model.
+	 */
 	public function init ()
 	{
 		$this->_helper->viewRenderer->setNoRender();
@@ -9,7 +30,12 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 		if (is_null($this->_helper->contextSwitch->getCurrentContext())) {
 			$this->_helper->contextSwitch->initContext('json');
 		}
+		$this->clientAuth = new Api_Model_ClientAuthentication();
 	}
+	/**
+	 * Validates the timestamp provided in the request using the client
+	 * authentication model; upon fail, sends an error response.
+	 */
 	private function _validateTimestamp ()
 	{
 		if (! $this->clientAuth->validateTimestamp($this->_getParam('timestamp'))) {
@@ -20,8 +46,10 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 		}
 	}
 	/**
-	 * The default action on a non-existent action - send a 404
-	 * unless we know it has a JSON/XML extension signifying format
+	 * The default action on a non-existent action - sends a 404
+	 * unless we know it has a JSON/XML extension signifying format.
+	 * @param string $methodName
+	 * @param array $args
 	 */
 	public function __call ($methodName, $args)
 	{
