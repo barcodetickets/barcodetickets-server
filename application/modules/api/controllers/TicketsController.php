@@ -5,7 +5,8 @@
  * @author	Frederick Ding
  * @version	$Id$
  */
-class Api_TicketsController extends Zend_Controller_Action
+require 'ControllerAbstract.php';
+class Api_TicketsController extends Api_Controller_Abstract
 {
 	public $contexts = array(
 		'activate' => true ,
@@ -16,6 +17,7 @@ class Api_TicketsController extends Zend_Controller_Action
 		'invalidate-barcode' => true ,
 		'check-in' => true ,
 		'check-in-barcode' => true);
+	private $clientAuth = null;
 	public function init ()
 	{
 		$this->_helper->viewRenderer->setNoRender();
@@ -23,95 +25,46 @@ class Api_TicketsController extends Zend_Controller_Action
 		if (is_null($this->_helper->contextSwitch->getCurrentContext())) {
 			$this->_helper->contextSwitch->initContext('json');
 		}
-		$this->auth = new Api_Model_Authentication();
-	}
-	/**
-	 * The default action on a non-existent action - send a 404
-	 * unless we know it has a JSON/XML extension signifying format
-	 */
-	public function __call ($methodName, $args)
-	{
-		$this->_response->setHttpResponseCode(404);
-		$responseArray = array(
-			'response' => array(
-				'statusCode' => 404 ,
-				'statusText' => 'API_METHOD_NOT_FOUND' ,
-				'debug' => array(
-					'controller' => $this->getRequest()->getControllerName() ,
-					'action' => $this->getRequest()->getActionName() ,
-					'params' => $this->getRequest()->getParams())));
-		$this->_helper->formatResponse($responseArray);
+		$this->clientAuth = new Api_Model_ClientAuthentication();
 	}
 	public function activateAction ()
 	{
-		if (! $this->auth->validateTimestamp($this->_getParam('timestamp'))) {
-			$this->_response->setHttpResponseCode(400);
-			$this->view->response = array(
-				'statusCode' => 400 ,
-				'statusText' => 'BAD_TIMESTAMP');
-		}
+		$this->view->response = array();
+		$this->_validateTimestamp();
 	}
 	public function activateBarcodeAction ()
 	{
-		if (! $this->auth->validateTimestamp($this->_getParam('timestamp'))) {
-			$this->_response->setHttpResponseCode(400);
-			$this->view->response = array(
-				'statusCode' => 400 ,
-				'statusText' => 'BAD_TIMESTAMP');
-		}
+		$this->view->response = array();
+		$this->_validateTimestamp();
 	}
 	public function validateAction ()
 	{
-		if (! $this->auth->validateTimestamp($this->_getParam('timestamp'))) {
-			$this->_response->setHttpResponseCode(400);
-			$this->view->response = array(
-				'statusCode' => 400 ,
-				'statusText' => 'BAD_TIMESTAMP');
-		}
+		$this->view->response = array();
+		$this->_validateTimestamp();
 	}
 	public function validateBarcodeAction ()
 	{
-		if (! $this->auth->validateTimestamp($this->_getParam('timestamp'))) {
-			$this->_response->setHttpResponseCode(400);
-			$this->view->response = array(
-				'statusCode' => 400 ,
-				'statusText' => 'BAD_TIMESTAMP');
-		}
+		$this->view->response = array();
+		$this->_validateTimestamp();
 	}
 	public function invalidateAction ()
 	{
-		if (! $this->auth->validateTimestamp($this->_getParam('timestamp'))) {
-			$this->_response->setHttpResponseCode(400);
-			$this->view->response = array(
-				'statusCode' => 400 ,
-				'statusText' => 'BAD_TIMESTAMP');
-		}
+		$this->view->response = array();
+		$this->_validateTimestamp();
 	}
 	public function invalidateBarcodeAction ()
 	{
-		if (! $this->auth->validateTimestamp($this->_getParam('timestamp'))) {
-			$this->_response->setHttpResponseCode(400);
-			$this->view->response = array(
-				'statusCode' => 400 ,
-				'statusText' => 'BAD_TIMESTAMP');
-		}
+		$this->view->response = array();
+		$this->_validateTimestamp();
 	}
 	public function checkInAction ()
 	{
-		if (! $this->auth->validateTimestamp($this->_getParam('timestamp'))) {
-			$this->_response->setHttpResponseCode(400);
-			$this->view->response = array(
-				'statusCode' => 400 ,
-				'statusText' => 'BAD_TIMESTAMP');
-		}
+		$this->view->response = array();
+		$this->_validateTimestamp();
 	}
 	public function checkInBarcodeAction ()
 	{
-		if (! $this->auth->validateTimestamp($this->_getParam('timestamp'))) {
-			$this->_response->setHttpResponseCode(400);
-			$this->view->response = array(
-				'statusCode' => 400 ,
-				'statusText' => 'BAD_TIMESTAMP');
-		}
+		$this->view->response = array();
+		$this->_validateTimestamp();
 	}
 }

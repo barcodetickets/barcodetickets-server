@@ -1,5 +1,5 @@
 <?php
-class Api_Model_Authentication
+class Api_Model_ClientAuthentication
 {
 	private $db = null;
 	public function __construct ()
