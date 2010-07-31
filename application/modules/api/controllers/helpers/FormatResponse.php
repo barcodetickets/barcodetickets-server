@@ -6,17 +6,58 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	 * @var string
 	 */
 	private $responseType = 'json';
+	private $contextSwitch = null;
+	/**
+	 * Upon load of this helper, customize the Context Switch helper for our needs.
+	 */
+	public function init ()
+	{
+		$this->contextSwitch = Zend_Controller_Action_HelperBroker::getStaticHelper('contextSwitch');
+		$this->contextSwitch->setContexts(array(
+			'json' => array(
+				'suffix' => 'json' ,
+				'headers' => array(
+					'Content-Type' => 'application/json' ,
+					'Cache-Control' => 'private,no-cache' ,
+					'Expires' => 'Sat, 26 Jul 1997 05:00:00 GMT') ,
+				'callbacks' => array(
+					'init' => 'initJsonContext' ,
+					'post' => array(
+						$this ,
+						'jsonContext'))) ,
+			'xml' => array(
+				'suffix' => 'xml' ,
+				'headers' => array(
+					'Content-Type' => 'application/xml' ,
+					'Cache-Control' => 'private,no-cache' ,
+					'Expires' => 'Sat, 26 Jul 1997 05:00:00 GMT') ,
+				'callbacks' => array(
+					'post' => array(
+						$this ,
+						'xmlContext')))));
+	}
 	/**
 	 * Upon predispatch, determines whether we will be sending in XML or
 	 * JSON format.
 	 */
 	public function preDispatch ()
 	{
-		$contextSwitch = Zend_Controller_Action_HelperBroker::getStaticHelper('contextSwitch');
-		if(!is_null($contextSwitch->getCurrentContext()))
-			$this->responseType = $contextSwitch->getCurrentContext();
-		else {
-			$contextSwitch->initContext('json');
+		if (! is_null($this->contextSwitch->getCurrentContext())) {
+			$this->responseType = $this->contextSwitch->getCurrentContext();
+		} else {
+			$requestedFormat = $this->getRequest()->getParam('format');
+			switch ($requestedFormat) {
+				case 'xml':
+					$this->responseType = 'xml';
+					break;
+				case 'json':
+				default:
+					$this->responseType = 'json';
+			}
+			$headers = $this->contextSwitch->getHeaders($this->responseType);
+			foreach ($headers as $key => $val) {
+				$this->getResponse()->setHeader($key, $val, true);
+			}
 		}
 	}
 	/**
@@ -44,9 +85,9 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	 * sends the appropriate response using the given data.
 	 * @param array $data
 	 */
-	public function direct(array $data)
+	public function direct (array $data)
 	{
-		if($this->responseType == 'xml') {
+		if ($this->responseType == 'xml') {
 			$response = $this->arrayToXml($data);
 		} else {
 			$response = $this->arrayToJson($data);

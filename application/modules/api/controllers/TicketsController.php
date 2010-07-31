@@ -8,42 +8,18 @@
 class Api_TicketsController extends Zend_Controller_Action
 {
 	public $contexts = array(
-		'activate' => array(
-			'xml' ,
-			'json') ,
-		'activate-barcode' => array(
-			'xml' ,
-			'json') ,
-		'validate' => array(
-			'xml' ,
-			'json') ,
-		'validate-barcode' => array(
-			'xml' ,
-			'json') ,
-		'invalidate' => array(
-			'xml' ,
-			'json') ,
-		'invalidate-barcode' => array(
-			'xml' ,
-			'json') ,
-		'check-in' => array(
-			'xml' ,
-			'json') ,
-		'check-in-barcode' => array(
-			'xml' ,
-			'json'));
+		'activate' => true ,
+		'activate-barcode' => true ,
+		'validate' => true ,
+		'validate-barcode' => true ,
+		'invalidate' => true ,
+		'invalidate-barcode' => true ,
+		'check-in' => true ,
+		'check-in-barcode' => true);
 	public function init ()
 	{
 		$this->_helper->viewRenderer->setNoRender();
-		$this->_helper->contextSwitch()->addHeaders('json', array(
-			'Cache-Control' => 'private,no-cache' ,
-			'Expires' => 'Sat, 26 Jul 1997 05:00:00 GMT'))->addHeaders('xml', array(
-			'Cache-Control' => 'private,no-cache' ,
-			'Expires' => 'Sat, 26 Jul 1997 05:00:00 GMT'))->setCallback('xml', 'post', array(
-			$this->_helper->formatResponse ,
-			'xmlContext'))->setCallback('json', 'post', array(
-			$this->_helper->formatResponse ,
-			'jsonContext'))->initContext();
+		$this->_helper->contextSwitch->initContext();
 		if (is_null($this->_helper->contextSwitch->getCurrentContext())) {
 			$this->_helper->contextSwitch->initContext('json');
 		}
@@ -57,12 +33,13 @@ class Api_TicketsController extends Zend_Controller_Action
 	{
 		$this->_response->setHttpResponseCode(404);
 		$responseArray = array(
-			'statusCode' => 404 ,
-			'statusText' => 'API_METHOD_NOT_FOUND' ,
-			'debug' => array(
-				'controller' => $this->getRequest()->getControllerName() ,
-				'action' => $this->getRequest()->getActionName() ,
-				'params' => $this->getRequest()->getParams()));
+			'response' => array(
+				'statusCode' => 404 ,
+				'statusText' => 'API_METHOD_NOT_FOUND' ,
+				'debug' => array(
+					'controller' => $this->getRequest()->getControllerName() ,
+					'action' => $this->getRequest()->getActionName() ,
+					'params' => $this->getRequest()->getParams())));
 		$this->_helper->formatResponse($responseArray);
 	}
 	public function activateAction ()
