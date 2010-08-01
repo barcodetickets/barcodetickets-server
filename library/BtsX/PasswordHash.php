@@ -27,14 +27,14 @@
  * @version	0.3 / BTS 0.0.1-alpha
  * @link	http://www.openwall.com/phpass/
  */
-// renamed to avoid conflicts; I *would* namespace this but can't assume PHP 5.3
-class Bts_PasswordHash
+// renamed for the autoloader
+class BtsX_PasswordHash
 {
 	var $itoa64;
 	var $iteration_count_log2;
 	var $portable_hashes;
 	var $random_state;
-	public function __construct ($iteration_count_log2 = 8, $portable_hashes = TRUE)
+	public function __construct ($iteration_count_log2, $portable_hashes)
 	{
 		$this->itoa64 = './0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 		if ($iteration_count_log2 < 4 || $iteration_count_log2 > 31) $iteration_count_log2 = 8;

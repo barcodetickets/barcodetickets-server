@@ -10,26 +10,17 @@
 class Api_Model_ClientAuthentication
 {
 	/**
-	 * An instance of the database adapter.
-	 * @var Zend_Db_Adapter_Abstract
+	 *
+	 * @var Bts_Model_DbTable_Clients
 	 */
-	private $db = null;
+	private $table = null;
 	/**
 	 * Performs a few initialization actions: loads the database adapter from
 	 * the resource stored in Zend_Registry.
 	 */
 	public function __construct ()
 	{
-		// get the database resource that was defined from Zend_Application
-		if (Zend_Registry::isRegistered('db')) {
-			$this->db = Zend_Registry::get('db')->getDbAdapter();
-		}
-		// we can't proceed without a valid adapter
-		if (is_null($this->db)) {
-			throw new Zend_Db_Adapter_Exception(
-				'Database adapter could not be built');
-		}
-		$this->db->getConnection();
+		$this->table = new Bts_Model_DbTable_Clients();
 	}
 	/**
 	 * Fetches the API key of the given API client from the database.
@@ -38,11 +29,12 @@ class Api_Model_ClientAuthentication
 	 */
 	private function getApiKey ($sysName)
 	{
-		$query = $this->db->select()->from('bts_clients', 'api_key')
-		->where('sys_name = ?', $sysName)
-		->where('status = 1')
-		->limit(1)
-		->query()->fetchColumn();
+		$query = $this->table->getAdapter()->select()->from('bts_clients', 'api_key')->where('sys_name = ?', $sysName)->where('status = 1')->limit(1)->query()->fetchColumn();
+		return $query;
+	}
+	private function getClientId ($sysName)
+	{
+		$query = $this->table->getAdapter()->select()->from('bts_clients', 'client_id')->where('sys_name = ?', $sysName)->limit(1)->query()->fetchColumn();
 		return $query;
 	}
 	/**
@@ -52,15 +44,13 @@ class Api_Model_ClientAuthentication
 	 * @param long $timestamp
 	 * @return bool
 	 */
-	public function validateTimestamp($timestamp = 0)
+	public function validateTimestamp ($timestamp = 0)
 	{
 		// valid timestamps are less than 15 minutes from current GMT time
 		// ABS(TIMESTAMPDIFF(MINUTE, ********* , NOW())) < 15
-		if(!is_numeric($timestamp))
-			return false;
-		$query = $this->db->select()->from('',
-			new Zend_Db_Expr('ABS(TIMESTAMPDIFF(MINUTE, ' . $timestamp . ' , UTC_TIMESTAMP())) < 15'))
-		->query()->fetchColumn();
+		if (! is_numeric($timestamp)) return false;
+		$query = $this->table->getAdapter()->select()->from('', new Zend_Db_Expr(
+			'ABS(TIMESTAMPDIFF(MINUTE, ' . $timestamp . ' , UTC_TIMESTAMP())) < 15'))->query()->fetchColumn();
 		return ($query == 1);
 	}
 	/**
@@ -74,38 +64,35 @@ class Api_Model_ClientAuthentication
 	 * @param array $params
 	 * @param string|null $apiKey
 	 * @return string
-	 * @throws Zend_Exception
+	 * @throws Bts_Exception
 	 */
-	public function generateSignature($httpVerb, $uri, array $params, $apiKey = null)
+	public function generateSignature ($httpVerb, $uri, array $params, $apiKey = null)
 	{
 		// validate the HTTP verb
 		$httpVerb = trim(strtoupper($httpVerb));
-		if(!in_array($httpVerb, array('GET', 'POST')))
-			throw new Zend_Exception('Invalid HTTP verb in generateSignature()');
-
+		if (! in_array($httpVerb, array(
+			'GET' ,
+			'POST'))) throw new Bts_Exception(
+			'Invalid HTTP verb in generateSignature()');
 		// create a message to sign with HMAC
 		$stringToSign = $httpVerb . "\n";
 		$stringToSign .= $uri . "\n";
-
 		// parameters in key => value format must be in alpha order
 		unset($params['signature']);
 		ksort($params);
-
 		// use the sysName in the params to get the API key if it is not specified
 		if (is_null($apiKey)) {
 			$apiKey = $this->getApiKey($params['sysName']);
 			if ($apiKey === false) {
-				throw new Zend_Exception(
+				throw new Bts_Exception(
 					'Invalid sysName in generateSignature()');
 			}
 		}
-
 		// concatenate the parameters to the HMAC message
 		reset($params);
-		while(list($key, $val) = each($params)) {
+		while (list ($key, $val) = each($params)) {
 			$stringToSign .= $key . '=' . urlencode($val) . "\n";
 		}
-
 		// generate a HMAC hash using the API key as key, encoded using base64
 		$digest = base64_encode(hash_hmac('sha1', $stringToSign, $apiKey, true));
 		return $digest;
@@ -127,5 +114,19 @@ class Api_Model_ClientAuthentication
 			return false;
 		}
 		return ($generated == $params['signature']);
+	}
+	public function startSession (Bts_Model_Users $Users, $username, $password, $sysName)
+	{
+		if ($Users->checkPassword($username, $password)) {
+			$client_id = $this->getClientId($sysName);
+			$user_id = $Users->getUserId($username);
+			$query = $this->table->getAdapter()->insert('bts_sessions', array(
+				'session_id' => new Zend_Db_Expr(
+					'UNHEX(SHA1(CONCAT_WS("-", ' . $client_id . ', ' . $user_id . ', UTC_TIMESTAMP())))') ,
+				'client_id' => $client_id ,
+				'user_id' => $user_id ,
+				'expire_time' => new Zend_Db_Expr(
+					'UTC_TIMESTAMP() + INTERVAL 2 HOUR')));
+		}
 	}
 }

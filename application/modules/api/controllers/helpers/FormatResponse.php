@@ -48,7 +48,7 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	{
 		if (! is_null($this->contextSwitch->getCurrentContext())) {
 			$this->responseType = $this->contextSwitch->getCurrentContext();
-		} else {
+		} else if ($this->getRequest()->getModuleName() == 'api') {
 			$requestedFormat = $this->getRequest()->getParam('format');
 			switch ($requestedFormat) {
 				case 'xml':
@@ -73,7 +73,9 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	public function arrayToXml (array $data)
 	{
 		$dom = new Api_Action_Helper_FormatResponse_XML();
-		$dom->fromPHP($data);
+		$response = $dom->createElementNS('http://barcodetickets.sourceforge.net/xml-api/1.0/', 'response');
+		$dom->appendChild($response);
+		$dom->fromPHP($data, $response);
 		$dom->normalizeDocument();
 		return $dom->saveXML();
 	}
@@ -110,7 +112,7 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 		$viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('viewRenderer');
 		$view = $viewRenderer->view;
 		if ($view instanceof Zend_View_Interface) {
-			$vars = $this->arrayToXml($view->getVars());
+			$vars = $this->arrayToXml($view->response);
 			$this->getResponse()->setBody($vars);
 		}
 	}

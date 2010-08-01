@@ -18,7 +18,7 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 	 * An instance of the client authentication model.
 	 * @var Api_Model_ClientAuthentication
 	 */
-	private $clientAuth = null;
+	protected $clientAuth = null;
 	/**
 	 * Sets up the controller per our needs, including activation of the Context
 	 * Switch helper and instantiation of a client authentication model.
@@ -36,7 +36,7 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 	 * Validates the timestamp provided in the request using the client
 	 * authentication model; upon fail, sends an error response.
 	 */
-	private function _validateTimestamp ()
+	protected function _validateTimestamp ()
 	{
 		if (! $this->clientAuth->validateTimestamp($this->_getParam('timestamp'))) {
 			$this->_response->setHttpResponseCode(400);
@@ -55,13 +55,12 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 	{
 		$this->_response->setHttpResponseCode(404);
 		$responseArray = array(
-			'response' => array(
-				'statusCode' => 404 ,
-				'statusText' => 'API_METHOD_NOT_FOUND' ,
-				'debug' => array(
-					'controller' => $this->getRequest()->getControllerName() ,
-					'action' => $this->getRequest()->getActionName() ,
-					'params' => $this->getRequest()->getParams())));
+			'statusCode' => 404 ,
+			'statusText' => 'API_METHOD_NOT_FOUND' ,
+			'debug' => array(
+				'controller' => $this->getRequest()->getControllerName() ,
+				'action' => $this->getRequest()->getActionName() ,
+				'params' => $this->getRequest()->getParams()));
 		$this->_helper->formatResponse($responseArray);
 	}
 }
