@@ -163,6 +163,11 @@ class Api_Action_Helper_FormatResponse_XML extends DOMDocument
 				}
 				$this->fromPHP($element, $node);
 			}
+		} else if (is_bool($data)) {
+			// we have to add this here because otherwise a (bool) false is
+			// interpreted as an empty string
+			$data = ($data === TRUE) ? 'true' : 'false';
+			$domElement->appendChild($this->createTextNode($data));
 		} else {
 			$domElement->appendChild($this->createTextNode($data));
 		}
