@@ -88,7 +88,7 @@ class Bts_Model_Users
 	 */
 	public function getUserId ($username)
 	{
-		$select = $this->UsersTable->select(false)->from($this->UsersTable->info('name'), 'user_id')->where('username = ?', $username);
+		$select = $this->UsersTable->select(false)->from($this->UsersTable, 'user_id')->where('username = ?', $username);
 		$row = $this->UsersTable->fetchRow($select);
 		if (is_null($row)) {
 			return - 1;

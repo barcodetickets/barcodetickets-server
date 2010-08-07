@@ -11,31 +11,16 @@ class Api_Model_ClientAuthentication
 {
 	/**
 	 *
-	 * @var Bts_Model_DbTable_Clients
+	 * @var Bts_Model_Clients
 	 */
-	private $table = null;
+	private $Clients = null;
 	/**
 	 * Performs a few initialization actions: loads the database adapter from
 	 * the resource stored in Zend_Registry.
 	 */
 	public function __construct ()
 	{
-		$this->table = new Bts_Model_DbTable_Clients();
-	}
-	/**
-	 * Fetches the API key of the given API client from the database.
-	 * @param string $sysName
-	 * @return string
-	 */
-	private function getApiKey ($sysName)
-	{
-		$query = $this->table->getAdapter()->select()->from('bts_clients', 'api_key')->where('sys_name = ?', $sysName)->where('status = 1')->limit(1)->query()->fetchColumn();
-		return $query;
-	}
-	private function getClientId ($sysName)
-	{
-		$query = $this->table->getAdapter()->select()->from('bts_clients', 'client_id')->where('sys_name = ?', $sysName)->limit(1)->query()->fetchColumn();
-		return $query;
+		$this->Clients = new Bts_Model_Clients();
 	}
 	/**
 	 * Checks the timestamp supplied with a request to see whether it is within
@@ -48,8 +33,8 @@ class Api_Model_ClientAuthentication
 	{
 		// valid timestamps are less than 15 minutes from current GMT time
 		// ABS(TIMESTAMPDIFF(MINUTE, ********* , NOW())) < 15
-		if (! is_numeric($timestamp)) return false;
-		$query = $this->table->getAdapter()->select()->from('', new Zend_Db_Expr(
+		if (! is_numeric($timestamp) || $timestamp == 0) return false;
+		$query = $this->Clients->getDb()->select()->from('', new Zend_Db_Expr(
 			'ABS(TIMESTAMPDIFF(MINUTE, ' . $timestamp . ' , UTC_TIMESTAMP())) < 15'))->query()->fetchColumn();
 		return ($query == 1);
 	}
@@ -74,6 +59,10 @@ class Api_Model_ClientAuthentication
 			'GET' ,
 			'POST'))) throw new Bts_Exception(
 			'Invalid HTTP verb in generateSignature()');
+		// validate the sysName
+		if (! isset($params['sysName'])) {
+			throw new Bts_Exception('No sysName provided');
+		}
 		// create a message to sign with HMAC
 		$stringToSign = $httpVerb . "\n";
 		$stringToSign .= $uri . "\n";
@@ -82,7 +71,7 @@ class Api_Model_ClientAuthentication
 		ksort($params);
 		// use the sysName in the params to get the API key if it is not specified
 		if (is_null($apiKey)) {
-			$apiKey = $this->getApiKey($params['sysName']);
+			$apiKey = $this->Clients->getApiKey($params['sysName']);
 			if ($apiKey === false) {
 				throw new Bts_Exception(
 					'Invalid sysName in generateSignature()');
@@ -110,7 +99,7 @@ class Api_Model_ClientAuthentication
 	{
 		try {
 			$generated = $this->generateSignature($httpVerb, $uri, $params);
-		} catch (Zend_Exception $e) {
+		} catch (Bts_Exception $e) {
 			return false;
 		}
 		return ($generated == $params['signature']);
@@ -118,15 +107,36 @@ class Api_Model_ClientAuthentication
 	public function startSession (Bts_Model_Users $Users, $username, $password, $sysName)
 	{
 		if ($Users->checkPassword($username, $password)) {
-			$client_id = $this->getClientId($sysName);
+			$client_id = $this->Clients->getClientId($sysName);
 			$user_id = $Users->getUserId($username);
-			$query = $this->table->getAdapter()->insert('bts_sessions', array(
+			$db = $this->Clients->getDb();
+			$id = $this->_getSessionId($client_id, $user_id);
+			if ($id !== FALSE) return $id;
+			$query = $db->insert('bts_sessions', array(
 				'session_id' => new Zend_Db_Expr(
 					'UNHEX(SHA1(CONCAT_WS("-", ' . $client_id . ', ' . $user_id . ', UTC_TIMESTAMP())))') ,
 				'client_id' => $client_id ,
 				'user_id' => $user_id ,
 				'expire_time' => new Zend_Db_Expr(
 					'UTC_TIMESTAMP() + INTERVAL 2 HOUR')));
-		}
+			$id = $db->select()->from('bts_sessions', 'session_id')->where('client_id = ?', $client_id)->where('user_id = ?', $user_id)->limit(1)->query()->fetchColumn();
+			return $id;
+		} else
+			return '';
+	}
+	private function _getSessionId ($client_id, $user_id)
+	{
+		$db = $this->Clients->getDb();
+		$query = $db->select()->from('bts_sessions', 'session_id')->where('client_id = ?', $client_id)->where('user_id = ?', $user_id)->where('expire_time > UTC_TIMESTAMP()')->limit(1)->query()->fetchColumn();
+		return $query;
+	}
+	/**
+	 *
+	 * @param string|int $client
+	 * @return boolean|int False if not found, and the status code if found (1 is active, 0 is inactive)
+	 */
+	public function clientStatus ($client)
+	{
+		return $this->Clients->getClientStatus($client);
 	}
 }

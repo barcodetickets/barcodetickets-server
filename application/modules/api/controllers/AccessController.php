@@ -23,8 +23,13 @@ class Api_AccessController extends Api_Controller_Abstract
 	}
 	public function loginAction ()
 	{
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
+			'sysName' => $this->_getParam('sysName') ,
+			'timestamp' => $this->_getParam('timestamp') ,
+			'signature' => $this->_getParam('signature')))) {
+			return;
+		}
 		$this->view->response = array();
-		$this->_validateTimestamp();
 	}
 }
 
