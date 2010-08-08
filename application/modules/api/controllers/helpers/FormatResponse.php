@@ -72,11 +72,12 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	 */
 	public function arrayToXml (array $data)
 	{
-		$dom = new Api_Action_Helper_FormatResponse_XML();
+		$dom = new Api_Action_Helper_FormatResponse_XML('1.0', 'UTF-8');
 		$response = $dom->createElementNS('http://barcodetickets.sourceforge.net/xml-api/1.0/', 'response');
 		$dom->appendChild($response);
 		$dom->fromPHP($data, $response);
 		$dom->normalizeDocument();
+		$dom->formatOutput = true;
 		return $dom->saveXML();
 	}
 	/**
@@ -137,6 +138,7 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
  *
  * @author Toni Van de Voorde
  * @license Apache License 2.0
+ * @uses DOMDocument
  */
 class Api_Action_Helper_FormatResponse_XML extends DOMDocument
 {

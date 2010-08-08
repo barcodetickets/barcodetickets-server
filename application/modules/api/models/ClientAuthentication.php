@@ -15,6 +15,11 @@ class Api_Model_ClientAuthentication
 	 */
 	private $Clients = null;
 	/**
+	 *
+	 * @var Bts_Model_Users
+	 */
+	private $Users = null;
+	/**
 	 * Performs a few initialization actions: loads the database adapter from
 	 * the resource stored in Zend_Registry.
 	 */
@@ -86,8 +91,8 @@ class Api_Model_ClientAuthentication
 		while (list ($key, $val) = each($params)) {
 			$stringParams .= $key . '=' . urlencode($val) . "&";
 		}
-		$stringToSign .= substr($stringParams, 0, -1);
-		if($returnMessage) {
+		$stringToSign .= substr($stringParams, 0, - 1);
+		if ($returnMessage) {
 			return $stringToSign;
 		}
 		// generate a HMAC hash using the API key as key, encoded using base64
@@ -113,8 +118,16 @@ class Api_Model_ClientAuthentication
 		}
 		return ($generated == $params['signature']);
 	}
-	public function startSession (Bts_Model_Users $Users, $username, $password, $sysName)
+	public function startSession ($username, $password, $sysName, Bts_Model_Users $Users = null)
 	{
+		if (is_null($this->Users) && ! is_null($Users)) {
+			$this->Users = $Users;
+		} else if (is_null($this->Users) && is_null($Users)) {
+			$this->Users = new Bts_Model_Users();
+			$Users = $this->Users;
+		} else if (! is_null($this->Users) && is_null($Users)) {
+			$Users = $this->Users;
+		}
 		if ($Users->checkPassword($username, $password)) {
 			$client_id = $this->Clients->getClientId($sysName);
 			$user_id = $Users->getUserId($username);
@@ -128,7 +141,7 @@ class Api_Model_ClientAuthentication
 				'user_id' => $user_id ,
 				'expire_time' => new Zend_Db_Expr(
 					'UTC_TIMESTAMP() + INTERVAL 2 HOUR')));
-			$id = $db->select()->from('bts_sessions', 'session_id')->where('client_id = ?', $client_id)->where('user_id = ?', $user_id)->limit(1)->query()->fetchColumn();
+			$id = $db->select()->from('bts_sessions', new Zend_Db_Expr('HEX(session_id)'))->where('client_id = ?', $client_id)->where('user_id = ?', $user_id)->limit(1)->query()->fetchColumn();
 			return $id;
 		} else
 			return '';
@@ -136,7 +149,7 @@ class Api_Model_ClientAuthentication
 	private function _getSessionId ($client_id, $user_id)
 	{
 		$db = $this->Clients->getDb();
-		$query = $db->select()->from('bts_sessions', 'session_id')->where('client_id = ?', $client_id)->where('user_id = ?', $user_id)->where('expire_time > UTC_TIMESTAMP()')->limit(1)->query()->fetchColumn();
+		$query = $db->select()->from('bts_sessions', new Zend_Db_Expr('HEX(session_id)'))->where('client_id = ?', $client_id)->where('user_id = ?', $user_id)->where('expire_time > UTC_TIMESTAMP()')->limit(1)->query()->fetchColumn();
 		return $query;
 	}
 	/**
