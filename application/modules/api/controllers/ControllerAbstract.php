@@ -59,7 +59,7 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 	 */
 	protected function _validateSignature (array $params)
 	{
-		$validation = $this->clientAuth->validateSignature($_SERVER['REQUEST_METHOD'], strtok($_SERVER['REQUEST_URI'], '?'), $params);
+		$validation = $this->clientAuth->validateSignature($_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], strtok($_SERVER['REQUEST_URI'], '?'), $params);
 		if (! $validation) {
 			$this->_response->setHttpResponseCode(403);
 			$status = $this->clientAuth->clientStatus($this->_getParam('sysName'));

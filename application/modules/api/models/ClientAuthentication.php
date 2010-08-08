@@ -45,13 +45,15 @@ class Api_Model_ClientAuthentication
 	 * This can be considered a reference implementation for the BTS API signature
 	 * specifications.
 	 * @param string $httpVerb
+	 * @param string $hostname
 	 * @param string $uri
 	 * @param array $params
 	 * @param string|null $apiKey
+	 * @param bool $returnMessage
 	 * @return string
 	 * @throws Bts_Exception
 	 */
-	public function generateSignature ($httpVerb, $uri, array $params, $apiKey = null)
+	public function generateSignature ($httpVerb, $hostname, $uri, array $params, $apiKey = null, $returnMessage = false)
 	{
 		// validate the HTTP verb
 		$httpVerb = trim(strtoupper($httpVerb));
@@ -64,8 +66,8 @@ class Api_Model_ClientAuthentication
 			throw new Bts_Exception('No sysName provided');
 		}
 		// create a message to sign with HMAC
-		$stringToSign = $httpVerb . "\n";
-		$stringToSign .= $uri . "\n";
+		$stringToSign = $httpVerb . ' ';
+		$stringToSign .= $hostname . $uri . "\n";
 		// parameters in key => value format must be in alpha order
 		unset($params['signature']);
 		ksort($params);
@@ -79,8 +81,14 @@ class Api_Model_ClientAuthentication
 		}
 		// concatenate the parameters to the HMAC message
 		reset($params);
+		// first build our string of parameters
+		$stringParams = '';
 		while (list ($key, $val) = each($params)) {
-			$stringToSign .= $key . '=' . urlencode($val) . "\n";
+			$stringParams .= $key . '=' . urlencode($val) . "&";
+		}
+		$stringToSign .= substr($stringParams, 0, -1);
+		if($returnMessage) {
+			return $stringToSign;
 		}
 		// generate a HMAC hash using the API key as key, encoded using base64
 		$digest = base64_encode(hash_hmac('sha1', $stringToSign, $apiKey, true));
@@ -91,14 +99,15 @@ class Api_Model_ClientAuthentication
 	 * our reference implementation.
 	 *
 	 * @param string $httpVerb
+	 * @param string $hostname
 	 * @param string $uri
 	 * @param array $params
 	 * @return bool
 	 */
-	public function validateSignature ($httpVerb, $uri, array $params)
+	public function validateSignature ($httpVerb, $hostname, $uri, array $params)
 	{
 		try {
-			$generated = $this->generateSignature($httpVerb, $uri, $params);
+			$generated = $this->generateSignature($httpVerb, $hostname, $uri, $params);
 		} catch (Bts_Exception $e) {
 			return false;
 		}
