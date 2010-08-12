@@ -25,10 +25,14 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 	 */
 	public function init ()
 	{
-		$this->_helper->viewRenderer->setNoRender();
-		$this->_helper->contextSwitch->initContext();
-		if (is_null($this->_helper->contextSwitch->getCurrentContext())) {
-			$this->_helper->contextSwitch->initContext('json');
+		$this->_helper->viewRenderer
+			->setNoRender();
+		$this->_helper->contextSwitch
+			->initContext();
+		if (is_null($this->_helper->contextSwitch
+			->getCurrentContext())) {
+			$this->_helper->contextSwitch
+				->initContext('json');
 		}
 		$this->clientAuth = new Api_Model_ClientAuthentication();
 	}
@@ -40,8 +44,10 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 	 */
 	protected function _validateTimestamp ()
 	{
-		if (! $this->clientAuth->validateTimestamp($this->_getParam('timestamp', 0))) {
-			$this->_response->setHttpResponseCode(400);
+		if (! $this->clientAuth
+			->validateTimestamp($this->_getParam('timestamp', 0))) {
+			$this->_response
+				->setHttpResponseCode(400);
 			$this->view->response = array(
 				'statusCode' => 400 ,
 				'statusText' => 'BAD_TIMESTAMP');
@@ -59,15 +65,17 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 	 */
 	protected function _validateSignature (array $params)
 	{
-		$validation = $this->clientAuth->validateSignature($_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], strtok($_SERVER['REQUEST_URI'], '?'), $params);
+		$validation = $this->clientAuth
+			->validateSignature($_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], strtok($_SERVER['REQUEST_URI'], '?'), $params);
 		if (! $validation) {
-			$this->_response->setHttpResponseCode(403);
-			$status = $this->clientAuth->clientStatus($this->_getParam('sysName'));
+			$this->_response
+				->setHttpResponseCode(403);
+			$status = $this->clientAuth
+				->clientStatus($this->_getParam('sysName'));
 			if ($status === 1) {
 				$this->view->response = array(
 					'statusCode' => 403 ,
-					'statusText' => 'BAD_SIGNATURE'
-				);
+					'statusText' => 'BAD_SIGNATURE');
 			} else if ($status === 0) {
 				$this->view->response = array(
 					'statusCode' => 403 ,
@@ -89,14 +97,19 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 	 */
 	public function __call ($methodName, $args)
 	{
-		$this->_response->setHttpResponseCode(404);
+		$this->_response
+			->setHttpResponseCode(404);
 		$responseArray = array(
 			'statusCode' => 404 ,
 			'statusText' => 'API_METHOD_NOT_FOUND' ,
 			'debug' => array(
-				'controller' => $this->getRequest()->getControllerName() ,
-				'action' => $this->getRequest()->getActionName() ,
-				'params' => $this->getRequest()->getParams()));
-		$this->_helper->formatResponse($responseArray);
+				'controller' => $this->getRequest()
+					->getControllerName() ,
+				'action' => $this->getRequest()
+					->getActionName() ,
+				'params' => $this->getRequest()
+					->getParams()));
+		$this->_helper
+			->formatResponse($responseArray);
 	}
 }

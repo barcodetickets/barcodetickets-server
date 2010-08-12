@@ -53,15 +53,20 @@ class Bts_Model_Users
 	 */
 	public function changePassword ($username, $old_password, $new_password)
 	{
-		$select = $this->UsersTable->select()->where('username = ?', $username);
-		$row = $this->UsersTable->fetchRow($select);
+		$select = $this->UsersTable
+			->select()
+			->where('username = ?', $username);
+		$row = $this->UsersTable
+			->fetchRow($select);
 		if (! $row instanceof Zend_Db_Table_Row_Abstract) {
 			return false;
 		}
-		if (! $this->PasswordHash->checkPassword($old_password, $row->password)) {
+		if (! $this->PasswordHash
+			->checkPassword($old_password, $row->password)) {
 			return false;
 		}
-		$row->password = $this->PasswordHash->hashPassword($new_password);
+		$row->password = $this->PasswordHash
+			->hashPassword($new_password);
 		return (boolean) $row->save();
 	}
 	/**
@@ -73,12 +78,16 @@ class Bts_Model_Users
 	 */
 	public function checkPassword ($username, $password)
 	{
-		$select = $this->UsersTable->select()->where('username = ?', $username);
-		$row = $this->UsersTable->fetchRow($select);
+		$select = $this->UsersTable
+			->select()
+			->where('username = ?', $username);
+		$row = $this->UsersTable
+			->fetchRow($select);
 		if (! $row instanceof Zend_Db_Table_Row_Abstract) {
 			return false;
 		}
-		return $this->PasswordHash->checkPassword($password, $row->password);
+		return $this->PasswordHash
+			->checkPassword($password, $row->password);
 	}
 	/**
 	 * Gets the user ID of the user associated with the given username.
@@ -88,8 +97,12 @@ class Bts_Model_Users
 	 */
 	public function getUserId ($username)
 	{
-		$select = $this->UsersTable->select(false)->from($this->UsersTable, 'user_id')->where('username = ?', $username);
-		$row = $this->UsersTable->fetchRow($select);
+		$select = $this->UsersTable
+			->select(false)
+			->from($this->UsersTable, 'user_id')
+			->where('username = ?', $username);
+		$row = $this->UsersTable
+			->fetchRow($select);
 		if (is_null($row)) {
 			return - 1;
 		}
@@ -126,13 +139,15 @@ class Bts_Model_Users
 		}
 		$insertData = array(
 			'username' => $username ,
-			'password' => $this->PasswordHash->hashPassword($password) ,
+			'password' => $this->PasswordHash
+				->hashPassword($password) ,
 			'email' => $meta['email'] ,
 			'status' => (is_integer($meta['status'])) ? $meta['status'] : 0 ,
 			'nickname' => ($meta['nickname']) ? $meta['nickname'] : '' ,
 			'openid' => ($meta['openid']) ? $meta['openid'] : '');
 		if (isset($meta['nickname'])) $insertData['nickname'] = $meta['nickname'];
-		$userId = $this->UsersTable->insert($insertData);
+		$userId = $this->UsersTable
+			->insert($insertData);
 		return $userId;
 	}
 	/**
@@ -143,8 +158,11 @@ class Bts_Model_Users
 	 */
 	public function userExists ($username)
 	{
-		$select = $this->UsersTable->select(true)->where('username = ?', $username);
-		$rows = $this->UsersTable->fetchAll($select);
+		$select = $this->UsersTable
+			->select(true)
+			->where('username = ?', $username);
+		$rows = $this->UsersTable
+			->fetchAll($select);
 		return ($rows->count() === 1);
 	}
 }

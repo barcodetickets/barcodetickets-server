@@ -10,7 +10,7 @@ class Api_AccessController extends Api_Controller_Abstract
 {
 	public $contexts = array(
 		'login' => true ,
-		'test' => true);
+		'logout' => true);
 	/**
 	 *
 	 * @var Bts_Model_Users
@@ -34,18 +34,34 @@ class Api_AccessController extends Api_Controller_Abstract
 			'password' => $password))) {
 			return;
 		}
-		$sessionId = $this->clientAuth->startSession($username, $password, $sysName);
+		$sessionId = $this->clientAuth
+			->startSession($username, $password, $sysName);
 		if ($sessionId == '') {
 			// failed authentication
+			$this->_response
+				->setHttpResponseCode(401);
 			$this->view->response = array(
-				'statusCode' => 200 ,
+				'statusCode' => 401 ,
 				'statusText' => 'ACCESS_DENIED');
+			return;
 		}
 		$this->view->response = array(
 			'statusCode' => 200 ,
 			'statusText' => 'OK' ,
 			'data' => array(
-				'sessionId' => $sessionId));
+				'token' => $sessionId));
+	}
+	public function logoutAction ()
+	{
+		$sysName = $this->_getParam('sysName');
+		$token = $this->_getParam('token');
+		if (! $this->_validateTimestamp() || ! $this->validateSignature(array(
+			'sysName' => $sysName ,
+			'timestamp' => $this->_getParam('timestamp') ,
+			'signature' => $this->_getParam('signature') ,
+			'token' => $token))) {
+			return;
+		}
 	}
 }
 
