@@ -4,6 +4,7 @@
  *
  * @author	Frederick Ding
  * @version $Id$
+ * @todo	phpdoc this class
  */
 require 'ControllerAbstract.php';
 class Api_AccessController extends Api_Controller_Abstract
@@ -35,7 +36,7 @@ class Api_AccessController extends Api_Controller_Abstract
 			return;
 		}
 		$sessionId = $this->clientAuth
-			->startSession($username, $password, $sysName);
+			->startSession($username, $password, $sysName, $this->userAuth);
 		if ($sessionId == '') {
 			// failed authentication
 			$this->_response
@@ -62,6 +63,19 @@ class Api_AccessController extends Api_Controller_Abstract
 			'token' => $token))) {
 			return;
 		}
+		$result = $this->clientAuth
+			->destroySession($token);
+		if ($result == false) {
+			$this->_response
+				->setHttpResponseCode(400);
+			$this->view->response = array(
+				'statusCode' => 401 ,
+				'statusText' => 'BAD_TOKEN');
+			return;
+		}
+		$this->view->response = array(
+			'statusCode' => 200 ,
+			'statusText' => 'OK_LOGGED_OUT');
 	}
 }
 

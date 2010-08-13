@@ -5,6 +5,7 @@
  *
  * @author	Frederick Ding
  * @version	$Id$
+ * @todo	phpdoc this class
  */
 class Bts_Model_Clients
 {
@@ -22,6 +23,7 @@ class Bts_Model_Clients
 	}
 	/**
 	 * Fetches the API key of the given API client from the database.
+	 *
 	 * @param string $sysName
 	 * @return string
 	 */
@@ -74,6 +76,8 @@ class Bts_Model_Clients
 		return (int) $query;
 	}
 	/**
+	 * Gets the database adapter in use by the model.
+	 *
 	 * @return Zend_Db_Adapter_Abstract
 	 */
 	public function getDb ()

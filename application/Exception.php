@@ -7,4 +7,8 @@
  * @see		Zend_Exception
  */
 class Bts_Exception extends Zend_Exception
-{}
+{
+	const AUTH_SESSION_FAILURE = - 301;
+	const AUTH_SYSNAME_MISSING = - 302;
+	const AUTH_SYSNAME_BAD = - 303;
+}
