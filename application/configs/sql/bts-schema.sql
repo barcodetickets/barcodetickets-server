@@ -52,7 +52,7 @@ CREATE  TABLE IF NOT EXISTS `bts_events` (
   `name` VARCHAR(255) NOT NULL ,
   `event_time` DATETIME NOT NULL ,
   `owner` INT UNSIGNED NOT NULL ,
-  `secure_hash` CHAR(64) ASCII NOT NULL COMMENT 'A SHA-256 hash used for security with the generated tickets.' ,
+  `secure_hash` BINARY(32) NOT NULL COMMENT 'A SHA-256 hash used for security with the generated tickets.' ,
   `status` TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Examples: created, already occurred, cancelled' ,
   `creation_time` DATETIME NOT NULL ,
   `slug` VARCHAR(45) NOT NULL ,
