@@ -25,7 +25,7 @@ class Bts_Model_Clients
 	 * Fetches the API key of the given API client from the database.
 	 *
 	 * @param string $sysName
-	 * @return string
+	 * @return string|false
 	 */
 	public function getApiKey ($sysName)
 	{
@@ -39,6 +39,12 @@ class Bts_Model_Clients
 			->fetchColumn();
 		return $query;
 	}
+	/**
+	 * Finds the client ID of a given client from the database.
+	 *
+	 * @param string $sysName
+	 * @return string|false
+	 */
 	public function getClientId ($sysName)
 	{
 		$query = $this->ClientsTable
@@ -50,6 +56,12 @@ class Bts_Model_Clients
 			->fetchColumn();
 		return $query;
 	}
+	/**
+	 * Finds the status of the given API client.
+	 *
+	 * @param string|int $client
+	 * @return int|false
+	 */
 	public function getClientStatus ($client)
 	{
 		if (empty($client)) return false;

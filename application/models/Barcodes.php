@@ -29,8 +29,8 @@ class Bts_Model_Barcodes
 	 * Retrieves the secure_hash of a given event from the database.
 	 *
 	 * @param int $eventId
-	 * @param boolean $binary
-	 * @return string|boolean secure_hash as a binary string or false if not found
+	 * @param boolean $binary (optional)
+	 * @return string|false secure_hash as a binary string or false if not found
 	 */
 	protected function _retrieveEventHash ($eventId, $binary = true)
 	{
@@ -62,7 +62,7 @@ class Bts_Model_Barcodes
 	 * containing all the data extracted from it.
 	 *
 	 * @param string $barcodeString
-	 * @return array|boolean Array with the event, batch and ticket, or false on failure
+	 * @return array|false Array with the event, batch and ticket, or false on failure
 	 */
 	public function decryptBarcode ($barcodeString)
 	{
@@ -112,7 +112,7 @@ class Bts_Model_Barcodes
 	 * @param int $eventId
 	 * @param int $batchId
 	 * @param int $ticketId
-	 * @param string|null $eventHash
+	 * @param string $eventHash (optional)
 	 * @throws Bts_Exception
 	 * @return string
 	 */
@@ -173,7 +173,7 @@ class Bts_Model_Barcodes
 	 * @param int $eventId
 	 * @param int $batchId
 	 * @param int $ticketId
-	 * @param string|null $eventHash
+	 * @param string $eventHash (optional)
 	 * @throws Bts_Exception
 	 * @return string
 	 */

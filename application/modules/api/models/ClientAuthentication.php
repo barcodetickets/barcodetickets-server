@@ -35,7 +35,7 @@ class Api_Model_ClientAuthentication
 	 *
 	 * @param int $client_id
 	 * @param int $user_id
-	 * @return string|bool Session ID if found or false
+	 * @return string|false Session ID if found or false
 	 */
 	private function _getSessionId ($client_id, $user_id)
 	{
@@ -55,7 +55,7 @@ class Api_Model_ClientAuthentication
 	 * Calls {@link Bts_Model_Clients::getClientStatus()}.
 	 *
 	 * @param string|int $client
-	 * @return boolean|int Status code if found (1 is active, 0 is inactive) or false
+	 * @return int|false Status code if found (1 is active, 0 is inactive) or false
 	 */
 	public function clientStatus ($client)
 	{
@@ -74,9 +74,7 @@ class Api_Model_ClientAuthentication
 	{
 		$db = $this->Clients
 			->getDb();
-		$delete = $db->query('DELETE bts_sessions FROM bts_sessions INNER JOIN bts_clients'
-			. ' ON bts_sessions.client_id = bts_clients.client_id'
-			. ' WHERE session_id = ? AND sys_name = ?', array(
+		$delete = $db->query('DELETE bts_sessions FROM bts_sessions INNER JOIN bts_clients' . ' ON bts_sessions.client_id = bts_clients.client_id' . ' WHERE session_id = ? AND sys_name = ?', array(
 			$session_id ,
 			$sysName));
 		return $delete->rowCount();
@@ -91,8 +89,8 @@ class Api_Model_ClientAuthentication
 	 * @param string $hostname
 	 * @param string $uri
 	 * @param array $params
-	 * @param string|null $apiKey
-	 * @param bool $returnMessage
+	 * @param string|null $apiKey (optional)
+	 * @param boolean $returnMessage (optional)
 	 * @return string
 	 * @throws Bts_Exception
 	 */
@@ -142,7 +140,7 @@ class Api_Model_ClientAuthentication
 	 * @param string $username
 	 * @param string $password
 	 * @param string $sysName
-	 * @param Bts_Model_Users $Users
+	 * @param Bts_Model_Users $Users (optional)
 	 * @throws Bts_Exception
 	 */
 	public function startSession ($username, $password, $sysName, Bts_Model_Users $Users = null)
@@ -201,7 +199,7 @@ class Api_Model_ClientAuthentication
 	 * @param string $hostname
 	 * @param string $uri
 	 * @param array $params
-	 * @return bool
+	 * @return boolean
 	 */
 	public function validateSignature ($httpVerb, $hostname, $uri, array $params)
 	{
@@ -218,7 +216,7 @@ class Api_Model_ClientAuthentication
 	 * using MySQL functions for now.
 	 *
 	 * @param long $timestamp
-	 * @return bool
+	 * @return boolean
 	 */
 	public function validateTimestamp ($timestamp = 0)
 	{
