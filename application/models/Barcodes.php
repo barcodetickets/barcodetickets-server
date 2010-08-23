@@ -80,7 +80,7 @@ class Bts_Model_Barcodes
 		 */
 		$eventHash = $this->_retrieveEventHash($parts[1]);
 		// if an eventHash cannot be found, we can't proceed with decryption
-		if ($eventHash === false || empty($eventHash)) return array();
+		if ($eventHash === false || empty($eventHash)) return false;
 		// DECRYPT
 		$decryptedString = trim(mcrypt_decrypt(self::CIPHER, $eventHash, base64_decode($parts[3]), self::MODE));
 		$result = array();

@@ -5,7 +5,6 @@
  *
  * @author	Frederick Ding
  * @version	$Id$
- * @todo	phpdoc this class
  */
 class Bts_Model_Clients
 {

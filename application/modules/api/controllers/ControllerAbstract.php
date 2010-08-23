@@ -56,6 +56,36 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 		return true;
 	}
 	/**
+	 * Validates the session token provided in the request using the client
+	 * authentication model; upon fail, sends an error response.
+	 *
+	 * All API methods requiring a valid session token must call this method.
+	 *
+	 * @see Api_Model_ClientAuthentication::validateSession()
+	 */
+	protected function _validateSession ()
+	{
+		$token = $this->_getParam('token');
+		$sysName = $this->_getParam('sysName');
+		$validation = false;
+		if (! is_null($token) && ! is_null($sysName)) {
+			$validation = $this->clientAuth
+				->validateSession($token, $sysName);
+		}
+		if (! $validation) {
+			$this->_response
+				->setHttpResponseCode(403);
+			$this->view->response = array(
+				'statusCode' => 403 ,
+				'statusText' => 'BAD_TOKEN' ,
+				'debug' => array(
+					'token' => $token ,
+					'sysName' => $sysName));
+			return false;
+		}
+		return true;
+	}
+	/**
 	 * Validates the signature provided in the request using the client
 	 * authentication model; upon fail, sends an error response appropriate
 	 * to the specific case of failure.
@@ -65,6 +95,9 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 	 */
 	protected function _validateSignature (array $params)
 	{
+		$params['sysName'] = $this->_getParam('sysName');
+		$params['timestamp'] = $this->_getParam('timestamp');
+		$params['signature'] = $this->_getParam('signature');
 		$validation = $this->clientAuth
 			->validateSignature($_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], strtok($_SERVER['REQUEST_URI'], '?'), $params);
 		if (! $validation) {
@@ -84,6 +117,11 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 				$this->view->response = array(
 					'statusCode' => 403 ,
 					'statusText' => 'BAD_SYSNAME');
+			}
+			// TODO: remove the following block; too much of a security risk
+			if (Zend_Registry::get('bts-config')->debug) {
+				$this->view->response['debug']['correctSignature'] = $this->clientAuth
+					->generateSignature($_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], strtok($_SERVER['REQUEST_URI'], '?'), $params);
 			}
 			return false;
 		}
