@@ -120,8 +120,12 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 			}
 			// TODO: remove the following block; too much of a security risk
 			if (Zend_Registry::get('bts-config')->debug) {
-				$this->view->response['debug']['correctSignature'] = $this->clientAuth
-					->generateSignature($_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], strtok($_SERVER['REQUEST_URI'], '?'), $params);
+				try {
+					$this->view->response['debug']['correctSignature'] = $this->clientAuth
+						->generateSignature($_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], strtok($_SERVER['REQUEST_URI'], '?'), $params);
+				} catch (Bts_Exception $e) {
+					$this->view->response['debug']['correctSignature'] = $e->getMessage();
+				}
 			}
 			return false;
 		}

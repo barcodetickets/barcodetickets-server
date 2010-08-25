@@ -1,0 +1,4 @@
+# In the unhappy event that this software is installed in a world-viewable
+# location, block access to anything in this path
+Order Deny,Allow
+Deny from all

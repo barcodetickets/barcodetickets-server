@@ -14,6 +14,12 @@ class Api_TicketsController extends Api_Controller_Abstract
 	 * @var Bts_Model_Barcodes
 	 */
 	private $Barcodes = null;
+	/**
+	 * An instance of the Tickets model.
+	 *
+	 * @var Bts_Model_Tickets
+	 */
+	private $Tickets = null;
 	public $contexts = array(
 		'activate' => true ,
 		'activate-barcode' => true ,
@@ -27,6 +33,7 @@ class Api_TicketsController extends Api_Controller_Abstract
 	{
 		parent::init();
 		$this->Barcodes = Bts_Model_Barcodes::getInstance();
+		$this->Tickets = new Bts_Model_Tickets();
 	}
 	protected function _emptyBarcode ()
 	{
@@ -43,6 +50,14 @@ class Api_TicketsController extends Api_Controller_Abstract
 		$this->view->response = array(
 			'statusCode' => 404 ,
 			'statusText' => 'BAD_BARCODE');
+	}
+	protected function _missingParam ($text)
+	{
+		$this->_response
+			->setHttpResponseCode(400);
+		$this->view->response = array(
+			'statusCode' => 400 ,
+			'statusText' => $text);
 	}
 	public function activateAction ()
 	{
@@ -63,21 +78,79 @@ class Api_TicketsController extends Api_Controller_Abstract
 		}
 		$decoded = $this->Barcodes
 			->decryptBarcode($barcodeString);
-		// TODO: process the decoded barcode
+		// now $decoded should be { event, batch, ticket }
 		if ($decoded === false) {
 			return $this->_invalidBarcode();
 		}
-			// now $decoded should be { event, batch, ticket }
+		// TODO: process the decoded barcode
 	}
+	/**
+	 * Validates a given BTS ticket by checking provided variables against the
+	 * database (the tickets table).
+	 *
+	 * BTS API authentication and a valid user session are required.
+	 *
+	 * This API method accepts 6 request parameters:
+	 * - event
+	 * - signature
+	 * - sysName
+	 * - ticket
+	 * - timestamp
+	 * - token
+	 */
 	public function validateAction ()
 	{
 		$this->view->response = array();
-		$this->_validateTimestamp();
+		$event = $this->_getParam('event');
+		$ticket = $this->_getParam('ticket');
+		// do our secure authentication scheme stuff
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
+			'event' => $event ,
+			'ticket' => $ticket ,
+			'token' => $this->_getParam('token'))) || ! $this->_validateSession()) {
+			return;
+		}
+		// make sure we have valid params
+		if (empty($event)) {
+			return $this->_missingParam('EVENT_EMPTY');
+		} elseif (empty($ticket)) {
+			return $this->_missingParam('TICKET_EMPTY');
+		}
+		// run what we have through Bts_Model_Tickets::validate()
+		$params = array(
+			'event' => $event ,
+			'ticket' => $ticket);
+		if ($this->Tickets
+			->validate($params)) {
+			$this->view->response = array(
+				'statusCode' => 200 ,
+				'statusText' => 'OK_VALID');
+		} else {
+			$this->_response
+				->setHttpResponseCode(404);
+			$this->view->response = array(
+				'statusCode' => 404 ,
+				'statusText' => 'OK_NOTFOUND');
+		}
 	}
+	/**
+	 * Validates a given BTS ticket barcode by checking its format and by
+	 * checking the actual data against the database (the tickets table).
+	 *
+	 * BTS API authentication and a valid user session are required.
+	 *
+	 * This API method accepts 5 request parameters:
+	 * - barcode
+	 * - signature
+	 * - sysName
+	 * - timestamp
+	 * - token
+	 */
 	public function validateBarcodeAction ()
 	{
 		$this->view->response = array();
 		$barcodeString = $this->_getParam('barcode');
+		// everything related to authentication
 		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
 			'barcode' => $barcodeString ,
 			'token' => $this->_getParam('token'))) || ! $this->_validateSession()) {
@@ -86,14 +159,26 @@ class Api_TicketsController extends Api_Controller_Abstract
 		if (empty($barcodeString)) {
 			return $this->_emptyBarcode();
 		}
+		// decrypt the barcode string
 		$decoded = $this->Barcodes
 			->decryptBarcode($barcodeString);
-		// TODO: process the decoded barcode
 		if ($decoded === false) {
 			return $this->_invalidBarcode();
 		}
 		// now $decoded should be { event, batch, ticket }
-		$this->view->response = $decoded;
+		// try running it through the Bts_Model_Tickets::validate() method
+		if ($this->Tickets
+			->validate($decoded)) {
+			$this->view->response = array(
+				'statusCode' => 200 ,
+				'statusText' => 'OK_VALID');
+		} else {
+			$this->_response
+				->setHttpResponseCode(404);
+			$this->view->response = array(
+				'statusCode' => 404 ,
+				'statusText' => 'OK_NOTFOUND');
+		}
 	}
 	public function invalidateAction ()
 	{
