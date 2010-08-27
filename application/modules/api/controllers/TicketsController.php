@@ -1,11 +1,12 @@
 <?php
+require 'ControllerAbstract.php';
 /**
  * Tickets API methods for the API module
  *
  * @author	Frederick Ding
  * @version	$Id$
+ * @package	Bts
  */
-require 'ControllerAbstract.php';
 class Api_TicketsController extends Api_Controller_Abstract
 {
 	/**
@@ -37,27 +38,15 @@ class Api_TicketsController extends Api_Controller_Abstract
 	}
 	protected function _emptyBarcode ()
 	{
-		$this->_response
-			->setHttpResponseCode(400);
-		$this->view->response = array(
-			'statusCode' => 400 ,
-			'statusText' => 'BARCODE_EMPTY');
+		return $this->_simpleErrorResponse(400, 'BARCODE_EMPTY');
 	}
 	protected function _invalidBarcode ()
 	{
-		$this->_response
-			->setHttpResponseCode(404);
-		$this->view->response = array(
-			'statusCode' => 404 ,
-			'statusText' => 'BAD_BARCODE');
+		return $this->_simpleErrorResponse(404, 'BAD_BARCODE');
 	}
 	protected function _missingParam ($text)
 	{
-		$this->_response
-			->setHttpResponseCode(400);
-		$this->view->response = array(
-			'statusCode' => 400 ,
-			'statusText' => $text);
+		return $this->_simpleErrorResponse(400, $text);
 	}
 	public function activateAction ()
 	{
@@ -82,7 +71,7 @@ class Api_TicketsController extends Api_Controller_Abstract
 		if ($decoded === false) {
 			return $this->_invalidBarcode();
 		}
-		// TODO: process the decoded barcode
+			// TODO: process the decoded barcode
 	}
 	/**
 	 * Validates a given BTS ticket by checking provided variables against the
@@ -120,17 +109,18 @@ class Api_TicketsController extends Api_Controller_Abstract
 		$params = array(
 			'event' => $event ,
 			'ticket' => $ticket);
-		if ($this->Tickets
-			->validate($params)) {
+		$validation = $this->Tickets
+			->validate($params);
+		if ($validation !== false) {
 			$this->view->response = array(
 				'statusCode' => 200 ,
-				'statusText' => 'OK_VALID');
+				'statusText' => 'OK_VALID' ,
+				'data' => array(
+					'ticketStatusCode' => $validation->status ,
+					'ticketStatusMessage' => $this->Tickets
+						->getStatusText($validation->status)));
 		} else {
-			$this->_response
-				->setHttpResponseCode(404);
-			$this->view->response = array(
-				'statusCode' => 404 ,
-				'statusText' => 'OK_NOTFOUND');
+			return $this->_simpleErrorResponse(404, 'OK_NOTFOUND');
 		}
 	}
 	/**
@@ -167,23 +157,38 @@ class Api_TicketsController extends Api_Controller_Abstract
 		}
 		// now $decoded should be { event, batch, ticket }
 		// try running it through the Bts_Model_Tickets::validate() method
-		if ($this->Tickets
-			->validate($decoded)) {
+		$validation = $this->Tickets
+			->validate($decoded);
+		if ($validation !== false) {
 			$this->view->response = array(
 				'statusCode' => 200 ,
-				'statusText' => 'OK_VALID');
+				'statusText' => 'OK_VALID' ,
+				'data' => array(
+					'ticketStatusCode' => $validation->status ,
+					'ticketStatusMessage' => $this->Tickets
+						->getStatusText($validation->status)));
 		} else {
-			$this->_response
-				->setHttpResponseCode(404);
-			$this->view->response = array(
-				'statusCode' => 404 ,
-				'statusText' => 'OK_NOTFOUND');
+			return $this->_simpleErrorResponse(404, 'OK_NOTFOUND');
 		}
 	}
 	public function invalidateAction ()
 	{
 		$this->view->response = array();
-		$this->_validateTimestamp();
+		$token = $this->_getParam('token');
+		$sysName = $this->_getParam('sysName');
+		$event = $this->_getParam('event');
+		$ticket = $this->_getParam('ticket');
+		$reasonCode = $this->_getParam('reasonCode');
+		// everything related to authentication
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
+			'event' => $event ,
+			'ticket' => $ticket ,
+			'reasonCode' => $reasonCode ,
+			'token' => $token)) || ! $this->_validateSession()) {
+			return;
+		}
+		$userId = $this->clientAuth
+			->getSessionUser($token, $sysName);
 	}
 	public function invalidateBarcodeAction ()
 	{

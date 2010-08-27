@@ -1,4 +1,11 @@
 <?php
+// dependency on XML_Serializer from PEAR
+// try loading it from the system's include_path
+@include_once 'XML/Serializer.php';
+// if that fails, load it from our bundled version -- still dependent on PEAR
+if (! class_exists('XML_Serializer')) {
+	require_once 'PEAR/XML/Serializer.php';
+}
 class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abstract
 {
 	/**
@@ -11,13 +18,24 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	 * @var Zend_Controller_Action_Helper_ContextSwitch
 	 */
 	private $contextSwitch = null;
+	private $_xmlSerializerOptions = array(
+		XML_SERIALIZER_OPTION_RETURN_RESULT => true ,
+		XML_SERIALIZER_OPTION_XML_ENCODING => 'UTF-8' ,
+		XML_SERIALIZER_OPTION_MODE => XML_SERIALIZER_MODE_SIMPLEXML ,
+		XML_SERIALIZER_OPTION_ROOT_NAME => 'response' ,
+		XML_SERIALIZER_OPTION_ROOT_ATTRIBS => array(
+			'xmlns' => 'http://barcodetickets.sourceforge.net/xml-api/1.0/') ,
+		XML_SERIALIZER_OPTION_INDENT => '	' ,
+		XML_SERIALIZER_OPTION_ATTRIBUTES_KEY => '_attributes' ,
+		XML_SERIALIZER_OPTION_XML_DECL_ENABLED => true);
 	/**
 	 * Customizes the ContextSwitch helper for our needs upon load of this helper.
 	 */
 	public function init ()
 	{
 		$this->contextSwitch = Zend_Controller_Action_HelperBroker::getStaticHelper('contextSwitch');
-		$this->contextSwitch->setContexts(array(
+		$this->contextSwitch
+			->setContexts(array(
 			'json' => array(
 				'suffix' => 'json' ,
 				'headers' => array(
@@ -46,10 +64,14 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	 */
 	public function preDispatch ()
 	{
-		if (! is_null($this->contextSwitch->getCurrentContext())) {
-			$this->responseType = $this->contextSwitch->getCurrentContext();
-		} else if ($this->getRequest()->getModuleName() == 'api') {
-			$requestedFormat = $this->getRequest()->getParam('format');
+		if (! is_null($this->contextSwitch
+			->getCurrentContext())) {
+			$this->responseType = $this->contextSwitch
+				->getCurrentContext();
+		} else if ($this->getRequest()
+			->getModuleName() == 'api') {
+			$requestedFormat = $this->getRequest()
+				->getParam('format');
 			switch ($requestedFormat) {
 				case 'xml':
 					$this->responseType = 'xml';
@@ -58,9 +80,11 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 				default:
 					$this->responseType = 'json';
 			}
-			$headers = $this->contextSwitch->getHeaders($this->responseType);
+			$headers = $this->contextSwitch
+				->getHeaders($this->responseType);
 			foreach ($headers as $key => $val) {
-				$this->getResponse()->setHeader($key, $val, true);
+				$this->getResponse()
+					->setHeader($key, $val, true);
 			}
 		}
 	}
@@ -72,6 +96,7 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	 */
 	public function arrayToXml (array $data)
 	{
+		/*
 		$dom = new Api_Action_Helper_FormatResponse_XML('1.0', 'UTF-8');
 		$response = $dom->createElementNS('http://barcodetickets.sourceforge.net/xml-api/1.0/', 'response');
 		$dom->appendChild($response);
@@ -79,6 +104,10 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 		$dom->normalizeDocument();
 		$dom->formatOutput = true;
 		return $dom->saveXML();
+		*/
+		$serializer = new XML_Serializer($this->_xmlSerializerOptions);
+		$result = $serializer->serialize($data);
+		return $result;
 	}
 	/**
 	 * Converts a PHP array into a JSON string.
@@ -101,7 +130,8 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 		} else {
 			$response = $this->arrayToJson($data);
 		}
-		$this->getResponse()->setBody($response);
+		$this->getResponse()
+			->setBody($response);
 	}
 	/**
 	 * Sends the appropriate response body in XML using the variables of the
@@ -113,8 +143,10 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 		$viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('viewRenderer');
 		$view = $viewRenderer->view;
 		if ($view instanceof Zend_View_Interface) {
-			$vars = $this->arrayToXml($view->response);
-			$this->getResponse()->setBody($vars);
+			if (isset($view->responseXml)) $vars = $this->arrayToXml($view->responseXml);
+			else $vars = $this->arrayToXml($view->response);
+			$this->getResponse()
+				->setBody($vars);
 		}
 	}
 	/**
@@ -128,7 +160,8 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 		$view = $viewRenderer->view;
 		if ($view instanceof Zend_View_Interface) {
 			$vars = $this->arrayToJson($view->response);
-			$this->getResponse()->setBody($vars);
+			$this->getResponse()
+				->setBody($vars);
 		}
 	}
 }
@@ -157,7 +190,8 @@ class Api_Action_Helper_FormatResponse_XML extends DOMDocument
 						$node = $domElement;
 					} else {
 						$node = $this->createElement($domElement->tagName);
-						$domElement->parentNode->appendChild($node);
+						$domElement->parentNode
+							->appendChild($node);
 					}
 				} else {
 					$node = $this->createElement($index);

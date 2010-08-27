@@ -6,6 +6,7 @@
  * @author	Frederick Ding
  * @version	$Id$
  * @see		Zend_Controller_Action
+ * @package	Bts
  */
 abstract class Api_Controller_Abstract extends Zend_Controller_Action
 {
@@ -153,5 +154,22 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 					->getParams()));
 		$this->_helper
 			->formatResponse($responseArray);
+	}
+	/**
+	 * Sends a plain error response with only the code and message and no debug
+	 * or additional data.
+	 *
+	 * @param int $code Status code
+	 * @param string $text Status message
+	 */
+	protected function _simpleErrorResponse ($code, $text)
+	{
+		$code = (int) $code;
+		$text = strtoupper($text);
+		$this->_response
+			->setHttpResponseCode($code);
+		$this->view->response = array(
+			'statusCode' => $code ,
+			'statusText' => $text);
 	}
 }

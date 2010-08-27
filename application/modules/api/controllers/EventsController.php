@@ -1,11 +1,12 @@
 <?php
+require 'ControllerAbstract.php';
 /**
  * Events API methods for the API module
  *
  * @author	Frederick Ding
  * @version	$Id$
+ * @package	Bts
  */
-require 'ControllerAbstract.php';
 class Api_EventsController extends Api_Controller_Abstract
 {
 	public $contexts = array(

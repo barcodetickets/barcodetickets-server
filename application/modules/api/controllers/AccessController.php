@@ -1,12 +1,13 @@
 <?php
+require 'ControllerAbstract.php';
 /**
  * Access (admin/user login) for the API module
  *
  * @author	Frederick Ding
  * @version $Id$
  * @todo	phpdoc this class
+ * @package	Bts
  */
-require 'ControllerAbstract.php';
 class Api_AccessController extends Api_Controller_Abstract
 {
 	public $contexts = array(

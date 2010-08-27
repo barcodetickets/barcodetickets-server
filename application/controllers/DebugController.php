@@ -4,6 +4,7 @@
  *
  * @author	Frederick Ding
  * @version $Id$
+ * @package	Bts
  */
 class DebugController extends Zend_Controller_Action
 {

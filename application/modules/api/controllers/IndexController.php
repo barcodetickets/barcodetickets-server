@@ -4,6 +4,7 @@
  *
  * @author	Frederick Ding
  * @version	$Id$
+ * @package	Bts
  */
 require 'ControllerAbstract.php';
 class Api_IndexController extends Api_Controller_Abstract

@@ -4,6 +4,7 @@
  *
  * @author	Frederick Ding
  * @version $Id$
+ * @package	Bts
  */
 class Bts_Model_DbTable_Users extends Zend_Db_Table_Abstract
 {

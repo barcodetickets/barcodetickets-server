@@ -1,11 +1,12 @@
 <?php
+require 'ControllerAbstract.php';
 /**
  * Attendees API methods for the API module
  *
  * @author	Frederick Ding
  * @version	$Id$
+ * @package	Bts
  */
-require 'ControllerAbstract.php';
 class Api_AttendeesController extends Api_Controller_Abstract
 {
 	public $contexts = array(
