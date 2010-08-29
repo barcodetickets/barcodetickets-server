@@ -11,7 +11,19 @@
  */
 class Bts_Model_Barcodes
 {
+	/**
+	 * The cipher used across the installation for encryption of barcodes. While
+	 * this is configurable, <em>end users should NOT reconfigure this setting
+	 * because it WILL break existing barcodes and may break on upgrades</em>.
+	 * It is thus explicitly not an option in the .ini config files.
+	 * @var string
+	 */
 	const CIPHER = MCRYPT_RIJNDAEL_256;
+	/**
+	 * The block encryption mode used for encryption of barcodes. Again, end
+	 * users should NOT modify this setting.
+	 * @var string
+	 */
 	const MODE = MCRYPT_MODE_ECB;
 	protected static $_instance = null;
 	/**
@@ -28,7 +40,6 @@ class Bts_Model_Barcodes
 	}
 	/**
 	 * Retrieves the secure_hash of a given event from the database.
-	 *
 	 * @param int $eventId
 	 * @param boolean $binary (optional)
 	 * @return string|false secure_hash as a binary string or false if not found
@@ -48,7 +59,6 @@ class Bts_Model_Barcodes
 	}
 	/**
 	 * Retrieves an instance of this class (implements singleton pattern).
-	 *
 	 * @return Bts_Model_Barcodes
 	 */
 	public static function getInstance ()
@@ -61,7 +71,6 @@ class Bts_Model_Barcodes
 	/**
 	 * Decrypts the provided data as a BTS barcode string and returns an array
 	 * containing all the data extracted from it.
-	 *
 	 * @param string $barcodeString
 	 * @return array|false Array with the event, batch and ticket, or false on failure
 	 */
@@ -109,7 +118,6 @@ class Bts_Model_Barcodes
 	/**
 	 * Encrypts the provided data and outputs a string containing the data to go
 	 * in the barcode according to BTS specifications.
-	 *
 	 * @param int $eventId
 	 * @param int $batchId
 	 * @param int $ticketId
@@ -138,7 +146,6 @@ class Bts_Model_Barcodes
 	/**
 	 * Decodes the provided human-readable label and returns an array containing
 	 * its data.
-	 *
 	 * @param string $labelString
 	 * @return array|boolean Array containing event, batch, ticket and checksum, or false on failure
 	 */
@@ -170,7 +177,6 @@ class Bts_Model_Barcodes
 	/**
 	 * Encodes the provided ticket details into a human-readable label formatted
 	 * according to BTS specifications.
-	 *
 	 * @param int $eventId
 	 * @param int $batchId
 	 * @param int $ticketId

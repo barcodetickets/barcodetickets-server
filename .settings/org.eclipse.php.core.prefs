@@ -1,7 +1,7 @@
-#Fri Aug 27 11:39:12 EDT 2010
+#Sun Aug 29 16:48:38 EDT 2010
 eclipse.preferences.version=1
 include_path=
 org.eclipse.php.core.phpForamtterIndentationSize=1
 org.eclipse.php.core.phpForamtterUseTabs=true
-phpVersion=php5
+phpVersion=php5.3
 use_asp_tags_as_php=false

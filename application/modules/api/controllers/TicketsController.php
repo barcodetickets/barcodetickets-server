@@ -36,22 +36,11 @@ class Api_TicketsController extends Api_Controller_Abstract
 		$this->Barcodes = Bts_Model_Barcodes::getInstance();
 		$this->Tickets = new Bts_Model_Tickets();
 	}
-	protected function _emptyBarcode ()
-	{
-		return $this->_simpleErrorResponse(400, 'BARCODE_EMPTY');
-	}
-	protected function _invalidBarcode ()
-	{
-		return $this->_simpleErrorResponse(404, 'BAD_BARCODE');
-	}
-	protected function _missingParam ($text)
-	{
-		return $this->_simpleErrorResponse(400, $text);
-	}
 	public function activateAction ()
 	{
 		$this->view->response = array();
 		$this->_validateTimestamp();
+			// TODO
 	}
 	public function activateBarcodeAction ()
 	{
@@ -63,13 +52,13 @@ class Api_TicketsController extends Api_Controller_Abstract
 			return;
 		}
 		if (is_null($barcodeString)) {
-			return $this->_emptyBarcode();
+			return $this->_simpleErrorResponse(400, 'BARCODE_EMPTY');
 		}
 		$decoded = $this->Barcodes
 			->decryptBarcode($barcodeString);
 		// now $decoded should be { event, batch, ticket }
 		if ($decoded === false) {
-			return $this->_invalidBarcode();
+			return $this->_simpleErrorResponse(404, 'BAD_BARCODE');
 		}
 			// TODO: process the decoded barcode
 	}
@@ -101,9 +90,9 @@ class Api_TicketsController extends Api_Controller_Abstract
 		}
 		// make sure we have valid params
 		if (empty($event)) {
-			return $this->_missingParam('EVENT_EMPTY');
+			return $this->_simpleErrorResponse(400, 'EVENT_EMPTY');
 		} elseif (empty($ticket)) {
-			return $this->_missingParam('TICKET_EMPTY');
+			return $this->_simpleErrorResponse(400, 'TICKET_EMPTY');
 		}
 		// run what we have through Bts_Model_Tickets::validate()
 		$params = array(
@@ -147,13 +136,13 @@ class Api_TicketsController extends Api_Controller_Abstract
 			return;
 		}
 		if (empty($barcodeString)) {
-			return $this->_emptyBarcode();
+			return $this->_simpleErrorResponse(400, 'BARCODE_EMPTY');
 		}
 		// decrypt the barcode string
 		$decoded = $this->Barcodes
 			->decryptBarcode($barcodeString);
 		if ($decoded === false) {
-			return $this->_invalidBarcode();
+			return $this->_simpleErrorResponse(404, 'BAD_BARCODE');
 		}
 		// now $decoded should be { event, batch, ticket }
 		// try running it through the Bts_Model_Tickets::validate() method
@@ -189,20 +178,24 @@ class Api_TicketsController extends Api_Controller_Abstract
 		}
 		$userId = $this->clientAuth
 			->getSessionUser($token, $sysName);
+			// TODO
 	}
 	public function invalidateBarcodeAction ()
 	{
 		$this->view->response = array();
 		$this->_validateTimestamp();
+			// TODO
 	}
 	public function checkInAction ()
 	{
 		$this->view->response = array();
 		$this->_validateTimestamp();
+			// TODO
 	}
 	public function checkInBarcodeAction ()
 	{
 		$this->view->response = array();
 		$this->_validateTimestamp();
+			// TODO
 	}
 }
