@@ -101,7 +101,7 @@ CREATE  TABLE IF NOT EXISTS `bts_tickets` (
   `batch` MEDIUMINT UNSIGNED NOT NULL ,
   `event_id` INT UNSIGNED NOT NULL ,
   `checksum` CHAR(2) ASCII NOT NULL COMMENT 'Last two characters of human-readable label; contains first and last chars of the secure hash for this ticket (not stored in db).' ,
-  `seller_id` INT UNSIGNED NOT NULL ,
+  `seller_id` INT UNSIGNED NULL ,
   `attendee_id` INT UNSIGNED NULL COMMENT 'If the ticket status is past sold, which attendee owns this ticket?' ,
   `status` TINYINT UNSIGNED NOT NULL COMMENT 'Examples: unsold, sold, checked in, lost/stolen, refunded, etc.' ,
   `checkin_time` DATETIME NULL ,
