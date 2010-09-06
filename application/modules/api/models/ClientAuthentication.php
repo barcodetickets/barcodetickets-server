@@ -228,8 +228,7 @@ class Api_Model_ClientAuthentication
 			// something went massively wrong if we can't get the session ID
 			// that was JUST generated.
 			throw new Bts_Exception(
-				'Cannot create sessions',
-				Bts_Exception::AUTH_SESSION_FAILURE);
+				'Cannot create session', Bts_Exception::AUTH_SESSION_FAILURE);
 		}
 		return $id;
 	}

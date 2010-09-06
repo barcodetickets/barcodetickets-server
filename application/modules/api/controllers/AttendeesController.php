@@ -9,19 +9,168 @@ require 'ControllerAbstract.php';
  */
 class Api_AttendeesController extends Api_Controller_Abstract
 {
+	/**
+	 * An instance of the Attendees model.
+	 * @var Bts_Model_Attendees
+	 */
+	private $Attendees = null;
 	public $contexts = array(
 		'create' => true ,
 		'exists' => true ,
+		'find' => true ,
 		'balance' => true);
+	public function init ()
+	{
+		parent::init();
+		$this->Attendees = new Bts_Model_Attendees();
+	}
 	public function createAction ()
 	{
+		$firstName = $this->_getParam('firstName');
+		$lastName = $this->_getParam('lastName');
+		$uniqueId = $this->_getParam('uniqueId');
 		$this->view->response = array();
 		$this->_validateTimestamp();
+		try {
+			$id = $this->Attendees
+				->create($firstName, $lastName, $uniqueId);
+		} catch (Bts_Exception $e) {
+			// failed!
+			return $this->_simpleErrorResponse(400, 'PARAMS_EMPTY');
+		}
+		if ($id == - 1) {
+			// remember, 200 does not always been successful
+			$this->view->response['statusCode'] = 200;
+			$this->view->response['statusText'] = 'FAILED_NOT_UNIQUE';
+			return;
+		} else {
+			// everything worked out!
+			$this->view->response['statusCode'] = 200;
+			$this->view->response['statusText'] = 'OK_CREATED';
+			$this->view->response['data'] = array(
+				'attendeeId' => $id);
+		}
 	}
+	/**
+	 * Searches for an attendee by name or by unique ID against the database
+	 * (the attendees table).
+	 *
+	 * BTS API authentication and a valid user session are required.
+	 *
+	 * This API method accepts 6 request parameters:
+	 * - uniqueId OR (firstName and lastName); if all 3 are supplied, signature will not validate
+	 * - signature
+	 * - sysName
+	 * - token
+	 */
 	public function existsAction ()
 	{
 		$this->view->response = array();
+		$firstName = $this->_getParam('firstName');
+		$lastName = $this->_getParam('lastName');
+		$uniqueId = $this->_getParam('uniqueId');
+		$token = $this->_getParam('token');
+		if (! $this->_validateTimestamp()) {
+			return;
+		}
+		// demand ONLY uniqueId OR (firstName & lastName); this code
+		// will not validate signatures that have all 3 encoded
+		if (is_null($uniqueId)) {
+			if (! $this->_validateSignature(array(
+				'firstName' => $firstName ,
+				'lastName' => $lastName ,
+				'token' => $token)) || ! $this->_validateSession()) {
+				return;
+			}
+		} elseif (! $this->_validateSignature(array(
+			'uniqueId' => $uniqueId ,
+			'token' => $token)) || ! $this->_validateSession()) {
+			return;
+		}
+		// non-existent until proven otherwise
+		$exists = false;
+		if (! empty($uniqueId)) {
+			$exists = $this->Attendees
+				->existsById($uniqueId);
+		} else {
+			try {
+				$exists = $this->Attendees
+					->existsByName($firstName, $lastName);
+			} catch (Bts_Exception $e) {
+				return $this->_simpleErrorResponse(400, 'NAME_EMPTY');
+			}
+		}
+		// you either exist or you don't. there is no middle ground.
+		if ($exists) {
+			$this->view->response['statusCode'] = 200;
+			$this->view->response['statusText'] = 'OK_EXISTS';
+		} else
+			return $this->_simpleErrorResponse(404, 'OK_NOT_FOUND');
+	}
+	public function findAction ()
+	{
+		$this->view->response = array();
 		$this->_validateTimestamp();
+		$firstName = $this->_getParam('firstName');
+		$lastName = $this->_getParam('lastName');
+		$uniqueId = $this->_getParam('uniqueId');
+		if (! empty($uniqueId)) {
+			// search by unique ID
+			$row = $this->Attendees
+				->findById($this->_getParam('uniqueId'));
+			if (! is_null($row)) {
+				// we have to target JSON and XML separately
+				$this->view->responseXml = array(
+					'statusCode' => 200 ,
+					'statusText' => 'OK_FOUND' ,
+					'data' => array(
+						'attendee' => array(
+							'_attributes' => $row->toArray())));
+				$this->view->responseJson = array(
+					'statusCode' => 200 ,
+					'statusText' => 'OK_FOUND' ,
+					'data' => array(
+						$row->attendee_id => $row->toArray()));
+			} else {
+				$this->_response
+					->setHttpResponseCode(404);
+				$this->view->response['statusCode'] = 404;
+				$this->view->response['statusText'] = 'OK_NOT_FOUND';
+			}
+		} else {
+			// search by name
+			try {
+				$row = $this->Attendees
+					->findByName($firstName, $lastName);
+			} catch (Bts_Exception $e) {
+				return $this->_simpleErrorResponse(400, 'NAME_EMPTY');
+			}
+			if ($row instanceof Zend_Db_Table_Rowset_Abstract) {
+				if ($row->count() > 0) {
+					// again, we need to tailor the response to the format;
+					// XML gets <attendee /> tags with attributes; JSON gets
+					// array entries
+					$this->view->responseXml = array(
+						'statusCode' => 200 ,
+						'statusText' => 'OK_FOUND' ,
+						'data' => array(
+							'attendee' => array()));
+					$this->view->responseJson = array(
+						'statusCode' => 200 ,
+						'statusText' => 'OK_FOUND' ,
+						'data' => array());
+					foreach ($row as $r) {
+						$this->view->responseJson['data'][$r->attendee_id] = $r->toArray();
+						$this->view->responseXml['data']['attendee'][]['_attributes'] = $r->toArray();
+					}
+				} else {
+					$this->_response
+						->setHttpResponseCode(404);
+					$this->view->response['statusCode'] = 404;
+					$this->view->response['statusText'] = 'OK_NOT_FOUND';
+				}
+			}
+		}
 	}
 	public function balanceAction ()
 	{

@@ -203,4 +203,31 @@ class Bts_Model_Barcodes
 		$encryptedString = bin2hex(mcrypt_encrypt(self::CIPHER, $eventHash, $baseString, self::MODE));
 		return $baseString . '-' . $encryptedString[0] . $encryptedString[strlen($encryptedString) - 1];
 	}
+	/**
+	 * Verifies the checksum on a ticket label by comparing it against one
+	 * generated on the spot with the same algorithm. Does not use the checksum
+	 * column on the tickets table.
+	 * @param int $eventId
+	 * @param int $batchId
+	 * @param int $ticketId
+	 * @param string $checksum
+	 * @throws Bts_Exception
+	 * @return bool
+	 */
+	public function verifyChecksum ($eventId, $batchId, $ticketId, $checksum)
+	{
+		if (empty($eventId) || empty($batchId) || empty($ticketId) || empty($checksum)) throw new Bts_Exception(
+			'Invalid arguments to Bts_Model_Barcodes::verifyChecksum()',
+			Bts_Exception::BARCODES_PARAMS_BAD);
+		$eventId = (int) $eventId;
+		$batchId = (int) $batchId;
+		$ticketId = (int) $ticketId;
+		$eventHash = $this->_retrieveEventHash($eventId);
+		if ($eventHash === false) throw new Bts_Exception(
+			'Invalid eventId in Bts_Model_Barcodes::verifyChecksum()',
+			Bts_Exception::BARCODES_EVENT_BAD);
+		$baseString = $eventId . '-' . $batchId . '-' . $ticketId;
+		$encryptedString = bin2hex(mcrypt_encrypt(self::CIPHER, $eventHash, $baseString, self::MODE));
+		return ($checksum == ($encryptedString[0] . $encryptedString[strlen($encryptedString) - 1]));
+	}
 }

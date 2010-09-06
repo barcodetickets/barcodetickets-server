@@ -28,9 +28,67 @@ class Bts_Model_Tickets
 		$this->TicketsTable = new Bts_Model_DbTable_Tickets();
 	}
 	/**
-
-	 * @param Zend_Db_Table_Row_Abstract|array $params
+	 *
+	 * @param int $event
+	 * @param int $ticket
+	 * @param int $attendee
+	 * @param int $user
 	 * @throws Bts_Exception
+	 * @return int
+	 */
+	public function activate ($event, $ticket, $attendee, $user)
+	{
+		if (empty($event)) {
+			throw new Bts_Exception('Missing parameters (event needed)',
+				Bts_Exception::TICKETS_PARAMS_BAD);
+		}
+		if (empty($ticket)) {
+			throw new Bts_Exception('Missing parameters (ticket needed)',
+				Bts_Exception::TICKETS_PARAMS_BAD);
+		}
+		if (empty($attendee)) {
+			throw new Bts_Exception('Missing parameters (attendee needed)',
+				Bts_Exception::TICKETS_PARAMS_BAD);
+		}
+		if (empty($user)) {
+			throw new Bts_Exception(
+				'A user ID is needed to authorize this action',
+				Bts_Exception::TICKETS_UNAUTHORIZED);
+		}
+		// TODO: verify the user is authorized to do so
+		// fetch the ticket row from the DB
+		$select = $this->TicketsTable
+			->select()
+			->where('event_id = ?', $event)
+			->where('ticket_id = ?', $ticket)
+			->limit(1);
+		$row = $this->TicketsTable
+			->fetchRow($select);
+		if (! is_null($row)) {
+			if ($row->status != $this->getStatusCode('inactive')) {
+				if ($row->status == $this->getStatusCode('active')) return - 2; // already active
+				// integer response that indicates current status
+				else return $row->status;
+			}
+			// modify it to active status
+			$row->seller_id = (int) $user;
+			$row->status = $this->getStatusCode('active');
+			$row->attendee_id = (int) $attendee;
+			try {
+				$row->save();
+			} catch (Zend_Db_Statement_Exception $e) {
+				// foreign key failed
+				return - 3; // bad attendee
+			}
+			return $this->getStatusCode('active'); // only $this->getStatusCode('active') means success
+		} else
+			return - 1; // non-existent row
+	}
+	/**
+
+	 * @param array $params
+	 * @throws Bts_Exception
+	 * @return Zend_Db_Table_Row_Abstract|false
 	 */
 	public function validate (array $params)
 	{
@@ -49,6 +107,8 @@ class Bts_Model_Tickets
 		if (! empty($params['batch'])) {
 			$select->where('batch = ?', $params['batch']);
 		}
+		// we don't use the checksum because that's validated separately by
+		// the Barcodes model. we COULD.
 		$row = $this->TicketsTable
 			->fetchRow($select);
 		// send back the object if we got a valid row
@@ -81,6 +141,7 @@ class Bts_Model_Tickets
 		}
 		// ensure that there is at least a key named ['comment'] even if empty
 		$params['comment'] = (empty($params['comment'])) ? '' : $params['comment'];
+		// TODO
 	}
 	public function getStatusText ($status)
 	{
@@ -92,11 +153,12 @@ class Bts_Model_Tickets
 	}
 	public function getStatusCode ($text)
 	{
-		$flipped = array_flip($this->statuses);
-		if (isset($flipped[$text])) {
-			return $flipped[$text];
+		$search = array_search($text, $this->statuses);
+		if ($search === false) {
+			// not found, return the 'other' status code
+			return array_search('invalidother', $this->statuses);
 		} else {
-			return end($flipped); // last item must always be other
+			return $search;
 		}
 	}
 }

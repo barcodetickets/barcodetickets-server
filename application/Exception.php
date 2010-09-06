@@ -8,6 +8,7 @@
  */
 class Bts_Exception extends Zend_Exception
 {
+	const ATTENDEES_PARAMS_BAD = -350;
 	const AUTH_SESSION_FAILURE = - 301;
 	const AUTH_SYSNAME_MISSING = - 302;
 	const AUTH_SYSNAME_BAD = - 303;

@@ -159,7 +159,8 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 		$viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper('viewRenderer');
 		$view = $viewRenderer->view;
 		if ($view instanceof Zend_View_Interface) {
-			$vars = $this->arrayToJson($view->response);
+			if (isset($view->responseJson)) $vars = $this->arrayToJson($view->responseJson);
+			else $vars = $this->arrayToJson($view->response);
 			$this->getResponse()
 				->setBody($vars);
 		}
