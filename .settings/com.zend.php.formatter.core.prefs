@@ -1,10 +1,11 @@
-#Mon Jul 26 15:48:14 EDT 2010
+#Tue Sep 28 19:22:45 EDT 2010
+com.zend.php.core.formatter.insert_new_line_in_function_invoke=0
 com.zend.php.formatter.core.formatter.alignment_for_arguments_in_allocation_expression_force_split=false
 com.zend.php.formatter.core.formatter.alignment_for_arguments_in_allocation_expression_indent_policy=0
-com.zend.php.formatter.core.formatter.alignment_for_arguments_in_allocation_expression_line_wrap_policy=1
+com.zend.php.formatter.core.formatter.alignment_for_arguments_in_allocation_expression_line_wrap_policy=3
 com.zend.php.formatter.core.formatter.alignment_for_arguments_in_method_invocation_force_split=false
 com.zend.php.formatter.core.formatter.alignment_for_arguments_in_method_invocation_indent_policy=0
-com.zend.php.formatter.core.formatter.alignment_for_arguments_in_method_invocation_line_wrap_policy=0
+com.zend.php.formatter.core.formatter.alignment_for_arguments_in_method_invocation_line_wrap_policy=3
 com.zend.php.formatter.core.formatter.alignment_for_assignment_force_split=false
 com.zend.php.formatter.core.formatter.alignment_for_assignment_indent_policy=0
 com.zend.php.formatter.core.formatter.alignment_for_assignment_line_wrap_policy=0
