@@ -45,9 +45,9 @@ class Bts_Model_Events
 		$newEvent = $this->EventsTable
 			->createRow(array(
 			'name' => $name ,
-			'time' => $time ,
-			'user' => (int) $user ,
-			'hash' => 'UNHEX(' . hash('sha256', $name . $time . time() . $installationHash) . ')' ,
+			'event_time' => $time ,
+			'owner' => (int) $user ,
+			'secure_hash' => 'UNHEX(' . hash('sha256', $name . $time . time() . $installationHash) . ')' ,
 			'status' => (int) $status ,
 			'creation_time' => 'UTC_TIMESTAMP()' ,
 			'slug' => (empty($slug)) ? Zend_Filter::filterStatic($name, 'Alnum') : $slug));
