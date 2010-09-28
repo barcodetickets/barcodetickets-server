@@ -24,13 +24,37 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		parent::init();
 		$this->Attendees = new Bts_Model_Attendees();
 	}
+	/**
+	 * Creates a new attendee row in the database.
+	 *
+	 * BTS API authentication and a valid user session are required.
+	 *
+	 * If the uniqueId already exists in the database, the request will fail with
+	 * a response code of 200 and the status text FAILED_NOT_UNIQUE.
+	 *
+	 * This API method accepts 6 request parameters:
+	 * - firstName
+	 * - lastName
+	 * - signature
+	 * - sysName
+	 * - token
+	 * - uniqueId
+	 */
 	public function createAction ()
 	{
+		$this->view->response = array();
 		$firstName = $this->_getParam('firstName');
 		$lastName = $this->_getParam('lastName');
 		$uniqueId = $this->_getParam('uniqueId');
-		$this->view->response = array();
-		$this->_validateTimestamp();
+		$token = $this->_getParam('token');
+		// carry out authentication
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
+			'firstName' => $firstName ,
+			'lastName' => $lastName ,
+			'uniqueId' => $uniqueId ,
+			'token' => $token)) || ! $this->_validateSession()) {
+			return;
+		}
 		try {
 			$id = $this->Attendees
 				->create($firstName, $lastName, $uniqueId);
@@ -110,10 +134,27 @@ class Api_AttendeesController extends Api_Controller_Abstract
 	public function findAction ()
 	{
 		$this->view->response = array();
-		$this->_validateTimestamp();
 		$firstName = $this->_getParam('firstName');
 		$lastName = $this->_getParam('lastName');
 		$uniqueId = $this->_getParam('uniqueId');
+		$token = $this->_getParam('token');
+		if (! $this->_validateTimestamp()) {
+			return;
+		}
+		// demand ONLY uniqueId OR (firstName & lastName); this code
+		// will not validate signatures that have all 3 encoded
+		if (is_null($uniqueId)) {
+			if (! $this->_validateSignature(array(
+				'firstName' => $firstName ,
+				'lastName' => $lastName ,
+				'token' => $token)) || ! $this->_validateSession()) {
+				return;
+			}
+		} elseif (! $this->_validateSignature(array(
+			'uniqueId' => $uniqueId ,
+			'token' => $token)) || ! $this->_validateSession()) {
+			return;
+		}
 		if (! empty($uniqueId)) {
 			// search by unique ID
 			$row = $this->Attendees

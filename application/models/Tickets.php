@@ -14,6 +14,11 @@ class Bts_Model_Tickets
 	 * @var Bts_Model_DbTable_Tickets
 	 */
 	protected $TicketsTable = null;
+	/**
+	 * An instance of the Barcodes helper model.
+	 * @var Bts_Model_Barcodes
+	 */
+	protected $Barcodes = null;
 	protected $statuses = array(
 		0 => 'inactive' ,  // unsold
 		1 => 'active' ,  // sold but not checked in
@@ -84,6 +89,36 @@ class Bts_Model_Tickets
 		} else
 			return - 1; // non-existent row
 	}
+	public function insert ($batch, $event, $status = 0)
+	{
+		if (empty($event) || empty($batch)) {
+			throw new Bts_Exception(
+				'Missing parameters (event and batch needed)',
+				Bts_Exception::TICKETS_PARAMS_BAD);
+		}
+		// check authentication in future
+		if (is_int($status) && ! in_array($status, $this->statuses)) {
+			throw new Bts_Exception('Bad status code',
+				Bts_Exception::TICKETS_PARAMS_BAD);
+		} else if (is_string($status)) {
+			$status = $this->getStatusCode($status);
+		}
+		// first create this row
+		$newTicket = $this->TicketsTable
+			->createRow(array(
+			'batch' => (int) $batch ,
+			'event_id' => (int) $event ,
+			'status' => $status));
+		$ticketId = (string) $newTicket->save();
+		if (is_null($this->Barcodes)) {
+			$this->Barcodes = Bts_Model_Barcodes::getInstance();
+		}
+		// then update the row with the checksum
+		$checksum = $this->Barcodes
+			->generateChecksum($event, $batch, $ticketId);
+		$newTicket->checksum = $checksum;
+		return $newTicket->save();
+	}
 	/**
 
 	 * @param array $params
@@ -141,7 +176,23 @@ class Bts_Model_Tickets
 		}
 		// ensure that there is at least a key named ['comment'] even if empty
 		$params['comment'] = (empty($params['comment'])) ? '' : $params['comment'];
-		// TODO
+			// TODO
+	}
+	public function getMaxBatch ($event)
+	{
+		if (empty($event)) {
+			throw new Bts_Exception('Missing parameters (event needed)',
+				Bts_Exception::TICKETS_PARAMS_BAD);
+		}
+		$select = $this->TicketsTable
+			->select(true)
+			->columns(new Zend_Db_Expr('MAX(batch)'))
+			->where('event_id = ?', $event)
+			->limit(1);
+		$result = $select->query()->fetchColumn();
+		if(empty($result)) {
+			return 0;
+		} else return (int) $result;
 	}
 	public function getStatusText ($status)
 	{

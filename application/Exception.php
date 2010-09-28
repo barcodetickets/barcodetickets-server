@@ -16,4 +16,5 @@ class Bts_Exception extends Zend_Exception
 	const BARCODES_EVENT_BAD = -331;
 	const TICKETS_PARAMS_BAD = -340;
 	const TICKETS_UNAUTHORIZED = -341;
+	const EVENTS_PARAMS_BAD = -360;
 }

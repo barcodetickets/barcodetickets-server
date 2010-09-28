@@ -31,6 +31,7 @@ class Bts_Model_Barcodes
 	 * @var Bts_Model_DbTable_Events
 	 */
 	protected $EventsTable = null;
+	protected $_eventHashCache = array();
 	/**
 	 * Constructs this model.
 	 */
@@ -47,13 +48,20 @@ class Bts_Model_Barcodes
 	protected function _retrieveEventHash ($eventId, $binary = true)
 	{
 		$eventId = (int) $eventId;
-		$hash = $this->EventsTable
-			->select(false)
-			->from($this->EventsTable, 'secure_hash')
-			->where('event_id = ?', $eventId)
-			->limit(1)
-			->query()
-			->fetch(Zend_Db::FETCH_COLUMN);
+		$hash = '';
+		// try loading it from a cache to save on DB queries
+		if (array_key_exists($eventId, $this->_eventHashCache)) {
+			$hash = $this->_eventHashCache[$eventId];
+		} else {
+			$hash = $this->EventsTable
+				->select(false)
+				->from($this->EventsTable, 'secure_hash')
+				->where('event_id = ?', $eventId)
+				->limit(1)
+				->query()
+				->fetch(Zend_Db::FETCH_COLUMN);
+			$this->_eventHashCache[$eventId] = $hash;
+		}
 		if ($binary) return $hash;
 		else return bin2hex($hash);
 	}
@@ -120,7 +128,7 @@ class Bts_Model_Barcodes
 	 * in the barcode according to BTS specifications.
 	 * @param int $eventId
 	 * @param int $batchId
-	 * @param int $ticketId
+	 * @param string $ticketId
 	 * @param string $eventHash (optional)
 	 * @throws Bts_Exception
 	 * @return string
@@ -133,7 +141,6 @@ class Bts_Model_Barcodes
 			Bts_Exception::BARCODES_PARAMS_BAD);
 		$eventId = (int) $eventId;
 		$batchId = (int) $batchId;
-		$ticketId = (int) $ticketId;
 		// we can't continue without an eventHash
 		if (is_null($eventHash)) $eventHash = $this->_retrieveEventHash($eventId);
 		if ($eventHash === false) throw new Bts_Exception(
@@ -179,7 +186,7 @@ class Bts_Model_Barcodes
 	 * according to BTS specifications.
 	 * @param int $eventId
 	 * @param int $batchId
-	 * @param int $ticketId
+	 * @param string $ticketId
 	 * @param string $eventHash (optional)
 	 * @throws Bts_Exception
 	 * @return string
@@ -192,7 +199,6 @@ class Bts_Model_Barcodes
 			Bts_Exception::BARCODES_PARAMS_BAD);
 		$eventId = (int) $eventId;
 		$batchId = (int) $batchId;
-		$ticketId = (int) $ticketId;
 		// we can't continue without an eventHash
 		if (is_null($eventHash)) $eventHash = $this->_retrieveEventHash($eventId);
 		if ($eventHash === false) throw new Bts_Exception(
@@ -209,7 +215,7 @@ class Bts_Model_Barcodes
 	 * column on the tickets table.
 	 * @param int $eventId
 	 * @param int $batchId
-	 * @param int $ticketId
+	 * @param string $ticketId
 	 * @param string $checksum
 	 * @throws Bts_Exception
 	 * @return bool
@@ -219,15 +225,29 @@ class Bts_Model_Barcodes
 		if (empty($eventId) || empty($batchId) || empty($ticketId) || empty($checksum)) throw new Bts_Exception(
 			'Invalid arguments to Bts_Model_Barcodes::verifyChecksum()',
 			Bts_Exception::BARCODES_PARAMS_BAD);
-		$eventId = (int) $eventId;
+		/* $eventId = (int) $eventId;
 		$batchId = (int) $batchId;
-		$ticketId = (int) $ticketId;
 		$eventHash = $this->_retrieveEventHash($eventId);
 		if ($eventHash === false) throw new Bts_Exception(
 			'Invalid eventId in Bts_Model_Barcodes::verifyChecksum()',
 			Bts_Exception::BARCODES_EVENT_BAD);
 		$baseString = $eventId . '-' . $batchId . '-' . $ticketId;
+		$encryptedString = bin2hex(mcrypt_encrypt(self::CIPHER, $eventHash, $baseString, self::MODE)); */
+		return ($checksum == $this->generateChecksum($eventId, $batchId, $ticketId));
+	}
+	public function generateChecksum ($eventId, $batchId, $ticketId)
+	{
+		if (empty($eventId) || empty($batchId) || empty($ticketId)) throw new Bts_Exception(
+			'Invalid arguments to Bts_Model_Barcodes::generateChecksum()',
+			Bts_Exception::BARCODES_PARAMS_BAD);
+		$eventId = (int) $eventId;
+		$batchId = (int) $batchId;
+		$eventHash = $this->_retrieveEventHash($eventId);
+		if ($eventHash === false) throw new Bts_Exception(
+			'Invalid eventId in Bts_Model_Barcodes::generateChecksum()',
+			Bts_Exception::BARCODES_EVENT_BAD);
+		$baseString = $eventId . '-' . $batchId . '-' . $ticketId;
 		$encryptedString = bin2hex(mcrypt_encrypt(self::CIPHER, $eventHash, $baseString, self::MODE));
-		return ($checksum == ($encryptedString[0] . $encryptedString[strlen($encryptedString) - 1]));
+		return ($encryptedString[0] . $encryptedString[strlen($encryptedString) - 1]);
 	}
 }

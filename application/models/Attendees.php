@@ -51,6 +51,20 @@ class Bts_Model_Attendees
 		} elseif (! in_array($status, $this->statuses)) {
 			$status = $this->getStatusCode('active');
 		}
+		if ($this->AttendeesTable
+			->select(false)
+			->from($this->AttendeesTable, 'COUNT(*)')
+			->where('unique_id = ?', $uniqueId)
+			->query()
+			->fetchColumn() != 0) {
+			// ALREADY EXISTS
+			/* even though foreign key constraints would've prevented us from
+			 * adding this "new" row, that still increments the primary key and
+			 * we don't want to run out of unsigned ints, even though that's a
+			 * pretty big number.
+			 */
+			return - 1;
+		}
 		$newRow = $this->AttendeesTable
 			->createRow(array(
 			'first_name' => $firstName ,
