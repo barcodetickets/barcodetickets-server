@@ -97,4 +97,22 @@ class Bts_Model_Clients
 		return $this->ClientsTable
 			->getAdapter();
 	}
+	public function createClient ($sysName, $status = 1)
+	{
+		$BtsConfig = Zend_Registry::get('bts-config');
+		$installationHash = $BtsConfig->get('secureHash', '');
+		// perhaps ACL checks should exist in the future
+		$newClient = $this->ClientsTable
+			->createRow(array(
+			'sys_name' => Zend_Filter::filterStatic($sysName, 'Alnum') ,
+			'api_key' => hash('sha384', $sysName . $installationHash . time()) ,
+			'status' => (int) $status));
+		try {
+			$id = $newClient->save();
+			return $id;
+		} catch (Exception $e) {
+			// most likely sys_name was duplicate
+			return false;
+		}
+	}
 }

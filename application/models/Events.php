@@ -43,15 +43,16 @@ class Bts_Model_Events
 		$installationHash = $this->BtsConfig
 			->get('secureHash', '');
 		$newEvent = $this->EventsTable
-			->createRow(array(
+			->insert(array(
 			'name' => $name ,
 			'event_time' => $time ,
 			'owner' => (int) $user ,
-			'secure_hash' => 'UNHEX(' . hash('sha256', $name . $time . time() . $installationHash) . ')' ,
+			'secure_hash' => new Zend_Db_Expr(
+				'UNHEX("' . hash('sha256', $name . $time . time() . $installationHash) . '")') ,
 			'status' => (int) $status ,
-			'creation_time' => 'UTC_TIMESTAMP()' ,
+			'creation_time' => new Zend_Db_Expr('UTC_TIMESTAMP()') ,
 			'slug' => (empty($slug)) ? Zend_Filter::filterStatic($name, 'Alnum') : $slug));
-		return $newEvent->save();
+		return $newEvent;
 	}
 	public function generateBatch ($event, $batchSize, $user, Bts_Model_Tickets $Tickets)
 	{
