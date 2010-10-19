@@ -21,10 +21,10 @@ class Api_EventsController extends Api_Controller_Abstract
 		$sysName = $this->_getParam('sysName');
 		// carry out authentication
 		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
-			array(
-				'event' => $eventId, 
-				'batchSize' => $batchSize, 
-				'token' => $token)) || ! $this->_validateSession()) {
+		array(
+			'event' => $eventId, 
+			'batchSize' => $batchSize, 
+			'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
 		if (empty($eventId)) {
@@ -36,17 +36,17 @@ class Api_EventsController extends Api_Controller_Abstract
 		if ($batchSize > 100 || $batchSize < 1) {
 			// only allow batches of 100 or smaller
 			return $this->_simpleErrorResponse(400, 
-				'BAD_BATCH_SIZE');
+			'BAD_BATCH_SIZE');
 		}
 		// determine who's doing the action
 		$user = $this->clientAuth->getSessionUser($token, $sysName);
 		$Events = new Bts_Model_Events();
 		$result = $Events->generateBatch($eventId, $batchSize, $user, 
-			new Bts_Model_Tickets());
+		new Bts_Model_Tickets());
 		if ($result === false) {
 			// failed
 			return $this->_simpleErrorResponse(404, 
-				'FAILED_EVENT_NOT_FOUND');
+			'FAILED_EVENT_NOT_FOUND');
 		} else 
 			if (is_array($result)) {
 				$this->view->responseJson = array(

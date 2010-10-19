@@ -42,7 +42,7 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 	protected function _validateTimestamp ()
 	{
 		if (! $this->clientAuth->validateTimestamp(
-			$this->_getParam('timestamp', 0))) {
+		$this->_getParam('timestamp', 0))) {
 			$this->_response->setHttpResponseCode(400);
 			$this->view->response = array(
 				'statusCode' => 400, 
@@ -99,22 +99,21 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 			$this->BtsConfig = new Zend_Config(array());
 		}
 		$serverName = $this->BtsConfig->get('serverName', 
-			$_SERVER['SERVER_NAME']);
+		$_SERVER['SERVER_NAME']);
 		// allow the serverPublicPath configuration item to override the
 		// detected base URL of the request
 		if (! is_null($this->BtsConfig->get('serverPublicPath'))) {
 			$requestUri = str_replace($this->view->baseUrl(), 
-				$this->BtsConfig->get('serverPublicPath'), 
-				$_SERVER['REQUEST_URI']);
+			$this->BtsConfig->get('serverPublicPath'), $_SERVER['REQUEST_URI']);
 		} else
 			$requestUri = $_SERVER['REQUEST_URI'];
 		$validation = $this->clientAuth->validateSignature(
-			$_SERVER['REQUEST_METHOD'], $serverName, strtok($requestUri, '?'), 
-			$params);
+		$_SERVER['REQUEST_METHOD'], $serverName, strtok($requestUri, '?'), 
+		$params);
 		if (! $validation) {
 			$this->_response->setHttpResponseCode(403);
 			$status = $this->clientAuth->clientStatus(
-				$this->_getParam('sysName'));
+			$this->_getParam('sysName'));
 			if ($status === 1) {
 				$this->view->response = array(
 					'statusCode' => 403, 
@@ -133,8 +132,8 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 			if (Zend_Registry::get('bts-config')->debug) {
 				try {
 					$this->view->response['debug']['correctSignature'] = $this->clientAuth->generateSignature(
-						$_SERVER['REQUEST_METHOD'], $serverName, 
-						strtok($requestUri, '?'), $params);
+					$_SERVER['REQUEST_METHOD'], $serverName, 
+					strtok($requestUri, '?'), $params);
 				} catch (Bts_Exception $e) {
 					$this->view->response['debug']['correctSignature'] = $e->getMessage();
 				}

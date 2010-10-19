@@ -49,11 +49,11 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		$token = $this->_getParam('token');
 		// carry out authentication
 		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
-			array(
-				'firstName' => $firstName, 
-				'lastName' => $lastName, 
-				'uniqueId' => $uniqueId, 
-				'token' => $token)) || ! $this->_validateSession()) {
+		array(
+			'firstName' => $firstName, 
+			'lastName' => $lastName, 
+			'uniqueId' => $uniqueId, 
+			'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
 		try {
@@ -101,16 +101,16 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		// will not validate signatures that have all 3 encoded
 		if (is_null($uniqueId)) {
 			if (! $this->_validateSignature(
-				array(
-					'firstName' => $firstName, 
-					'lastName' => $lastName, 
-					'token' => $token)) || ! $this->_validateSession()) {
+			array(
+				'firstName' => $firstName, 
+				'lastName' => $lastName, 
+				'token' => $token)) || ! $this->_validateSession()) {
 				return;
 			}
 		} elseif (! $this->_validateSignature(
-			array(
-				'uniqueId' => $uniqueId, 
-				'token' => $token)) || ! $this->_validateSession()) {
+		array(
+			'uniqueId' => $uniqueId, 
+			'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
 		// non-existent until proven otherwise
@@ -145,22 +145,22 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		// will not validate signatures that have all 3 encoded
 		if (is_null($uniqueId)) {
 			if (! $this->_validateSignature(
-				array(
-					'firstName' => $firstName, 
-					'lastName' => $lastName, 
-					'token' => $token)) || ! $this->_validateSession()) {
+			array(
+				'firstName' => $firstName, 
+				'lastName' => $lastName, 
+				'token' => $token)) || ! $this->_validateSession()) {
 				return;
 			}
 		} elseif (! $this->_validateSignature(
-			array(
-				'uniqueId' => $uniqueId, 
-				'token' => $token)) || ! $this->_validateSession()) {
+		array(
+			'uniqueId' => $uniqueId, 
+			'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
 		if (! empty($uniqueId)) {
 			// search by unique ID
 			$row = $this->Attendees->findById(
-				$this->_getParam('uniqueId'));
+			$this->_getParam('uniqueId'));
 			if (! is_null($row)) {
 				// we have to target JSON and XML separately
 				$this->view->responseXml = array(

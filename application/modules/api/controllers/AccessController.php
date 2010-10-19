@@ -30,9 +30,9 @@ class Api_AccessController extends Api_Controller_Abstract
 		$username = $this->_getParam('username');
 		$password = $this->_getParam('password');
 		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
-			array(
-				'username' => $username, 
-				'password' => $password))) {
+		array(
+			'username' => $username, 
+			'password' => $password))) {
 			return;
 		}
 		if (empty($username) || empty($password)) {
@@ -43,7 +43,7 @@ class Api_AccessController extends Api_Controller_Abstract
 			return;
 		}
 		$sessionId = $this->clientAuth->startSession($username, $password, 
-			$sysName, $this->userAuth);
+		$sysName, $this->userAuth);
 		if ($sessionId == '') {
 			// failed authentication
 			$this->_response->setHttpResponseCode(401);
@@ -64,8 +64,8 @@ class Api_AccessController extends Api_Controller_Abstract
 		$sysName = $this->_getParam('sysName');
 		$token = $this->_getParam('token');
 		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
-			array(
-				'token' => $token))) {
+		array(
+			'token' => $token))) {
 			return;
 		}
 		if (empty($token)) {

@@ -118,17 +118,17 @@ class Bts_Model_Users
 	{
 		if (! isset($meta['email']))
 			throw new Bts_Exception('E-mail address was not provided', 
-				self::NO_EMAIL);
+			self::NO_EMAIL);
 		switch ($this->_checkUsername($username)) {
 			case self::VALID_USERNAME:
 				break;
 			case self::USERNAME_TOO_LONG:
 				throw new Bts_Exception('Username is too long', 
-					self::USERNAME_TOO_LONG);
+				self::USERNAME_TOO_LONG);
 				break;
 			case self::INVALID_USERNAME:
 				throw new Bts_Exception('Username contains invalid characters', 
-					self::INVALID_USERNAME);
+				self::INVALID_USERNAME);
 		}
 		$insertData = array(
 			'username' => $username, 
@@ -151,7 +151,7 @@ class Bts_Model_Users
 	public function userExists ($username)
 	{
 		$select = $this->UsersTable->select(true)->where('username = ?', 
-			$username);
+		$username);
 		$rows = $this->UsersTable->fetchAll($select);
 		return ($rows->count() === 1);
 	}

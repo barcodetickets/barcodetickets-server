@@ -45,20 +45,20 @@ class Bts_Model_Tickets
 	{
 		if (empty($event)) {
 			throw new Bts_Exception('Missing parameters (event needed)', 
-				Bts_Exception::TICKETS_PARAMS_BAD);
+			Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($ticket)) {
 			throw new Bts_Exception('Missing parameters (ticket needed)', 
-				Bts_Exception::TICKETS_PARAMS_BAD);
+			Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($attendee)) {
 			throw new Bts_Exception('Missing parameters (attendee needed)', 
-				Bts_Exception::TICKETS_PARAMS_BAD);
+			Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($user)) {
 			throw new Bts_Exception(
-				'A user ID is needed to authorize this action', 
-				Bts_Exception::TICKETS_UNAUTHORIZED);
+			'A user ID is needed to authorize this action', 
+			Bts_Exception::TICKETS_UNAUTHORIZED);
 		}
 		// TODO: verify the user is authorized to do so
 		// fetch the ticket row from the DB
@@ -93,30 +93,30 @@ class Bts_Model_Tickets
 	{
 		if (empty($event) || empty($batch)) {
 			throw new Bts_Exception(
-				'Missing parameters (event and batch needed)', 
-				Bts_Exception::TICKETS_PARAMS_BAD);
+			'Missing parameters (event and batch needed)', 
+			Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		// check authentication in future
 		if (is_int($status) && ! in_array($status, $this->statuses)) {
 			throw new Bts_Exception('Bad status code', 
-				Bts_Exception::TICKETS_PARAMS_BAD);
+			Bts_Exception::TICKETS_PARAMS_BAD);
 		} else 
 			if (is_string($status)) {
 				$status = $this->getStatusCode($status);
 			}
 		// first create this row
 		$newTicket = $this->TicketsTable->createRow(
-			array(
-				'batch' => (int) $batch, 
-				'event_id' => (int) $event, 
-				'status' => $status));
+		array(
+			'batch' => (int) $batch, 
+			'event_id' => (int) $event, 
+			'status' => $status));
 		$ticketId = (string) $newTicket->save();
 		if (is_null($this->Barcodes)) {
 			$this->Barcodes = Bts_Model_Barcodes::getInstance();
 		}
 		// then update the row with the checksum
 		$checksum = $this->Barcodes->generateChecksum($event, $batch, 
-			$ticketId);
+		$ticketId);
 		$newTicket->checksum = $checksum;
 		return $newTicket->save();
 	}
@@ -129,8 +129,8 @@ class Bts_Model_Tickets
 	{
 		if (empty($params['event']) || empty($params['ticket'])) {
 			throw new Bts_Exception(
-				'Missing parameters (event and ticket needed)', 
-				Bts_Exception::TICKETS_PARAMS_BAD);
+			'Missing parameters (event and ticket needed)', 
+			Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		// fetch a row from the DB matching the event ID and ticket ID
 		$select = $this->TicketsTable->select()
@@ -160,8 +160,8 @@ class Bts_Model_Tickets
 	{
 		if (empty($params['event']) || empty($params['ticket'])) {
 			throw new Bts_Exception(
-				'Missing parameters (event and ticket needed)', 
-				Bts_Exception::TICKETS_PARAMS_BAD);
+			'Missing parameters (event and ticket needed)', 
+			Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		// fetch a row from the DB matching the event ID and ticket ID
 		$select = $this->TicketsTable->select()
@@ -196,25 +196,25 @@ class Bts_Model_Tickets
 		if (is_null($event)) {
 			if (empty($params['event']))
 				throw new Bts_Exception('Missing parameters (event needed)', 
-					Bts_Exception::TICKETS_PARAMS_BAD);
+				Bts_Exception::TICKETS_PARAMS_BAD);
 			else
 				$event = $params['event'];
 		}
 		if (is_null($ticket)) {
 			if (empty($params['ticket']))
 				throw new Bts_Exception('Missing parameters (ticket needed)', 
-					Bts_Exception::TICKETS_PARAMS_BAD);
+				Bts_Exception::TICKETS_PARAMS_BAD);
 			else
 				$ticket = $params['ticket'];
 		}
 		if (empty($params['reasonCode'])) {
 			throw new Bts_Exception('A reason must be provided for invalidation', 
-				Bts_Exception::TICKETS_PARAMS_BAD);
+			Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($params['userId'])) {
 			throw new Bts_Exception(
-				'A user ID is needed to authorize this action', 
-				Bts_Exception::TICKETS_UNAUTHORIZED);
+			'A user ID is needed to authorize this action', 
+			Bts_Exception::TICKETS_UNAUTHORIZED);
 		}
 		// ensure that there is at least a key named ['comment'] even if empty
 		$params['comment'] = (empty($params['comment'])) ? '' : $params['comment'];
@@ -224,7 +224,7 @@ class Bts_Model_Tickets
 	{
 		if (empty($event)) {
 			throw new Bts_Exception('Missing parameters (event needed)', 
-				Bts_Exception::TICKETS_PARAMS_BAD);
+			Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		$select = $this->TicketsTable->select(true)
 			->columns(new Zend_Db_Expr('MAX(batch)'))

@@ -42,9 +42,9 @@ class Api_Model_ClientAuthentication
 		$db = $this->Clients->getDb();
 		$query = $db->select()
 			->from('bts_sessions', 
-			array(
-				new Zend_Db_Expr('HEX(session_id)'), 
-				new Zend_Db_Expr('expire_time > UTC_TIMESTAMP()')))
+		array(
+			new Zend_Db_Expr('HEX(session_id)'), 
+			new Zend_Db_Expr('expire_time > UTC_TIMESTAMP()')))
 			->where('client_id = ?', $client_id)
 			->where('user_id = ?', $user_id) // ->where('expire_time > UTC_TIMESTAMP()')
 			->limit(1)
@@ -55,7 +55,7 @@ class Api_Model_ClientAuthentication
 				// if the session is already expired, delete it as a matter of cleanup
 		if ($query->{"expire_time > UTC_TIMESTAMP()"} == 0) {
 			$db->delete('bts_sessions', 
-				"client_id = $client_id AND user_id = $user_id");
+			"client_id = $client_id AND user_id = $user_id");
 			return false;
 		} else {
 			// otherwise just pass along the valid, existing session
@@ -83,11 +83,11 @@ class Api_Model_ClientAuthentication
 	{
 		$db = $this->Clients->getDb();
 		$delete = $db->query(
-			'DELETE bts_sessions FROM bts_sessions NATURAL JOIN bts_clients' .
-				 ' WHERE bts_sessions.session_id = UNHEX(?) AND bts_clients.sys_name = ?', 
-				array(
-					$sessionId, 
-					$sysName));
+		'DELETE bts_sessions FROM bts_sessions NATURAL JOIN bts_clients' .
+		 ' WHERE bts_sessions.session_id = UNHEX(?) AND bts_clients.sys_name = ?', 
+		array(
+			$sessionId, 
+			$sysName));
 		return $delete->rowCount();
 	}
 	/**
@@ -106,7 +106,7 @@ class Api_Model_ClientAuthentication
 	 * @throws Bts_Exception
 	 */
 	public function generateSignature ($httpVerb, $hostname, $uri, array $params, 
-		$apiKey = null, $returnMessage = false)
+	$apiKey = null, $returnMessage = false)
 	{
 		// validate the HTTP verb
 		$httpVerb = trim(strtoupper($httpVerb));
@@ -117,7 +117,7 @@ class Api_Model_ClientAuthentication
 				// validate the sysName
 		if (! isset($params['sysName'])) {
 			throw new Bts_Exception('No sysName provided', 
-				Bts_Exception::AUTH_SYSNAME_MISSING);
+			Bts_Exception::AUTH_SYSNAME_MISSING);
 		}
 		// create a message to sign with HMAC
 		$stringToSign = $httpVerb . ' ';
@@ -130,7 +130,7 @@ class Api_Model_ClientAuthentication
 			$apiKey = $this->Clients->getApiKey($params['sysName']);
 			if ($apiKey === false) {
 				throw new Bts_Exception('Invalid sysName', 
-					Bts_Exception::AUTH_SYSNAME_BAD);
+				Bts_Exception::AUTH_SYSNAME_BAD);
 			}
 		}
 		// concatenate the parameters to the HMAC message
@@ -141,7 +141,7 @@ class Api_Model_ClientAuthentication
 		}
 		// generate a HMAC hash using the API key as key, encoded using base64
 		$digest = base64_encode(
-			hash_hmac('sha1', $stringToSign, $apiKey, true));
+		hash_hmac('sha1', $stringToSign, $apiKey, true));
 		return $digest;
 	}
 	/**
@@ -159,10 +159,10 @@ class Api_Model_ClientAuthentication
 		$database = $this->Clients->getDb();
 		$select = $database->select()
 			->from('bts_sessions', 
-			array(
-				'HEX(session_id)', 
-				'client_id', 
-				'user_id'))
+		array(
+			'HEX(session_id)', 
+			'client_id', 
+			'user_id'))
 			->joinNatural('bts_clients', 'sys_name')
 			->where('session_id = UNHEX(?)', $sessionId)
 			->where('sys_name = ?', $sysName)
@@ -190,7 +190,7 @@ class Api_Model_ClientAuthentication
 	 * @throws Bts_Exception
 	 */
 	public function startSession ($username, $password, $sysName, 
-		Bts_Model_Users $Users = null)
+	Bts_Model_Users $Users = null)
 	{
 		// a simple mechanism to use the given Users model if provided;
 		// caches a model in $this->Users
@@ -217,14 +217,14 @@ class Api_Model_ClientAuthentication
 			return $id;
 				// if that didn't work out, let's create a new session
 		$query = $db->insert('bts_sessions', 
-			array(
-				'session_id' => new Zend_Db_Expr(
-					'UNHEX(SHA1(CONCAT_WS("-", ' . $client_id . ', ' . $user_id .
-						 ', UTC_TIMESTAMP())))'), 
-				'client_id' => $client_id, 
-				'user_id' => $user_id, 
-				'expire_time' => new Zend_Db_Expr(
-					'UTC_TIMESTAMP() + INTERVAL 2 HOUR')));
+		array(
+			'session_id' => new Zend_Db_Expr(
+			'UNHEX(SHA1(CONCAT_WS("-", ' . $client_id . ', ' . $user_id .
+			 ', UTC_TIMESTAMP())))'), 
+			'client_id' => $client_id, 
+			'user_id' => $user_id, 
+			'expire_time' => new Zend_Db_Expr(
+			'UTC_TIMESTAMP() + INTERVAL 2 HOUR')));
 		$id = $db->select()
 			->from('bts_sessions', new Zend_Db_Expr('HEX(session_id)'))
 			->where('client_id = ?', $client_id)
@@ -236,7 +236,7 @@ class Api_Model_ClientAuthentication
 			// something went massively wrong if we can't get the session ID
 			// that was JUST generated.
 			throw new Bts_Exception(
-				'Cannot create session', Bts_Exception::AUTH_SESSION_FAILURE);
+			'Cannot create session', Bts_Exception::AUTH_SESSION_FAILURE);
 		}
 		return $id;
 	}
@@ -273,7 +273,7 @@ class Api_Model_ClientAuthentication
 	{
 		try {
 			$generated = $this->generateSignature($httpVerb, $hostname, $uri, 
-				$params);
+			$params);
 		} catch (Bts_Exception $e) {
 			return false;
 		}
@@ -304,19 +304,19 @@ class Api_Model_ClientAuthentication
 			$given = DateTime::createFromFormat('YmdHis', $timestamp, $utc);
 			$interval = $now->diff($given, true);
 			return ($interval->days == 0 && $interval->h == 0 &&
-				 $interval->i < 15);
-			} else {
-				// if we're stuck with older versions of PHP5, we can still use MySQL
-				// ABS(TIMESTAMPDIFF(MINUTE, ********* , UTC_TIMESTAMP())) < 15
-				$query = $this->Clients->getDb()
-					->select()
-					->from('', 
-					new Zend_Db_Expr(
-						'ABS(TIMESTAMPDIFF(MINUTE, ' . $timestamp .
-							 ' , UTC_TIMESTAMP())) < 15'))
-					->query()
-					->fetchColumn();
-				return ($query == 1);
-			}
+			 $interval->i < 15);
+		} else {
+			// if we're stuck with older versions of PHP5, we can still use MySQL
+			// ABS(TIMESTAMPDIFF(MINUTE, ********* , UTC_TIMESTAMP())) < 15
+			$query = $this->Clients->getDb()
+				->select()
+				->from('', 
+			new Zend_Db_Expr(
+			'ABS(TIMESTAMPDIFF(MINUTE, ' . $timestamp .
+			 ' , UTC_TIMESTAMP())) < 15'))
+				->query()
+				->fetchColumn();
+			return ($query == 1);
 		}
 	}
+}

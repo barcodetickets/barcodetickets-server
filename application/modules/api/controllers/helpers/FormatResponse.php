@@ -34,30 +34,30 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	public function init ()
 	{
 		$this->contextSwitch = Zend_Controller_Action_HelperBroker::getStaticHelper(
-			'contextSwitch');
+		'contextSwitch');
 		$this->contextSwitch->setContexts(
-			array(
-				'json' => array(
-					'suffix' => 'json', 
-					'headers' => array(
-						'Content-Type' => 'application/json', 
-						'Cache-Control' => 'private,no-cache', 
-						'Expires' => 'Sat, 26 Jul 1997 05:00:00 GMT'), 
-					'callbacks' => array(
-						'init' => 'initJsonContext', 
-						'post' => array(
-							$this, 
-							'jsonContext'))), 
-				'xml' => array(
-					'suffix' => 'xml', 
-					'headers' => array(
-						'Content-Type' => 'application/xml', 
-						'Cache-Control' => 'private,no-cache', 
-						'Expires' => 'Sat, 26 Jul 1997 05:00:00 GMT'), 
-					'callbacks' => array(
-						'post' => array(
-							$this, 
-							'xmlContext')))));
+		array(
+			'json' => array(
+				'suffix' => 'json', 
+				'headers' => array(
+					'Content-Type' => 'application/json', 
+					'Cache-Control' => 'private,no-cache', 
+					'Expires' => 'Sat, 26 Jul 1997 05:00:00 GMT'), 
+				'callbacks' => array(
+					'init' => 'initJsonContext', 
+					'post' => array(
+						$this, 
+						'jsonContext'))), 
+			'xml' => array(
+				'suffix' => 'xml', 
+				'headers' => array(
+					'Content-Type' => 'application/xml', 
+					'Cache-Control' => 'private,no-cache', 
+					'Expires' => 'Sat, 26 Jul 1997 05:00:00 GMT'), 
+				'callbacks' => array(
+					'post' => array(
+						$this, 
+						'xmlContext')))));
 	}
 	/**
 	 * Upon predispatch, determines whether we will be sending in XML or
@@ -136,7 +136,7 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	public function xmlContext ()
 	{
 		$viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper(
-			'viewRenderer');
+		'viewRenderer');
 		$view = $viewRenderer->view;
 		if ($view instanceof Zend_View_Interface) {
 			if (isset($view->responseXml))
@@ -154,7 +154,7 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 	public function jsonContext ()
 	{
 		$viewRenderer = Zend_Controller_Action_HelperBroker::getStaticHelper(
-			'viewRenderer');
+		'viewRenderer');
 		$view = $viewRenderer->view;
 		if ($view instanceof Zend_View_Interface) {
 			if (isset($view->responseJson))

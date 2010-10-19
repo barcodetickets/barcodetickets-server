@@ -1,4 +1,4 @@
-#Tue Oct 19 00:05:58 EDT 2010
+#Tue Oct 19 18:34:14 EDT 2010
 com.zend.php.core.formatter.insert_new_line_in_function_invoke=3
 com.zend.php.formatter.core.formatter.alignment_for_arguments_in_allocation_expression_force_split=false
 com.zend.php.formatter.core.formatter.alignment_for_arguments_in_allocation_expression_indent_policy=0
@@ -38,7 +38,7 @@ com.zend.php.formatter.core.formatter.brace_position_for_block=0
 com.zend.php.formatter.core.formatter.brace_position_for_method_declaration=1
 com.zend.php.formatter.core.formatter.brace_position_for_switch=0
 com.zend.php.formatter.core.formatter.brace_position_for_type_declaration=1
-com.zend.php.formatter.core.formatter.continuation_indentation=1
+com.zend.php.formatter.core.formatter.continuation_indentation=0
 com.zend.php.formatter.core.formatter.continuation_indentation_for_array_initializer=1
 com.zend.php.formatter.core.formatter.format_guardian_clause_on_one_line=false
 com.zend.php.formatter.core.formatter.indent_body_declarations_compare_to_type_header=true

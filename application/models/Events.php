@@ -38,26 +38,24 @@ class Bts_Model_Events
 	{
 		if (empty($name) || empty($time) || empty($user)) {
 			throw new Bts_Exception('Parameters missing', 
-				Bts_Exception::EVENTS_PARAMS_BAD);
+			Bts_Exception::EVENTS_PARAMS_BAD);
 		}
 		$installationHash = $this->BtsConfig->get('secureHash', '');
 		$newEvent = $this->EventsTable->insert(
-			array(
-				'name' => $name, 
-				'event_time' => $time, 
-				'owner' => (int) $user, 
-				'secure_hash' => new Zend_Db_Expr(
-					'UNHEX("' .
-						 hash('sha256', 
-							$name . $time . time() . $installationHash) . '")'), 
-				'status' => (int) $status, 
-				'creation_time' => new Zend_Db_Expr('UTC_TIMESTAMP()'), 
-				'slug' => (empty($slug)) ? Zend_Filter::filterStatic($name, 
-					'Alnum') : $slug));
+		array(
+			'name' => $name, 
+			'event_time' => $time, 
+			'owner' => (int) $user, 
+			'secure_hash' => new Zend_Db_Expr(
+			'UNHEX("' . hash('sha256', 
+			$name . $time . time() . $installationHash) . '")'), 
+			'status' => (int) $status, 
+			'creation_time' => new Zend_Db_Expr('UTC_TIMESTAMP()'), 
+			'slug' => (empty($slug)) ? Zend_Filter::filterStatic($name, 'Alnum') : $slug));
 		return $newEvent;
 	}
 	public function generateBatch ($event, $batchSize, $user, 
-		Bts_Model_Tickets $Tickets)
+	Bts_Model_Tickets $Tickets)
 	{
 		// check that this is for a valid event
 		$select = $this->EventsTable->select(true)
@@ -81,7 +79,7 @@ class Bts_Model_Events
 			$thisTicket = new stdClass();
 			$thisTicket->id = $ticket;
 			$thisTicket->barcode = $Barcodes->encryptBarcode($event, $batch, 
-				$ticket);
+			$ticket);
 			$thisTicket->label = $Barcodes->encodeLabel($event, $batch, $ticket);
 			$tickets[] = $thisTicket;
 		}
