@@ -20,13 +20,13 @@ class Bts_Model_Tickets
 	 */
 	protected $Barcodes = null;
 	protected $statuses = array(
-		0 => 'inactive' ,  // unsold
-		1 => 'active' ,  // sold but not checked in
-		2 => 'checkedin' ,  // used
-		3 => 'refunded' ,
-		4 => 'lostunsold' ,  // lost by ticket sellers
-		5 => 'lostsold' ,  // lost by ticket holder
-		6 => 'stolen' ,  // same as #5 but specifies theft
+		0 => 'inactive',  // unsold
+		1 => 'active',  // sold but not checked in
+		2 => 'checkedin',  // used
+		3 => 'refunded', 
+		4 => 'lostunsold',  // lost by ticket sellers
+		5 => 'lostsold',  // lost by ticket holder
+		6 => 'stolen',  // same as #5 but specifies theft
 		255 => 'invalidother'); // 255 = unknown status but nevertheless invalid -- must be last
 	public function __construct ()
 	{
@@ -44,36 +44,36 @@ class Bts_Model_Tickets
 	public function activate ($event, $ticket, $attendee, $user)
 	{
 		if (empty($event)) {
-			throw new Bts_Exception(
-				'Missing parameters (event needed)',
+			throw new Bts_Exception('Missing parameters (event needed)', 
 				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($ticket)) {
-			throw new Bts_Exception(
-				'Missing parameters (ticket needed)',
+			throw new Bts_Exception('Missing parameters (ticket needed)', 
 				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($attendee)) {
-			throw new Bts_Exception(
-				'Missing parameters (attendee needed)',
+			throw new Bts_Exception('Missing parameters (attendee needed)', 
 				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($user)) {
 			throw new Bts_Exception(
-				'A user ID is needed to authorize this action',
+				'A user ID is needed to authorize this action', 
 				Bts_Exception::TICKETS_UNAUTHORIZED);
 		}
 		// TODO: verify the user is authorized to do so
 		// fetch the ticket row from the DB
-		$select = $this->TicketsTable->select()->where(
-			'event_id = ?',
-			$event)->where('ticket_id = ?', $ticket)->limit(1);
+		$select = $this->TicketsTable->select()
+			->where('event_id = ?', $event)
+			->where('ticket_id = ?', $ticket)
+			->limit(1);
 		$row = $this->TicketsTable->fetchRow($select);
 		if (! is_null($row)) {
 			if ($row->status != $this->getStatusCode('inactive')) {
-				if ($row->status == $this->getStatusCode('active')) return - 2; // already active
+				if ($row->status == $this->getStatusCode('active'))
+					return - 2; // already active
 				// integer response that indicates current status
-				else return $row->status;
+				else
+					return $row->status;
 			}
 			// modify it to active status
 			$row->seller_id = (int) $user;
@@ -93,31 +93,29 @@ class Bts_Model_Tickets
 	{
 		if (empty($event) || empty($batch)) {
 			throw new Bts_Exception(
-				'Missing parameters (event and batch needed)',
+				'Missing parameters (event and batch needed)', 
 				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		// check authentication in future
 		if (is_int($status) && ! in_array($status, $this->statuses)) {
-			throw new Bts_Exception(
-				'Bad status code',
+			throw new Bts_Exception('Bad status code', 
 				Bts_Exception::TICKETS_PARAMS_BAD);
-		} else if (is_string($status)) {
-			$status = $this->getStatusCode($status);
-		}
+		} else 
+			if (is_string($status)) {
+				$status = $this->getStatusCode($status);
+			}
 		// first create this row
 		$newTicket = $this->TicketsTable->createRow(
 			array(
-				'batch' => (int) $batch ,
-				'event_id' => (int) $event ,
+				'batch' => (int) $batch, 
+				'event_id' => (int) $event, 
 				'status' => $status));
 		$ticketId = (string) $newTicket->save();
 		if (is_null($this->Barcodes)) {
 			$this->Barcodes = Bts_Model_Barcodes::getInstance();
 		}
 		// then update the row with the checksum
-		$checksum = $this->Barcodes->generateChecksum(
-			$event,
-			$batch,
+		$checksum = $this->Barcodes->generateChecksum($event, $batch, 
 			$ticketId);
 		$newTicket->checksum = $checksum;
 		return $newTicket->save();
@@ -131,14 +129,14 @@ class Bts_Model_Tickets
 	{
 		if (empty($params['event']) || empty($params['ticket'])) {
 			throw new Bts_Exception(
-				'Missing parameters (event and ticket needed)',
+				'Missing parameters (event and ticket needed)', 
 				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		// fetch a row from the DB matching the event ID and ticket ID
-		$select = $this->TicketsTable->select()->where(
-			'event_id = ?',
-			$params['event'])->where('ticket_id = ?', $params['ticket'])->limit(
-			1);
+		$select = $this->TicketsTable->select()
+			->where('event_id = ?', $params['event'])
+			->where('ticket_id = ?', $params['ticket'])
+			->limit(1);
 		// if a batch was provided too, use that to our advantage
 		if (! empty($params['batch'])) {
 			$select->where('batch = ?', $params['batch']);
@@ -147,8 +145,10 @@ class Bts_Model_Tickets
 		// the Barcodes model. we COULD.
 		$row = $this->TicketsTable->fetchRow($select);
 		// send back the object if we got a valid row
-		if (! is_null($row) && $row->ticket_id == $params['ticket']) return $row;
-		else return false;
+		if (! is_null($row) && $row->ticket_id == $params['ticket'])
+			return $row;
+		else
+			return false;
 	}
 	/**
 	 *
@@ -160,14 +160,14 @@ class Bts_Model_Tickets
 	{
 		if (empty($params['event']) || empty($params['ticket'])) {
 			throw new Bts_Exception(
-				'Missing parameters (event and ticket needed)',
+				'Missing parameters (event and ticket needed)', 
 				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		// fetch a row from the DB matching the event ID and ticket ID
-		$select = $this->TicketsTable->select()->where(
-			'event_id = ?',
-			$params['event'])->where('ticket_id = ?', $params['ticket'])->limit(
-			1);
+		$select = $this->TicketsTable->select()
+			->where('event_id = ?', $params['event'])
+			->where('ticket_id = ?', $params['ticket'])
+			->limit(1);
 		// if a batch was provided too, use that to our advantage
 		if (! empty($params['batch'])) {
 			$select->where('batch = ?', $params['batch']);
@@ -180,7 +180,8 @@ class Bts_Model_Tickets
 			if ($row->status != $this->getStatusCode('active')) {
 				// oops, bad ticket -- probably already activated
 				$row->setReadOnly(true);
-				return array($row);
+				return array(
+					$row);
 			}
 			$row->status = $this->getStatusCode('checkedin');
 			$row->checkin_time = new Zend_Db_Expr('UTC_TIMESTAMP()');
@@ -193,25 +194,26 @@ class Bts_Model_Tickets
 	public function invalidate ($event = null, $ticket = null, array $params)
 	{
 		if (is_null($event)) {
-			if (empty($params['event'])) throw new Bts_Exception(
-				'Missing parameters (event needed)',
-				Bts_Exception::TICKETS_PARAMS_BAD);
-			else $event = $params['event'];
+			if (empty($params['event']))
+				throw new Bts_Exception('Missing parameters (event needed)', 
+					Bts_Exception::TICKETS_PARAMS_BAD);
+			else
+				$event = $params['event'];
 		}
 		if (is_null($ticket)) {
-			if (empty($params['ticket'])) throw new Bts_Exception(
-				'Missing parameters (ticket needed)',
-				Bts_Exception::TICKETS_PARAMS_BAD);
-			else $ticket = $params['ticket'];
+			if (empty($params['ticket']))
+				throw new Bts_Exception('Missing parameters (ticket needed)', 
+					Bts_Exception::TICKETS_PARAMS_BAD);
+			else
+				$ticket = $params['ticket'];
 		}
 		if (empty($params['reasonCode'])) {
-			throw new Bts_Exception(
-				'A reason must be provided for invalidation',
+			throw new Bts_Exception('A reason must be provided for invalidation', 
 				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($params['userId'])) {
 			throw new Bts_Exception(
-				'A user ID is needed to authorize this action',
+				'A user ID is needed to authorize this action', 
 				Bts_Exception::TICKETS_UNAUTHORIZED);
 		}
 		// ensure that there is at least a key named ['comment'] even if empty
@@ -221,13 +223,13 @@ class Bts_Model_Tickets
 	public function getMaxBatch ($event)
 	{
 		if (empty($event)) {
-			throw new Bts_Exception(
-				'Missing parameters (event needed)',
+			throw new Bts_Exception('Missing parameters (event needed)', 
 				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
-		$select = $this->TicketsTable->select(true)->columns(
-			new Zend_Db_Expr('MAX(batch)'))->where('event_id = ?', $event)->limit(
-			1);
+		$select = $this->TicketsTable->select(true)
+			->columns(new Zend_Db_Expr('MAX(batch)'))
+			->where('event_id = ?', $event)
+			->limit(1);
 		$result = $select->query()->fetchColumn();
 		if (empty($result)) {
 			return 0;

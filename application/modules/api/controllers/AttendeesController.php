@@ -15,9 +15,9 @@ class Api_AttendeesController extends Api_Controller_Abstract
 	 */
 	private $Attendees = null;
 	public $contexts = array(
-		'create' => true ,
-		'exists' => true ,
-		'find' => true ,
+		'create' => true, 
+		'exists' => true, 
+		'find' => true, 
 		'balance' => true);
 	public function init ()
 	{
@@ -48,16 +48,16 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		$uniqueId = $this->_getParam('uniqueId');
 		$token = $this->_getParam('token');
 		// carry out authentication
-		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
-			'firstName' => $firstName ,
-			'lastName' => $lastName ,
-			'uniqueId' => $uniqueId ,
-			'token' => $token)) || ! $this->_validateSession()) {
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
+			array(
+				'firstName' => $firstName, 
+				'lastName' => $lastName, 
+				'uniqueId' => $uniqueId, 
+				'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
 		try {
-			$id = $this->Attendees
-				->create($firstName, $lastName, $uniqueId);
+			$id = $this->Attendees->create($firstName, $lastName, $uniqueId);
 		} catch (Bts_Exception $e) {
 			// failed!
 			return $this->_simpleErrorResponse(400, 'PARAMS_EMPTY');
@@ -100,26 +100,26 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		// demand ONLY uniqueId OR (firstName & lastName); this code
 		// will not validate signatures that have all 3 encoded
 		if (is_null($uniqueId)) {
-			if (! $this->_validateSignature(array(
-				'firstName' => $firstName ,
-				'lastName' => $lastName ,
-				'token' => $token)) || ! $this->_validateSession()) {
+			if (! $this->_validateSignature(
+				array(
+					'firstName' => $firstName, 
+					'lastName' => $lastName, 
+					'token' => $token)) || ! $this->_validateSession()) {
 				return;
 			}
-		} elseif (! $this->_validateSignature(array(
-			'uniqueId' => $uniqueId ,
-			'token' => $token)) || ! $this->_validateSession()) {
+		} elseif (! $this->_validateSignature(
+			array(
+				'uniqueId' => $uniqueId, 
+				'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
 		// non-existent until proven otherwise
 		$exists = false;
 		if (! empty($uniqueId)) {
-			$exists = $this->Attendees
-				->existsById($uniqueId);
+			$exists = $this->Attendees->existsById($uniqueId);
 		} else {
 			try {
-				$exists = $this->Attendees
-					->existsByName($firstName, $lastName);
+				$exists = $this->Attendees->existsByName($firstName, $lastName);
 			} catch (Bts_Exception $e) {
 				return $this->_simpleErrorResponse(400, 'NAME_EMPTY');
 			}
@@ -144,45 +144,45 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		// demand ONLY uniqueId OR (firstName & lastName); this code
 		// will not validate signatures that have all 3 encoded
 		if (is_null($uniqueId)) {
-			if (! $this->_validateSignature(array(
-				'firstName' => $firstName ,
-				'lastName' => $lastName ,
-				'token' => $token)) || ! $this->_validateSession()) {
+			if (! $this->_validateSignature(
+				array(
+					'firstName' => $firstName, 
+					'lastName' => $lastName, 
+					'token' => $token)) || ! $this->_validateSession()) {
 				return;
 			}
-		} elseif (! $this->_validateSignature(array(
-			'uniqueId' => $uniqueId ,
-			'token' => $token)) || ! $this->_validateSession()) {
+		} elseif (! $this->_validateSignature(
+			array(
+				'uniqueId' => $uniqueId, 
+				'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
 		if (! empty($uniqueId)) {
 			// search by unique ID
-			$row = $this->Attendees
-				->findById($this->_getParam('uniqueId'));
+			$row = $this->Attendees->findById(
+				$this->_getParam('uniqueId'));
 			if (! is_null($row)) {
 				// we have to target JSON and XML separately
 				$this->view->responseXml = array(
-					'statusCode' => 200 ,
-					'statusText' => 'OK_FOUND' ,
+					'statusCode' => 200, 
+					'statusText' => 'OK_FOUND', 
 					'data' => array(
 						'attendee' => array(
 							'_attributes' => $row->toArray())));
 				$this->view->responseJson = array(
-					'statusCode' => 200 ,
-					'statusText' => 'OK_FOUND' ,
+					'statusCode' => 200, 
+					'statusText' => 'OK_FOUND', 
 					'data' => array(
 						$row->attendee_id => $row->toArray()));
 			} else {
-				$this->_response
-					->setHttpResponseCode(404);
+				$this->_response->setHttpResponseCode(404);
 				$this->view->response['statusCode'] = 404;
 				$this->view->response['statusText'] = 'OK_NOT_FOUND';
 			}
 		} else {
 			// search by name
 			try {
-				$row = $this->Attendees
-					->findByName($firstName, $lastName);
+				$row = $this->Attendees->findByName($firstName, $lastName);
 			} catch (Bts_Exception $e) {
 				return $this->_simpleErrorResponse(400, 'NAME_EMPTY');
 			}
@@ -192,21 +192,20 @@ class Api_AttendeesController extends Api_Controller_Abstract
 					// XML gets <attendee /> tags with attributes; JSON gets
 					// array entries
 					$this->view->responseXml = array(
-						'statusCode' => 200 ,
-						'statusText' => 'OK_FOUND' ,
+						'statusCode' => 200, 
+						'statusText' => 'OK_FOUND', 
 						'data' => array(
 							'attendee' => array()));
 					$this->view->responseJson = array(
-						'statusCode' => 200 ,
-						'statusText' => 'OK_FOUND' ,
+						'statusCode' => 200, 
+						'statusText' => 'OK_FOUND', 
 						'data' => array());
 					foreach ($row as $r) {
 						$this->view->responseJson['data'][$r->attendee_id] = $r->toArray();
 						$this->view->responseXml['data']['attendee'][]['_attributes'] = $r->toArray();
 					}
 				} else {
-					$this->_response
-						->setHttpResponseCode(404);
+					$this->_response->setHttpResponseCode(404);
 					$this->view->response['statusCode'] = 404;
 					$this->view->response['statusText'] = 'OK_NOT_FOUND';
 				}

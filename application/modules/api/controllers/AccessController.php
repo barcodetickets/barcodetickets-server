@@ -11,7 +11,7 @@ require 'ControllerAbstract.php';
 class Api_AccessController extends Api_Controller_Abstract
 {
 	public $contexts = array(
-		'login' => true ,
+		'login' => true, 
 		'logout' => true);
 	/**
 	 *
@@ -29,33 +29,32 @@ class Api_AccessController extends Api_Controller_Abstract
 		$sysName = $this->_getParam('sysName');
 		$username = $this->_getParam('username');
 		$password = $this->_getParam('password');
-		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
-			'username' => $username ,
-			'password' => $password))) {
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
+			array(
+				'username' => $username, 
+				'password' => $password))) {
 			return;
 		}
 		if (empty($username) || empty($password)) {
-			$this->_response
-				->setHttpResponseCode(400);
+			$this->_response->setHttpResponseCode(400);
 			$this->view->response = array(
-				'statusCode' => 400 ,
+				'statusCode' => 400, 
 				'statusText' => 'USERPASS_EMPTY');
 			return;
 		}
-		$sessionId = $this->clientAuth
-			->startSession($username, $password, $sysName, $this->userAuth);
+		$sessionId = $this->clientAuth->startSession($username, $password, 
+			$sysName, $this->userAuth);
 		if ($sessionId == '') {
 			// failed authentication
-			$this->_response
-				->setHttpResponseCode(401);
+			$this->_response->setHttpResponseCode(401);
 			$this->view->response = array(
-				'statusCode' => 401 ,
+				'statusCode' => 401, 
 				'statusText' => 'ACCESS_DENIED');
 			return;
 		}
 		$this->view->response = array(
-			'statusCode' => 200 ,
-			'statusText' => 'OK' ,
+			'statusCode' => 200, 
+			'statusText' => 'OK', 
 			'data' => array(
 				'token' => $sessionId));
 	}
@@ -64,30 +63,28 @@ class Api_AccessController extends Api_Controller_Abstract
 		$this->view->response = array();
 		$sysName = $this->_getParam('sysName');
 		$token = $this->_getParam('token');
-		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
-			'token' => $token))) {
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
+			array(
+				'token' => $token))) {
 			return;
 		}
 		if (empty($token)) {
-			$this->_response
-				->setHttpResponseCode(400);
+			$this->_response->setHttpResponseCode(400);
 			$this->view->response = array(
-				'statusCode' => 400 ,
+				'statusCode' => 400, 
 				'statusText' => 'BAD_TOKEN');
 			return;
 		}
-		$result = $this->clientAuth
-			->destroySession($token, $sysName);
+		$result = $this->clientAuth->destroySession($token, $sysName);
 		if ($result == false) {
-			$this->_response
-				->setHttpResponseCode(400);
+			$this->_response->setHttpResponseCode(400);
 			$this->view->response = array(
-				'statusCode' => 400 ,
+				'statusCode' => 400, 
 				'statusText' => 'BAD_TOKEN');
 			return;
 		}
 		$this->view->response = array(
-			'statusCode' => 200 ,
+			'statusCode' => 200, 
 			'statusText' => 'OK_LOGGED_OUT');
 	}
 }

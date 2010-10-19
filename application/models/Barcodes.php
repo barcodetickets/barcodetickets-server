@@ -53,8 +53,7 @@ class Bts_Model_Barcodes
 		if (array_key_exists($eventId, $this->_eventHashCache)) {
 			$hash = $this->_eventHashCache[$eventId];
 		} else {
-			$hash = $this->EventsTable
-				->select(false)
+			$hash = $this->EventsTable->select(false)
 				->from($this->EventsTable, 'secure_hash')
 				->where('event_id = ?', $eventId)
 				->limit(1)
@@ -62,8 +61,10 @@ class Bts_Model_Barcodes
 				->fetch(Zend_Db::FETCH_COLUMN);
 			$this->_eventHashCache[$eventId] = $hash;
 		}
-		if ($binary) return $hash;
-		else return bin2hex($hash);
+		if ($binary)
+			return $hash;
+		else
+			return bin2hex($hash);
 	}
 	/**
 	 * Retrieves an instance of this class (implements singleton pattern).
@@ -85,7 +86,8 @@ class Bts_Model_Barcodes
 	public function decryptBarcode ($barcodeString)
 	{
 		$parts = array();
-		if (! preg_match('/^([0-9]+);([0-9]+);([0-9a-zA-Z\+\/=]+)$/', $barcodeString, $parts)) {
+		if (! preg_match('/^([0-9]+);([0-9]+);([0-9a-zA-Z\+\/=]+)$/', 
+			$barcodeString, $parts)) {
 			// did not fit pattern; false signifies failure
 			return false;
 		}
@@ -98,11 +100,15 @@ class Bts_Model_Barcodes
 		 */
 		$eventHash = $this->_retrieveEventHash($parts[1]);
 		// if an eventHash cannot be found, we can't proceed with decryption
-		if ($eventHash === false || empty($eventHash)) return false;
-		// DECRYPT
-		$decryptedString = trim(mcrypt_decrypt(self::CIPHER, $eventHash, base64_decode($parts[3]), self::MODE));
+		if ($eventHash === false || empty($eventHash))
+			return false;
+				// DECRYPT
+		$decryptedString = trim(
+			mcrypt_decrypt(self::CIPHER, $eventHash, base64_decode($parts[3]), 
+				self::MODE));
 		$result = array();
-		if (! preg_match('/^([0-9]+)-([0-9]+)-([0-9]+)$/', $decryptedString, $result)) {
+		if (! preg_match('/^([0-9]+)-([0-9]+)-([0-9]+)$/', $decryptedString, 
+			$result)) {
 			// decryption did not fit pattern; probably junk -- failure
 			return false;
 		}
@@ -119,8 +125,8 @@ class Bts_Model_Barcodes
 		 * [3] => ticketId
 		 */
 		return array(
-			'event' => $result[1] ,
-			'batch' => $result[2] ,
+			'event' => $result[1], 
+			'batch' => $result[2], 
 			'ticket' => $result[3]);
 	}
 	/**
@@ -133,21 +139,27 @@ class Bts_Model_Barcodes
 	 * @throws Bts_Exception
 	 * @return string
 	 */
-	public function encryptBarcode ($eventId, $batchId, $ticketId, $eventHash = null)
+	public function encryptBarcode ($eventId, $batchId, $ticketId, 
+		$eventHash = null)
 	{
 		// first validate arguments and standardize them to ints
-		if (empty($eventId) || empty($batchId) || empty($ticketId)) throw new Bts_Exception(
-			'Invalid arguments to Bts_Model_Barcodes::encryptBarcode()',
-			Bts_Exception::BARCODES_PARAMS_BAD);
+		if (empty($eventId) || empty($batchId) || empty($ticketId))
+			throw new Bts_Exception(
+				'Invalid arguments to Bts_Model_Barcodes::encryptBarcode()', 
+				Bts_Exception::BARCODES_PARAMS_BAD);
 		$eventId = (int) $eventId;
 		$batchId = (int) $batchId;
 		// we can't continue without an eventHash
-		if (is_null($eventHash)) $eventHash = $this->_retrieveEventHash($eventId);
-		if ($eventHash === false) throw new Bts_Exception(
-			'Invalid eventId in Bts_Model_Barcodes::encryptBarcode()',
-			Bts_Exception::BARCODES_EVENT_BAD);
+		if (is_null($eventHash))
+			$eventHash = $this->_retrieveEventHash($eventId);
+		if ($eventHash === false)
+			throw new Bts_Exception(
+				'Invalid eventId in Bts_Model_Barcodes::encryptBarcode()', 
+				Bts_Exception::BARCODES_EVENT_BAD);
 		$decryptedString = $eventId . '-' . $batchId . '-' . $ticketId;
-		$encryptedString = base64_encode(mcrypt_encrypt(self::CIPHER, $eventHash, $decryptedString, self::MODE));
+		$encryptedString = base64_encode(
+			mcrypt_encrypt(self::CIPHER, $eventHash, $decryptedString, 
+				self::MODE));
 		return $eventId . ';' . $batchId . ';' . $encryptedString;
 	}
 	/**
@@ -160,7 +172,8 @@ class Bts_Model_Barcodes
 	{
 		$labelString = strtolower($labelString);
 		$parts = array();
-		if (! preg_match('/^([0-9]+)-([0-9]+)-([0-9]+)-([0-9a-f]{2})$/', $labelString, $parts)) {
+		if (! preg_match('/^([0-9]+)-([0-9]+)-([0-9]+)-([0-9a-f]{2})$/', 
+			$labelString, $parts)) {
 			// did not fit pattern; empty array signifies failure
 			return false;
 		}
@@ -171,61 +184,78 @@ class Bts_Model_Barcodes
 		// [3] => ticketId
 		// [4] => checksum
 		// now check validity (not database validity, only format validity)
-		$eventHash = $this->_retrieveEventHash($parts[1]);
-		if ($eventHash === false) return false;
-		$encryptedString = bin2hex(mcrypt_encrypt(self::CIPHER, $eventHash, $parts[1] . '-' . $parts[2] . '-' . $parts[3], self::MODE));
-		if ($parts[4] != $encryptedString[0] . $encryptedString[strlen($encryptedString) - 1]) return false;
-		return array(
-			'event' => $parts[1] ,
-			'batch' => $parts[2] ,
-			'ticket' => $parts[3] ,
-			'checksum' => $parts[4]);
-	}
-	/**
-	 * Encodes the provided ticket details into a human-readable label formatted
-	 * according to BTS specifications.
-	 * @param int $eventId
-	 * @param int $batchId
-	 * @param string $ticketId
-	 * @param string $eventHash (optional)
-	 * @throws Bts_Exception
-	 * @return string
-	 */
-	public function encodeLabel ($eventId, $batchId, $ticketId, $eventHash = null)
-	{
-		// first validate arguments and standardize them to ints
-		if (empty($eventId) || empty($batchId) || empty($ticketId)) throw new Bts_Exception(
-			'Invalid arguments to Bts_Model_Barcodes::encodeLabel()',
-			Bts_Exception::BARCODES_PARAMS_BAD);
-		$eventId = (int) $eventId;
-		$batchId = (int) $batchId;
-		// we can't continue without an eventHash
-		if (is_null($eventHash)) $eventHash = $this->_retrieveEventHash($eventId);
-		if ($eventHash === false) throw new Bts_Exception(
-			'Invalid eventId in Bts_Model_Barcodes::encodeLabel()',
-			Bts_Exception::BARCODES_EVENT_BAD);
-		$baseString = $eventId . '-' . $batchId . '-' . $ticketId;
-		// create our "checksum" from the first and last chars of the hex-encoded encrypted string
-		$encryptedString = bin2hex(mcrypt_encrypt(self::CIPHER, $eventHash, $baseString, self::MODE));
-		return $baseString . '-' . $encryptedString[0] . $encryptedString[strlen($encryptedString) - 1];
-	}
-	/**
-	 * Verifies the checksum on a ticket label by comparing it against one
-	 * generated on the spot with the same algorithm. Does not use the checksum
-	 * column on the tickets table.
-	 * @param int $eventId
-	 * @param int $batchId
-	 * @param string $ticketId
-	 * @param string $checksum
-	 * @throws Bts_Exception
-	 * @return bool
-	 */
-	public function verifyChecksum ($eventId, $batchId, $ticketId, $checksum)
-	{
-		if (empty($eventId) || empty($batchId) || empty($ticketId) || empty($checksum)) throw new Bts_Exception(
-			'Invalid arguments to Bts_Model_Barcodes::verifyChecksum()',
-			Bts_Exception::BARCODES_PARAMS_BAD);
-		/* $eventId = (int) $eventId;
+		$eventHash = $this->_retrieveEventHash(
+			$parts[1]);
+		if ($eventHash === false)
+			return false;
+		$encryptedString = bin2hex(
+			mcrypt_encrypt(self::CIPHER, $eventHash, 
+				$parts[1] . '-' . $parts[2] . '-' . $parts[3], self::MODE));
+		if ($parts[4] !=
+			 $encryptedString[0] . $encryptedString[strlen($encryptedString) - 1])
+				return false;
+			return array(
+				'event' => $parts[1], 
+				'batch' => $parts[2], 
+				'ticket' => $parts[3], 
+				'checksum' => $parts[4]);
+		}
+		/**
+		 * Encodes the provided ticket details into a human-readable label formatted
+		 * according to BTS specifications.
+		 * @param int $eventId
+		 * @param int $batchId
+		 * @param string $ticketId
+		 * @param string $eventHash (optional)
+		 * @throws Bts_Exception
+		 * @return string
+		 */
+		public function encodeLabel ($eventId, $batchId, $ticketId, 
+			$eventHash = null)
+		{
+			// first validate arguments and standardize them to ints
+			if (empty($eventId) || empty($batchId) ||
+				 empty($ticketId))
+					throw new Bts_Exception(
+						'Invalid arguments to Bts_Model_Barcodes::encodeLabel()', 
+						Bts_Exception::BARCODES_PARAMS_BAD);
+				$eventId = (int) $eventId;
+				$batchId = (int) $batchId;
+				// we can't continue without an eventHash
+				if (is_null($eventHash))
+					$eventHash = $this->_retrieveEventHash($eventId);
+				if ($eventHash === false)
+					throw new Bts_Exception(
+						'Invalid eventId in Bts_Model_Barcodes::encodeLabel()', 
+						Bts_Exception::BARCODES_EVENT_BAD);
+				$baseString = $eventId . '-' . $batchId . '-' . $ticketId;
+				// create our "checksum" from the first and last chars of the hex-encoded encrypted string
+				$encryptedString = bin2hex(
+					mcrypt_encrypt(self::CIPHER, $eventHash, $baseString, 
+						self::MODE));
+				return $baseString . '-' . $encryptedString[0] .
+					 $encryptedString[strlen($encryptedString) - 1];
+				}
+				/**
+				 * Verifies the checksum on a ticket label by comparing it against one
+				 * generated on the spot with the same algorithm. Does not use the checksum
+				 * column on the tickets table.
+				 * @param int $eventId
+				 * @param int $batchId
+				 * @param string $ticketId
+				 * @param string $checksum
+				 * @throws Bts_Exception
+				 * @return bool
+				 */
+				public function verifyChecksum ($eventId, $batchId, $ticketId, 
+					$checksum)
+				{
+					if (empty($eventId) || empty($batchId) || empty($ticketId) ||
+						 empty($checksum))
+							throw new Bts_Exception(
+								'Invalid arguments to Bts_Model_Barcodes::verifyChecksum()', 
+								Bts_Exception::BARCODES_PARAMS_BAD);
+							/* $eventId = (int) $eventId;
 		$batchId = (int) $batchId;
 		$eventHash = $this->_retrieveEventHash($eventId);
 		if ($eventHash === false) throw new Bts_Exception(
@@ -233,21 +263,30 @@ class Bts_Model_Barcodes
 			Bts_Exception::BARCODES_EVENT_BAD);
 		$baseString = $eventId . '-' . $batchId . '-' . $ticketId;
 		$encryptedString = bin2hex(mcrypt_encrypt(self::CIPHER, $eventHash, $baseString, self::MODE)); */
-		return ($checksum == $this->generateChecksum($eventId, $batchId, $ticketId));
-	}
-	public function generateChecksum ($eventId, $batchId, $ticketId)
-	{
-		if (empty($eventId) || empty($batchId) || empty($ticketId)) throw new Bts_Exception(
-			'Invalid arguments to Bts_Model_Barcodes::generateChecksum()',
-			Bts_Exception::BARCODES_PARAMS_BAD);
-		$eventId = (int) $eventId;
-		$batchId = (int) $batchId;
-		$eventHash = $this->_retrieveEventHash($eventId);
-		if ($eventHash === false) throw new Bts_Exception(
-			'Invalid eventId in Bts_Model_Barcodes::generateChecksum()',
-			Bts_Exception::BARCODES_EVENT_BAD);
-		$baseString = $eventId . '-' . $batchId . '-' . $ticketId;
-		$encryptedString = bin2hex(mcrypt_encrypt(self::CIPHER, $eventHash, $baseString, self::MODE));
-		return ($encryptedString[0] . $encryptedString[strlen($encryptedString) - 1]);
-	}
-}
+						return ($checksum == $this->generateChecksum($eventId, 
+							$batchId, $ticketId));
+					}
+					public function generateChecksum ($eventId, $batchId, 
+						$ticketId)
+					{
+						if (empty($eventId) || empty($batchId) ||
+							 empty($ticketId))
+								throw new Bts_Exception(
+									'Invalid arguments to Bts_Model_Barcodes::generateChecksum()', 
+									Bts_Exception::BARCODES_PARAMS_BAD);
+							$eventId = (int) $eventId;
+							$batchId = (int) $batchId;
+							$eventHash = $this->_retrieveEventHash($eventId);
+							if ($eventHash === false)
+								throw new Bts_Exception(
+									'Invalid eventId in Bts_Model_Barcodes::generateChecksum()', 
+									Bts_Exception::BARCODES_EVENT_BAD);
+							$baseString = $eventId . '-' . $batchId . '-' .
+								 $ticketId;
+								$encryptedString = bin2hex(
+									mcrypt_encrypt(self::CIPHER, $eventHash, 
+										$baseString, self::MODE));
+								return ($encryptedString[0] . $encryptedString[strlen(
+									$encryptedString) - 1]);
+							}
+						}

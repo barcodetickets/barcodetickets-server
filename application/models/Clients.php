@@ -29,10 +29,13 @@ class Bts_Model_Clients
 	 */
 	public function getApiKey ($sysName)
 	{
-		$query = $this->ClientsTable->select(false)->from(
-			$this->ClientsTable,
-			'api_key')->where('sys_name = ?', $sysName)->where('status = 1')->limit(
-			1)->query()->fetchColumn();
+		$query = $this->ClientsTable->select(false)
+			->from($this->ClientsTable, 'api_key')
+			->where('sys_name = ?', $sysName)
+			->where('status = 1')
+			->limit(1)
+			->query()
+			->fetchColumn();
 		return $query;
 	}
 	/**
@@ -43,9 +46,12 @@ class Bts_Model_Clients
 	 */
 	public function getClientId ($sysName)
 	{
-		$query = $this->ClientsTable->select(false)->from(
-			$this->ClientsTable,
-			'client_id')->where('sys_name = ?', $sysName)->limit(1)->query()->fetchColumn();
+		$query = $this->ClientsTable->select(false)
+			->from($this->ClientsTable, 'client_id')
+			->where('sys_name = ?', $sysName)
+			->limit(1)
+			->query()
+			->fetchColumn();
 		return $query;
 	}
 	/**
@@ -56,19 +62,27 @@ class Bts_Model_Clients
 	 */
 	public function getClientStatus ($client)
 	{
-		if (empty($client)) return false;
+		if (empty($client))
+			return false;
 		if (is_numeric($client)) {
 			// treat as ID
-			$query = $this->ClientsTable->select(false)->from(
-				$this->ClientsTable,
-				'status')->where('client_id = ?', $client)->limit(1)->query()->fetchColumn();
+			$query = $this->ClientsTable->select(false)
+				->from($this->ClientsTable, 'status')
+				->where('client_id = ?', $client)
+				->limit(1)
+				->query()
+				->fetchColumn();
 		} else {
 			// treat as sysName
-			$query = $this->ClientsTable->select(false)->from(
-				$this->ClientsTable,
-				'status')->where('sys_name = ?', $client)->limit(1)->query()->fetchColumn();
+			$query = $this->ClientsTable->select(false)
+				->from($this->ClientsTable, 'status')
+				->where('sys_name = ?', $client)
+				->limit(1)
+				->query()
+				->fetchColumn();
 		}
-		if ($query === false) return false;
+		if ($query === false)
+			return false;
 		return (int) $query;
 	}
 	/**
@@ -87,10 +101,9 @@ class Bts_Model_Clients
 		// perhaps ACL checks should exist in the future
 		$newClient = $this->ClientsTable->createRow(
 			array(
-				'sys_name' => Zend_Filter::filterStatic($sysName, 'Alnum') ,
-				'api_key' => hash(
-					'sha384',
-					$sysName . $installationHash . time()) ,
+				'sys_name' => Zend_Filter::filterStatic($sysName, 'Alnum'), 
+				'api_key' => hash('sha384', 
+					$sysName . $installationHash . time()), 
 				'status' => (int) $status));
 		try {
 			$id = $newClient->save();
