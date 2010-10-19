@@ -144,8 +144,8 @@ class Bts_Model_Users
 				->hashPassword($password) ,
 			'email' => $meta['email'] ,
 			'status' => (is_integer($meta['status'])) ? $meta['status'] : 0 ,
-			'nickname' => ($meta['nickname']) ? $meta['nickname'] : '' ,
-			'openid' => ($meta['openid']) ? $meta['openid'] : '');
+			'nickname' => (isset($meta['nickname'])) ? $meta['nickname'] : '' ,
+			'openid' => (isset($meta['openid'])) ? $meta['openid'] : '');
 		if (isset($meta['nickname'])) $insertData['nickname'] = $meta['nickname'];
 		$userId = $this->UsersTable
 			->insert($insertData);

@@ -51,12 +51,9 @@ class Bts_Model_Attendees
 		} elseif (! in_array($status, $this->statuses)) {
 			$status = $this->getStatusCode('active');
 		}
-		if ($this->AttendeesTable
-			->select(false)
-			->from($this->AttendeesTable, 'COUNT(*)')
-			->where('unique_id = ?', $uniqueId)
-			->query()
-			->fetchColumn() != 0) {
+		if ($this->AttendeesTable->select(false)->from(
+			$this->AttendeesTable,
+			'COUNT(*)')->where('unique_id = ?', $uniqueId)->query()->fetchColumn() != 0) {
 			// ALREADY EXISTS
 			/* even though foreign key constraints would've prevented us from
 			 * adding this "new" row, that still increments the primary key and
@@ -65,12 +62,12 @@ class Bts_Model_Attendees
 			 */
 			return - 1;
 		}
-		$newRow = $this->AttendeesTable
-			->createRow(array(
-			'first_name' => $firstName ,
-			'last_name' => $lastName ,
-			'unique_id' => $uniqueId ,
-			'status' => $status));
+		$newRow = $this->AttendeesTable->createRow(
+			array(
+				'first_name' => $firstName ,
+				'last_name' => $lastName ,
+				'unique_id' => $uniqueId ,
+				'status' => $status));
 		if (! empty($params['email'])) {
 			// TODO: need e-mail field validation / filter in the future
 			$newRow->email = $params['email'];
@@ -100,15 +97,13 @@ class Bts_Model_Attendees
 	public function existsById ($uniqueId)
 	{
 		if (empty($uniqueId)) {
-			throw new Bts_Exception('Unique ID must be given for find-by-ID',
+			throw new Bts_Exception(
+				'Unique ID must be given for find-by-ID',
 				Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
-		$select = $this->AttendeesTable
-			->select()
-			->from($this->AttendeesTable, 'COUNT(*)')
-			->where('unique_id = ?', $uniqueId)
-			->query()
-			->fetchColumn();
+		$select = $this->AttendeesTable->select()->from(
+			$this->AttendeesTable,
+			'COUNT(*)')->where('unique_id = ?', $uniqueId)->query()->fetchColumn();
 		return $select == 1;
 	}
 	public function existsByName ($firstName, $lastName)
@@ -118,13 +113,11 @@ class Bts_Model_Attendees
 				'First and last name must be provided for search-by-name',
 				Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
-		$select = $this->AttendeesTable
-			->select()
-			->from($this->AttendeesTable, 'COUNT(*)')
-			->where('first_name = ?', $firstName)
-			->where('last_name = ?', $lastName)
-			->query()
-			->fetchColumn();
+		$select = $this->AttendeesTable->select()->from(
+			$this->AttendeesTable,
+			'COUNT(*)')->where('first_name = ?', $firstName)->where(
+			'last_name = ?',
+			$lastName)->query()->fetchColumn();
 		return $select == 1;
 	}
 	/**
@@ -136,15 +129,14 @@ class Bts_Model_Attendees
 	public function findById ($uniqueId)
 	{
 		if (empty($uniqueId)) {
-			throw new Bts_Exception('Unique ID must be given for find-by-ID',
+			throw new Bts_Exception(
+				'Unique ID must be given for find-by-ID',
 				Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
-		$select = $this->AttendeesTable
-			->select(true)
-			->where('unique_id = ?', $uniqueId)
-			->limit(1);
-		$row = $this->AttendeesTable
-			->fetchRow($select);
+		$select = $this->AttendeesTable->select(true)->where(
+			'unique_id = ?',
+			$uniqueId)->limit(1);
+		$row = $this->AttendeesTable->fetchRow($select);
 		if (is_null($row)) {
 			return null;
 		} else {
@@ -173,12 +165,10 @@ class Bts_Model_Attendees
 				'First and last name must be provided for search-by-name',
 				Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
-		$select = $this->AttendeesTable
-			->select(true)
-			->where('first_name LIKE ?', $firstName . '%')
-			->where('last_name LIKE ?', $lastName . '%');
-		$rows = $this->AttendeesTable
-			->fetchAll($select);
+		$select = $this->AttendeesTable->select(true)->where(
+			'first_name LIKE ?',
+			$firstName . '%')->where('last_name LIKE ?', $lastName . '%');
+		$rows = $this->AttendeesTable->fetchAll($select);
 		foreach ($rows as $row) {
 			$row->setReadOnly(true);
 			$row->attendee_id = (int) $row->attendee_id;
@@ -187,6 +177,37 @@ class Bts_Model_Attendees
 			unset($row->openid);
 		}
 		return $rows;
+	}
+	/**
+	 * Finds an attendee by the database primary ID (e.g. student number).
+	 * @param int $attendeeId
+	 * @throws Bts_Exception
+	 * @return Zend_Db_Table_Row_Abstract|NULL
+	 */
+	public function getById ($attendeeId)
+	{
+		if (empty($attendeeId)) {
+			throw new Bts_Exception(
+				'Attendee ID must be given for get-by-ID',
+				Bts_Exception::ATTENDEES_PARAMS_BAD);
+		}
+		$select = $this->AttendeesTable->select(true)->where(
+			'attendee_id = ?',
+			$attendeeId)->limit(1);
+		$row = $this->AttendeesTable->fetchRow($select);
+		if (is_null($row)) {
+			return null;
+		} else {
+			// don't let things from outside this model modify these records
+			$row->setReadOnly(true);
+			$row->attendee_id = (int) $row->attendee_id;
+			// TODO: determine if API clients should get # or text
+			$row->status = $this->getStatusText($row->status);
+			// don't reveal the password!
+			unset($row->password);
+			unset($row->openid);
+			return $row;
+		}
 	}
 	public function getStatusText ($status)
 	{

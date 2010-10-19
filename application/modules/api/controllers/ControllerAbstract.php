@@ -99,8 +99,26 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 		$params['sysName'] = $this->_getParam('sysName');
 		$params['timestamp'] = $this->_getParam('timestamp');
 		$params['signature'] = $this->_getParam('signature');
+		
+		// first source of server hostname is the configuration
+		try {
+			$this->BtsConfig = Zend_Registry::get('bts-config');
+		} catch (Zend_Exception $e) {
+			$this->BtsConfig = new Zend_Config(array());
+		}
+		
+		$serverName = $this->BtsConfig
+			->get('serverName', $_SERVER['SERVER_NAME']);
+			
+		// allow the serverPublicPath configuration item to override the 
+		// detected base URL of the request
+		if(!is_null($this->BtsConfig->get('serverPublicPath'))) {
+			$requestUri = str_replace($this->view->baseUrl(), $this->BtsConfig->get('serverPublicPath'), $_SERVER['REQUEST_URI']);
+		} else
+			$requestUri = $_SERVER['REQUEST_URI'];	
+		
 		$validation = $this->clientAuth
-			->validateSignature($_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], strtok($_SERVER['REQUEST_URI'], '?'), $params);
+			->validateSignature($_SERVER['REQUEST_METHOD'], $serverName, strtok($requestUri, '?'), $params);
 		if (! $validation) {
 			$this->_response
 				->setHttpResponseCode(403);
@@ -123,10 +141,13 @@ abstract class Api_Controller_Abstract extends Zend_Controller_Action
 			if (Zend_Registry::get('bts-config')->debug) {
 				try {
 					$this->view->response['debug']['correctSignature'] = $this->clientAuth
-						->generateSignature($_SERVER['REQUEST_METHOD'], $_SERVER['SERVER_NAME'], strtok($_SERVER['REQUEST_URI'], '?'), $params);
+						->generateSignature($_SERVER['REQUEST_METHOD'], $serverName, strtok($requestUri, '?'), $params);
 				} catch (Bts_Exception $e) {
 					$this->view->response['debug']['correctSignature'] = $e->getMessage();
 				}
+				$this->view->response['debug']['serverName'] = $serverName;
+				$this->view->response['debug']['serverUrl'] = $requestUri;
+				$this->view->response['debug']['givenSignature'] = $params['signature'];
 			}
 			return false;
 		}

@@ -47,25 +47,33 @@ class Api_TicketsController extends Api_Controller_Abstract
 		$attendeeId = $this->_getParam('attendee');
 		$token = $this->_getParam('token');
 		// carry out authentication
-		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
-			'ticket' => $ticket ,
-			'event' => $event ,
-			'batch' => $batch ,
-			'checksum' => $checksum ,
-			'attendee' => $attendeeId ,
-			'token' => $token)) || ! $this->_validateSession()) {
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
+			array(
+				'ticket' => $ticket ,
+				'event' => $event ,
+				'batch' => $batch ,
+				'checksum' => $checksum ,
+				'attendee' => $attendeeId ,
+				'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
 		// verify the checksum
 		$validChecksum = false;
 		try {
-			$validChecksum = $this->Barcodes
-				->verifyChecksum($event, $batch, $ticket, $checksum);
+			$validChecksum = $this->Barcodes->verifyChecksum(
+				$event,
+				$batch,
+				$ticket,
+				$checksum);
 		} catch (Bts_Exception $e) {
-			if ($e->getCode() == Bts_Exception::BARCODES_EVENT_BAD) return $this->_simpleErrorResponse(404, 'BAD_EVENT');
+			if ($e->getCode() == Bts_Exception::BARCODES_EVENT_BAD) return $this->_simpleErrorResponse(
+				404,
+				'BAD_EVENT');
 			else return $this->_simpleErrorResponse(404, 'BAD_CHECKSUM');
 		}
-		if (! $validChecksum) return $this->_simpleErrorResponse(404, 'BAD_CHECKSUM');
+		if (! $validChecksum) return $this->_simpleErrorResponse(
+			404,
+			'BAD_CHECKSUM');
 			// TODO: add check for user permissions
 	// TODO
 	}
@@ -75,10 +83,11 @@ class Api_TicketsController extends Api_Controller_Abstract
 		$barcodeString = $this->_getParam('barcode');
 		$attendeeId = $this->_getParam('attendee');
 		$token = $this->_getParam('token');
-		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
-			'barcode' => $barcodeString ,
-			'attendee' => $attendeeId ,
-			'token' => $token)) || ! $this->_validateSession()) {
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
+			array(
+				'barcode' => $barcodeString ,
+				'attendee' => $attendeeId ,
+				'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
 		if (is_null($barcodeString)) {
@@ -87,20 +96,24 @@ class Api_TicketsController extends Api_Controller_Abstract
 		if (is_null($attendeeId)) {
 			return $this->_simpleErrorResponse(400, 'ATTENDEE_EMPTY');
 		}
-		$decoded = $this->Barcodes
-			->decryptBarcode($barcodeString);
+		$decoded = $this->Barcodes->decryptBarcode($barcodeString);
 		// now $decoded should be { event, batch, ticket }
 		if ($decoded === false) {
 			return $this->_simpleErrorResponse(404, 'BAD_BARCODE');
 		}
 		// TODO: check user ACL
-		$activation = $this->Tickets
-			->activate($decoded['event'], $decoded['ticket'], $attendeeId, $this->clientAuth
-			->getSessionUser($token, $this->_getParam('sysName')));
+		$activation = $this->Tickets->activate(
+			$decoded['event'],
+			$decoded['ticket'],
+			$attendeeId,
+			$this->clientAuth->getSessionUser(
+				$token,
+				$this->_getParam('sysName')));
 		switch ($activation) {
-			case $this->Tickets
-				->getStatusCode('active'):
-				// TODO: successful
+			case $this->Tickets->getStatusCode('active'):
+				$this->view->response = array(
+					'statusCode' => 200 ,
+					'statusText' => 'OK_ACTIVATED');
 				break;
 			case - 1:
 				return $this->_simpleErrorResponse(404, 'FAILED_NOT_FOUND');
@@ -109,7 +122,9 @@ class Api_TicketsController extends Api_Controller_Abstract
 				// API clients CANNOT rely on status code 200 to indicate success;
 				// it only indicates the request is valid
 				// the status message is very important!
-				return $this->_simpleErrorResponse(200, 'FAILED_ALREADY_ACTIVE');
+				return $this->_simpleErrorResponse(
+					200,
+					'FAILED_ALREADY_ACTIVE');
 				break;
 			case - 3:
 				return $this->_simpleErrorResponse(404, 'BAD_ATTENDEE');
@@ -120,8 +135,8 @@ class Api_TicketsController extends Api_Controller_Abstract
 					'statusText' => 'FAILED_STATUS_CHECK' ,
 					'data' => array(
 						'ticketStatusCode' => $activation ,
-						'ticketStatusText' => $this->Tickets
-							->getStatusText($activation)));
+						'ticketStatusText' => $this->Tickets->getStatusText(
+							$activation)));
 		}
 	}
 	/**
@@ -146,12 +161,13 @@ class Api_TicketsController extends Api_Controller_Abstract
 		$batch = $this->_getParam('batch');
 		$checksum = $this->_getParam('checksum');
 		// do our secure authentication scheme stuff
-		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
-			'event' => $event ,
-			'batch' => $batch ,
-			'ticket' => $ticket ,
-			'checksum' => $checksum ,
-			'token' => $this->_getParam('token'))) || ! $this->_validateSession()) {
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
+			array(
+				'event' => $event ,
+				'batch' => $batch ,
+				'ticket' => $ticket ,
+				'checksum' => $checksum ,
+				'token' => $this->_getParam('token'))) || ! $this->_validateSession()) {
 			return;
 		}
 		// make sure we have valid params
@@ -169,21 +185,23 @@ class Api_TicketsController extends Api_Controller_Abstract
 			'event' => $event ,
 			'batch' => $batch ,
 			'ticket' => $ticket);
-		$checksumValid = $this->Barcodes
-			->verifyChecksum($event, $batch, $ticket, $checksum);
+		$checksumValid = $this->Barcodes->verifyChecksum(
+			$event,
+			$batch,
+			$ticket,
+			$checksum);
 		if (! $checksumValid) {
 			return $this->_simpleErrorResponse(404, 'BAD_CHECKSUM');
 		}
-		$validation = $this->Tickets
-			->validate($params);
+		$validation = $this->Tickets->validate($params);
 		if ($validation !== false) {
 			$this->view->response = array(
 				'statusCode' => 200 ,
 				'statusText' => 'OK_VALID' ,
 				'data' => array(
 					'ticketStatusCode' => $validation->status ,
-					'ticketStatusMessage' => $this->Tickets
-						->getStatusText($validation->status)));
+					'ticketStatusMessage' => $this->Tickets->getStatusText(
+						$validation->status)));
 		} else {
 			return $this->_simpleErrorResponse(404, 'FAILED_NOT_FOUND');
 		}
@@ -206,32 +224,31 @@ class Api_TicketsController extends Api_Controller_Abstract
 		$this->view->response = array();
 		$barcodeString = $this->_getParam('barcode');
 		// everything related to authentication
-		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
-			'barcode' => $barcodeString ,
-			'token' => $this->_getParam('token'))) || ! $this->_validateSession()) {
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
+			array(
+				'barcode' => $barcodeString ,
+				'token' => $this->_getParam('token'))) || ! $this->_validateSession()) {
 			return;
 		}
 		if (empty($barcodeString)) {
 			return $this->_simpleErrorResponse(400, 'BARCODE_EMPTY');
 		}
 		// decrypt the barcode string
-		$decoded = $this->Barcodes
-			->decryptBarcode($barcodeString);
+		$decoded = $this->Barcodes->decryptBarcode($barcodeString);
 		if ($decoded === false) {
 			return $this->_simpleErrorResponse(404, 'BAD_BARCODE');
 		}
 		// now $decoded should be { event, batch, ticket }
 		// try running it through the Bts_Model_Tickets::validate() method
-		$validation = $this->Tickets
-			->validate($decoded);
+		$validation = $this->Tickets->validate($decoded);
 		if ($validation !== false) {
 			$this->view->response = array(
 				'statusCode' => 200 ,
 				'statusText' => 'OK_VALID' ,
 				'data' => array(
 					'ticketStatusCode' => $validation->status ,
-					'ticketStatusMessage' => $this->Tickets
-						->getStatusText($validation->status)));
+					'ticketStatusMessage' => $this->Tickets->getStatusText(
+						$validation->status)));
 		} else {
 			return $this->_simpleErrorResponse(404, 'FAILED_NOT_FOUND');
 		}
@@ -245,15 +262,15 @@ class Api_TicketsController extends Api_Controller_Abstract
 		$ticket = $this->_getParam('ticket');
 		$reasonCode = $this->_getParam('reasonCode');
 		// everything related to authentication
-		if (! $this->_validateTimestamp() || ! $this->_validateSignature(array(
-			'event' => $event ,
-			'ticket' => $ticket ,
-			'reasonCode' => $reasonCode ,
-			'token' => $token)) || ! $this->_validateSession()) {
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
+			array(
+				'event' => $event ,
+				'ticket' => $ticket ,
+				'reasonCode' => $reasonCode ,
+				'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
-		$userId = $this->clientAuth
-			->getSessionUser($token, $sysName);
+		$userId = $this->clientAuth->getSessionUser($token, $sysName);
 			// TODO: check user permissions
 	// TODO
 	}
@@ -272,7 +289,36 @@ class Api_TicketsController extends Api_Controller_Abstract
 	public function checkInBarcodeAction ()
 	{
 		$this->view->response = array();
-		$this->_validateTimestamp();
-			// TODO
+		$barcodeString = $this->_getParam('barcode');
+		// everything related to authentication
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
+			array(
+				'barcode' => $barcodeString ,
+				'token' => $this->_getParam('token'))) || ! $this->_validateSession()) {
+			return;
+		}
+		if (empty($barcodeString)) {
+			return $this->_simpleErrorResponse(400, 'BARCODE_EMPTY');
+		}
+		// decrypt the barcode string
+		$decoded = $this->Barcodes->decryptBarcode($barcodeString);
+		if ($decoded === false) {
+			return $this->_simpleErrorResponse(404, 'BAD_BARCODE');
+		}
+		// now $decoded should be { event, batch, ticket }
+		// try running it through the Bts_Model_Tickets::validate() method
+		$validation = $this->Tickets->checkIn($decoded);
+		if ($validation !== false) {
+			$this->view->responseXml = $this->view->responseJson = array(
+				'statusCode' => 200 ,
+				'statusText' => 'OK_CHECKED_IN' ,
+				'data' => array());
+			$Attendees = new Bts_Model_Attendees();
+			$attendee = $Attendees->getById($validation->attendee_id);
+			$this->view->responseJson['data']['attendee'] = $attendee;
+			$this->view->responseXml['data']['attendee'][]['_attributes'] = $attendee;
+		} else {
+			return $this->_simpleErrorResponse(404, 'FAILED_NOT_FOUND');
+		}
 	}
 }
