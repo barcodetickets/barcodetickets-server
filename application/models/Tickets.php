@@ -154,7 +154,7 @@ class Bts_Model_Tickets
 	 *
 	 * @param array $params
 	 * @throws Bts_Exception
-	 * @return Zend_Db_Table_Row_Abstract|false
+	 * @return Zend_Db_Table_Row_Abstract|array|false
 	 */
 	public function checkIn (array $params)
 	{
@@ -177,12 +177,18 @@ class Bts_Model_Tickets
 		$row = $this->TicketsTable->fetchRow($select);
 		// if we got a valid row, mark it as checked in
 		if (! is_null($row) && $row->ticket_id == $params['ticket']) {
+			if ($row->status != $this->getStatusCode('active')) {
+				// oops, bad ticket -- probably already activated
+				$row->setReadOnly(true);
+				return array($row);
+			}
 			$row->status = $this->getStatusCode('checkedin');
 			$row->checkin_time = new Zend_Db_Expr('UTC_TIMESTAMP()');
+			$row->setReadOnly(true);
 			$row->save();
 			return $row;
-		}
-		else return false;
+		} else
+			return false;
 	}
 	public function invalidate ($event = null, $ticket = null, array $params)
 	{

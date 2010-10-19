@@ -283,8 +283,74 @@ class Api_TicketsController extends Api_Controller_Abstract
 	public function checkInAction ()
 	{
 		$this->view->response = array();
-		$this->_validateTimestamp();
-			// TODO
+		$event = $this->_getParam('event');
+		$ticket = $this->_getParam('ticket');
+		$batch = $this->_getParam('batch');
+		$checksum = $this->_getParam('checksum');
+		// do our secure authentication scheme stuff
+		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
+			array(
+				'event' => $event ,
+				'batch' => $batch ,
+				'ticket' => $ticket ,
+				'checksum' => $checksum ,
+				'token' => $this->_getParam('token'))) || ! $this->_validateSession()) {
+			return;
+		}
+		// make sure we have valid params
+		if (empty($event)) {
+			return $this->_simpleErrorResponse(400, 'EVENT_EMPTY');
+		} elseif (empty($ticket)) {
+			return $this->_simpleErrorResponse(400, 'TICKET_EMPTY');
+		} elseif (empty($batch)) {
+			return $this->_simpleErrorResponse(400, 'BATCH_EMPTY');
+		} elseif (empty($batch)) {
+			return $this->_simpleErrorResponse(400, 'CHECKSUM_EMPTY');
+		}
+		// run what we have through Bts_Model_Tickets::checkIn()
+		$params = array(
+			'event' => $event ,
+			'batch' => $batch ,
+			'ticket' => $ticket);
+		$checksumValid = $this->Barcodes->verifyChecksum(
+			$event,
+			$batch,
+			$ticket,
+			$checksum);
+		if (! $checksumValid) {
+			return $this->_simpleErrorResponse(404, 'BAD_CHECKSUM');
+		}
+		$validation = $this->Tickets->checkIn($params);
+		if ($validation !== false) {
+			if (is_array($validation)) {
+				// failed for some reason
+				$this->view->responseXml = $this->view->responseJson = array(
+					'statusCode' => 200 ,
+					'statusText' => 'FAILED_CHECK_IN' ,
+					'data' => array());
+				// still give the <ticket> and <attendee> objects
+				$this->view->responseJson['data']['ticket'] = $validation[0]->toArray();
+				$this->view->responseXml['data']['ticket']['_attributes'] = $validation[0]->toArray();
+				if (! empty($validation[0]->attendee_id)) {
+					$Attendees = new Bts_Model_Attendees();
+					$attendee = $Attendees->getById($validation[0]->attendee_id);
+					$this->view->responseJson['data']['attendee'] = $attendee->toArray();
+					$this->view->responseXml['data']['attendee']['_attributes'] = $attendee->toArray();
+				}
+			} else {
+				// successful
+				$this->view->responseXml = $this->view->responseJson = array(
+					'statusCode' => 200 ,
+					'statusText' => 'OK_CHECKED_IN' ,
+					'data' => array());
+				$Attendees = new Bts_Model_Attendees();
+				$attendee = $Attendees->getById($validation->attendee_id);
+				$this->view->responseJson['data']['attendee'] = $attendee->toArray();
+				$this->view->responseXml['data']['attendee']['_attributes'] = $attendee->toArray();
+			}
+		} else {
+			return $this->_simpleErrorResponse(404, 'FAILED_NOT_FOUND');
+		}
 	}
 	public function checkInBarcodeAction ()
 	{
@@ -309,14 +375,32 @@ class Api_TicketsController extends Api_Controller_Abstract
 		// try running it through the Bts_Model_Tickets::validate() method
 		$validation = $this->Tickets->checkIn($decoded);
 		if ($validation !== false) {
-			$this->view->responseXml = $this->view->responseJson = array(
-				'statusCode' => 200 ,
-				'statusText' => 'OK_CHECKED_IN' ,
-				'data' => array());
-			$Attendees = new Bts_Model_Attendees();
-			$attendee = $Attendees->getById($validation->attendee_id);
-			$this->view->responseJson['data']['attendee'] = $attendee;
-			$this->view->responseXml['data']['attendee'][]['_attributes'] = $attendee;
+			if (is_array($validation)) {
+				// failed for some reason
+				$this->view->responseXml = $this->view->responseJson = array(
+					'statusCode' => 200 ,
+					'statusText' => 'FAILED_CHECK_IN' ,
+					'data' => array());
+				// still give the <ticket> and <attendee> objects
+				$this->view->responseJson['data']['ticket'] = $validation[0]->toArray();
+				$this->view->responseXml['data']['ticket']['_attributes'] = $validation[0]->toArray();
+				if (! empty($validation[0]->attendee_id)) {
+					$Attendees = new Bts_Model_Attendees();
+					$attendee = $Attendees->getById($validation[0]->attendee_id);
+					$this->view->responseJson['data']['attendee'] = $attendee->toArray();
+					$this->view->responseXml['data']['attendee']['_attributes'] = $attendee->toArray();
+				}
+			} else {
+				// successful
+				$this->view->responseXml = $this->view->responseJson = array(
+					'statusCode' => 200 ,
+					'statusText' => 'OK_CHECKED_IN' ,
+					'data' => array());
+				$Attendees = new Bts_Model_Attendees();
+				$attendee = $Attendees->getById($validation->attendee_id);
+				$this->view->responseJson['data']['attendee'] = $attendee->toArray();
+				$this->view->responseXml['data']['attendee']['_attributes'] = $attendee->toArray();
+			}
 		} else {
 			return $this->_simpleErrorResponse(404, 'FAILED_NOT_FOUND');
 		}
