@@ -327,6 +327,8 @@ class Api_TicketsController extends Api_Controller_Abstract
 					'statusCode' => 200,
 					'statusText' => 'OK_CHECKED_IN',
 					'data' => array());
+				$this->view->responseJson['data']['ticket'] = $validation->toArray();
+				$this->view->responseXml['data']['ticket']['_attributes'] = $validation->toArray();
 				$Attendees = new Bts_Model_Attendees();
 				$attendee = $Attendees->getById($validation->attendee_id);
 				$this->view->responseJson['data']['attendee'] = $attendee->toArray();
@@ -380,6 +382,8 @@ class Api_TicketsController extends Api_Controller_Abstract
 					'statusCode' => 200,
 					'statusText' => 'OK_CHECKED_IN',
 					'data' => array());
+				$this->view->responseJson['data']['ticket'] = $validation->toArray();
+				$this->view->responseXml['data']['ticket']['_attributes'] = $validation->toArray();
 				$Attendees = new Bts_Model_Attendees();
 				$attendee = $Attendees->getById($validation->attendee_id);
 				$this->view->responseJson['data']['attendee'] = $attendee->toArray();
