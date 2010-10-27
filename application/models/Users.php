@@ -136,7 +136,7 @@ class Bts_Model_Users
 			'email' => $meta['email'], 
 			'status' => (is_integer($meta['status'])) ? $meta['status'] : 0, 
 			'nickname' => (isset($meta['nickname'])) ? $meta['nickname'] : '', 
-			'openid' => (isset($meta['openid'])) ? $meta['openid'] : '');
+			'openid' => (isset($meta['openid'])) ? $meta['openid'] : null);
 		if (isset($meta['nickname']))
 			$insertData['nickname'] = $meta['nickname'];
 		$userId = $this->UsersTable->insert($insertData);
