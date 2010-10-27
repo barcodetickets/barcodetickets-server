@@ -11,7 +11,7 @@ class Api_Bootstrap extends Zend_Application_Module_Bootstrap
 	{
 		Zend_Controller_Action_HelperBroker::addPath(
 		dirname(__FILE__) . '/controllers/helpers', 'Api_Action_Helper');
-		Zend_Controller_Action_HelperBroker::getHelper('formatResponse');
+		Zend_Controller_Action_HelperBroker::getStaticHelper('formatResponse');
 	}
 }
 
