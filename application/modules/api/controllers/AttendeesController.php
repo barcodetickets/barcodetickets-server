@@ -15,9 +15,9 @@ class Api_AttendeesController extends Api_Controller_Abstract
 	 */
 	private $Attendees = null;
 	public $contexts = array(
-		'create' => true, 
-		'exists' => true, 
-		'find' => true, 
+		'create' => true,
+		'exists' => true,
+		'find' => true,
 		'balance' => true);
 	public function init ()
 	{
@@ -50,9 +50,9 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		// carry out authentication
 		if (! $this->_validateTimestamp() || ! $this->_validateSignature(
 		array(
-			'firstName' => $firstName, 
-			'lastName' => $lastName, 
-			'uniqueId' => $uniqueId, 
+			'firstName' => $firstName,
+			'lastName' => $lastName,
+			'uniqueId' => $uniqueId,
 			'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
@@ -102,14 +102,14 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		if (is_null($uniqueId)) {
 			if (! $this->_validateSignature(
 			array(
-				'firstName' => $firstName, 
-				'lastName' => $lastName, 
+				'firstName' => $firstName,
+				'lastName' => $lastName,
 				'token' => $token)) || ! $this->_validateSession()) {
 				return;
 			}
 		} elseif (! $this->_validateSignature(
 		array(
-			'uniqueId' => $uniqueId, 
+			'uniqueId' => $uniqueId,
 			'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
@@ -146,14 +146,14 @@ class Api_AttendeesController extends Api_Controller_Abstract
 		if (is_null($uniqueId)) {
 			if (! $this->_validateSignature(
 			array(
-				'firstName' => $firstName, 
-				'lastName' => $lastName, 
+				'firstName' => $firstName,
+				'lastName' => $lastName,
 				'token' => $token)) || ! $this->_validateSession()) {
 				return;
 			}
 		} elseif (! $this->_validateSignature(
 		array(
-			'uniqueId' => $uniqueId, 
+			'uniqueId' => $uniqueId,
 			'token' => $token)) || ! $this->_validateSession()) {
 			return;
 		}
@@ -164,14 +164,14 @@ class Api_AttendeesController extends Api_Controller_Abstract
 			if (! is_null($row)) {
 				// we have to target JSON and XML separately
 				$this->view->responseXml = array(
-					'statusCode' => 200, 
-					'statusText' => 'OK_FOUND', 
+					'statusCode' => 200,
+					'statusText' => 'OK_FOUND',
 					'data' => array(
 						'attendee' => array(
 							'_attributes' => $row->toArray())));
 				$this->view->responseJson = array(
-					'statusCode' => 200, 
-					'statusText' => 'OK_FOUND', 
+					'statusCode' => 200,
+					'statusText' => 'OK_FOUND',
 					'data' => array(
 						$row->attendee_id => $row->toArray()));
 			} else {
@@ -192,17 +192,25 @@ class Api_AttendeesController extends Api_Controller_Abstract
 					// XML gets <attendee /> tags with attributes; JSON gets
 					// array entries
 					$this->view->responseXml = array(
-						'statusCode' => 200, 
-						'statusText' => 'OK_FOUND', 
+						'statusCode' => 200,
+						'statusText' => 'OK_FOUND',
 						'data' => array(
 							'attendee' => array()));
 					$this->view->responseJson = array(
-						'statusCode' => 200, 
-						'statusText' => 'OK_FOUND', 
+						'statusCode' => 200,
+						'statusText' => 'OK_FOUND',
 						'data' => array());
 					foreach ($row as $r) {
 						$this->view->responseJson['data'][$r->attendee_id] = $r->toArray();
-						$this->view->responseXml['data']['attendee'][]['_attributes'] = $r->toArray();
+						// only in XML provide tickets too
+						$tmp = array(
+							'_attributes' => $r->toArray());
+						$Tickets = new Bts_Model_Tickets();
+						$tickets = $Tickets->getByAttendee($r->attendee_id);
+						foreach ($tickets as $t) {
+							$tmp['ticket'][]['_attributes'] = $t->toArray();
+						}
+						$this->view->responseXml['data']['attendee'][] = $tmp;
 					}
 				} else {
 					$this->_response->setHttpResponseCode(404);

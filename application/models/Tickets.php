@@ -240,6 +240,20 @@ class Bts_Model_Tickets
 		} else
 			return (int) $result;
 	}
+	public function getByAttendee ($attendee)
+	{
+		if (empty($attendee)) {
+			throw new Bts_Exception('Missing parameters (attendee needed)',
+			Bts_Exception::TICKETS_PARAMS_BAD);
+		}
+		$select = $this->TicketsTable->select(true)
+			->where('attendee_id = ?', $attendee);
+		$rows = $this->TicketsTable->fetchAll($select);
+		foreach ($rows as $row) {
+			$row->setReadOnly(true);
+		}
+		return $rows;
+	}
 	public function getStatusText ($status)
 	{
 		if (isset($this->statuses[$status])) {

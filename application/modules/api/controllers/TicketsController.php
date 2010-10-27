@@ -60,6 +60,8 @@ class Api_TicketsController extends Api_Controller_Abstract
 		// verify the checksum
 		$validChecksum = false;
 		try {
+			// first strtolower
+			$checksum = strtolower($checksum);
 			$validChecksum = $this->Barcodes->verifyChecksum($event, $batch,
 			$ticket, $checksum);
 		} catch (Bts_Exception $e) {
@@ -176,6 +178,8 @@ class Api_TicketsController extends Api_Controller_Abstract
 			'event' => $event,
 			'batch' => $batch,
 			'ticket' => $ticket);
+		// first strtolower
+		$checksum = strtolower($checksum);
 		$checksumValid = $this->Barcodes->verifyChecksum($event, $batch,
 		$ticket, $checksum);
 		if (! $checksumValid) {
@@ -299,6 +303,8 @@ class Api_TicketsController extends Api_Controller_Abstract
 			'event' => $event,
 			'batch' => $batch,
 			'ticket' => $ticket);
+		// first strtolower
+		$checksum = strtolower($checksum);
 		$checksumValid = $this->Barcodes->verifyChecksum($event, $batch,
 		$ticket, $checksum);
 		if (! $checksumValid) {

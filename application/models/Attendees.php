@@ -34,16 +34,16 @@ class Bts_Model_Attendees
 	 * @throws Bts_Exception
 	 * @return int
 	 */
-	public function create ($firstName, $lastName, $uniqueId, $status = 'active', 
+	public function create ($firstName, $lastName, $uniqueId, $status = 'active',
 	array $params = array())
 	{
 		if (empty($firstName) || empty($lastName)) {
-			throw new Bts_Exception('Attendees must have names; none provided', 
+			throw new Bts_Exception('Attendees must have names; none provided',
 			Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
 		if (empty($uniqueId)) {
 			throw new Bts_Exception(
-			'Attendees must have unique IDs; none provided', 
+			'Attendees must have unique IDs; none provided',
 			Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
 		if (is_string($status)) {
@@ -66,9 +66,9 @@ class Bts_Model_Attendees
 		}
 		$newRow = $this->AttendeesTable->createRow(
 		array(
-			'first_name' => $firstName, 
-			'last_name' => $lastName, 
-			'unique_id' => $uniqueId, 
+			'first_name' => $firstName,
+			'last_name' => $lastName,
+			'unique_id' => $uniqueId,
 			'status' => $status));
 		if (! empty($params['email'])) {
 			// TODO: need e-mail field validation / filter in the future
@@ -99,7 +99,7 @@ class Bts_Model_Attendees
 	public function existsById ($uniqueId)
 	{
 		if (empty($uniqueId)) {
-			throw new Bts_Exception('Unique ID must be given for find-by-ID', 
+			throw new Bts_Exception('Unique ID must be given for find-by-ID',
 			Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
 		$select = $this->AttendeesTable->select()
@@ -113,7 +113,7 @@ class Bts_Model_Attendees
 	{
 		if (empty($firstName) || empty($lastName)) {
 			throw new Bts_Exception(
-			'First and last name must be provided for search-by-name', 
+			'First and last name must be provided for search-by-name',
 			Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
 		$select = $this->AttendeesTable->select()
@@ -133,7 +133,7 @@ class Bts_Model_Attendees
 	public function findById ($uniqueId)
 	{
 		if (empty($uniqueId)) {
-			throw new Bts_Exception('Unique ID must be given for find-by-ID', 
+			throw new Bts_Exception('Unique ID must be given for find-by-ID',
 			Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
 		$select = $this->AttendeesTable->select(true)
@@ -165,12 +165,12 @@ class Bts_Model_Attendees
 	{
 		if (empty($firstName) || empty($lastName)) {
 			throw new Bts_Exception(
-			'First and last name must be provided for search-by-name', 
+			'First and last name must be provided for search-by-name',
 			Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
 		$select = $this->AttendeesTable->select(true)
-			->where('first_name LIKE ?', $firstName . '%')
-			->where('last_name LIKE ?', $lastName . '%');
+			->where('first_name = ?', $firstName)
+			->where('last_name = ?', $lastName);
 		$rows = $this->AttendeesTable->fetchAll($select);
 		foreach ($rows as $row) {
 			$row->setReadOnly(true);
@@ -190,7 +190,7 @@ class Bts_Model_Attendees
 	public function getById ($attendeeId)
 	{
 		if (empty($attendeeId)) {
-			throw new Bts_Exception('Attendee ID must be given for get-by-ID', 
+			throw new Bts_Exception('Attendee ID must be given for get-by-ID',
 			Bts_Exception::ATTENDEES_PARAMS_BAD);
 		}
 		$select = $this->AttendeesTable->select(true)
