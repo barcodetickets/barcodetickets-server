@@ -230,10 +230,9 @@ class Bts_Model_Tickets
 			throw new Bts_Exception('Missing parameters (event needed)',
 			Bts_Exception::TICKETS_PARAMS_BAD);
 		}
-		$select = $this->TicketsTable->select(true)
-			->columns(new Zend_Db_Expr('MAX(batch)'))
-			->where('event_id = ?', $event)
-			->limit(1);
+		$select = $this->TicketsTable->select(false)
+			->from('bts_tickets', array(new Zend_Db_Expr('MAX(batch)')))
+			->where('event_id = ?', $event);
 		$result = $select->query()->fetchColumn();
 		if (empty($result)) {
 			return 0;
