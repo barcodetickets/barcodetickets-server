@@ -1,6 +1,10 @@
 <?php
 class Panel_ImportSalesController extends Zend_Controller_Action
 {
+	/**
+	 * @var Panel_Model_SalesImporter
+	 */
+	private $Importer = null;
 	public function init ()
 	{
 		Zend_Session::start();
@@ -24,6 +28,7 @@ class Panel_ImportSalesController extends Zend_Controller_Action
 				'controller' => $this->_request->getControllerName(),
 				'action' => $this->_request->getActionName())))));
 		}
+		$this->Importer = new Panel_Model_SalesImporter();
 	}
 	public function indexAction ()
 	{
@@ -43,11 +48,10 @@ class Panel_ImportSalesController extends Zend_Controller_Action
 		}
 		$form = $this->form();
 		if ($form->isValid($_POST)) {
-			$Importer = new Panel_Model_SalesImporter();
 			$form->CSV->receive();
 			$filename = $form->getElement('CSV')->getFileName();
-			$csv = $Importer->readCsv($filename);
-			$log = $Importer->activateTickets($form->getValue('Event'), $this->AuthSession->userId, $csv);
+			$csv = $this->Importer->readCsv($filename);
+			$log = $this->Importer->activateTickets($form->getValue('Event'), $this->AuthSession->userId, $csv);
 			$this->view->assign('result', 'ok');
 			$this->view->assign('log', $log);
 		} else {
@@ -58,10 +62,16 @@ class Panel_ImportSalesController extends Zend_Controller_Action
 	{
 		$this->view->doctype('XHTML1_STRICT');
 		$form = new Zend_Form();
-		$event = new Zend_Form_Element_Text('Event', array(
-			'label' => 'Event ID',
+		$event = new Zend_Form_Element_Select('Event', array(
+			'label' => 'Event',
 			'required' => true
 		));
+		$listEvents = $this->Importer->getListEvents($this->AuthSession->userId);
+		if(!is_null($listEvents)) {
+			foreach($listEvents as $eventRow) {
+				$event->addMultiOption($eventRow->event_id, $eventRow->name);
+			}
+		}
 		$upload = new Zend_Form_Element_File('CSV',
 		array(
 			'label' => 'CSV file',
