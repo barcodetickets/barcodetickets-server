@@ -136,6 +136,7 @@ class Api_Model_ClientAuthentication
 		// concatenate the parameters to the HMAC message
 		reset($params);
 		$stringToSign .= http_build_query($params);
+		$stringToSign = str_replace('+', '%20', $stringToSign);
 		if ($returnMessage) {
 			return $stringToSign;
 		}
