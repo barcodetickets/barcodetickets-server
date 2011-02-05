@@ -1,0 +1,14 @@
+<?php
+// this needs to be fixed to reflect actual login status and other useful tools
+$this->logoutLink = $this->url(
+	array(
+		'module' => 'panel',
+		'controller' => 'login',
+		'action' => 'logout'));
+?>
+<div id="header-bar"><span class="left">Hey, <?php
+echo $this->authSession->username;
+?>&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;<a href="<?php
+echo $this->logoutLink;
+?>">Logout</a></span></div>

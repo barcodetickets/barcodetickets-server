@@ -17,17 +17,18 @@ class Panel_Model_UserAuthentication extends Zend_Auth_Adapter_DbTable
 	 * @param string $credentialColumn
 	 */
 	public function __construct (Zend_Db_Adapter_Abstract $zendDb = null,
-	$tableName = null, $identityColumn = null, $credentialColumn = null)
+		$tableName = null, $identityColumn = null, $credentialColumn = null)
 	{
 		// use the adapter stored in the registry by default
 		$zendDb = ! is_null($zendDb) ? $zendDb : Zend_Registry::get(
-		'db');
+			'db');
 		$tableName = ! empty($tableName) ? $tableName : 'bts_users';
 		$identityColumn = ! empty($identityColumn) ? $identityColumn : 'username';
 		$credentialColumn = ! empty($credentialColumn) ? $credentialColumn : 'password';
 		parent::__construct($zendDb, $tableName, $identityColumn,
-		$credentialColumn);
+			$credentialColumn);
 		$this->Hash = new BtsX_PasswordHash(8, true);
+		$this->Session = new Zend_Session_Namespace('bts-auth');
 	}
 	protected function _authenticateCreateSelect ()
 	{
@@ -35,8 +36,8 @@ class Panel_Model_UserAuthentication extends Zend_Auth_Adapter_DbTable
 		$dbSelect = clone $this->getDbSelect();
 		$dbSelect->from($this->_tableName, array(
 			'*'))->where(
-		$this->_zendDb->quoteIdentifier($this->_identityColumn, true) . ' = ?',
-		$this->_identity);
+			$this->_zendDb->quoteIdentifier($this->_identityColumn, true) .
+				 ' = ?', $this->_identity);
 		// BTS specific!
 		$dbSelect->where('status = 1');
 		return $dbSelect;
@@ -44,7 +45,7 @@ class Panel_Model_UserAuthentication extends Zend_Auth_Adapter_DbTable
 	protected function _authenticateValidateResult ($resultIdentity)
 	{
 		$valid = $this->Hash->checkPassword($this->_credential,
-		$resultIdentity[$this->_credentialColumn]);
+			$resultIdentity[$this->_credentialColumn]);
 		if (! $valid) {
 			$this->_authenticateResultInfo['code'] = Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID;
 			$this->_authenticateResultInfo['messages'][] = 'Supplied credential is invalid.';
@@ -53,6 +54,10 @@ class Panel_Model_UserAuthentication extends Zend_Auth_Adapter_DbTable
 		$this->_resultRow = $resultIdentity;
 		$this->_authenticateResultInfo['code'] = Zend_Auth_Result::SUCCESS;
 		$this->_authenticateResultInfo['messages'][] = 'Authentication successful.';
+		// set the session
+		$this->Session->loggedIn = true;
+		$this->Session->username = $this->_identity;
+		$this->Session->userRow = $resultIdentity;
 		return $this->_authenticateCreateAuthResult();
 	}
 	public function getResultRowObject ($returnColumns = null, $omitColumns = null)

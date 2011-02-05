@@ -46,20 +46,20 @@ class Bts_Model_Tickets
 	{
 		if (empty($event)) {
 			throw new Bts_Exception('Missing parameters (event needed)',
-			Bts_Exception::TICKETS_PARAMS_BAD);
+				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($ticket)) {
 			throw new Bts_Exception('Missing parameters (ticket needed)',
-			Bts_Exception::TICKETS_PARAMS_BAD);
+				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($attendee)) {
 			throw new Bts_Exception('Missing parameters (attendee needed)',
-			Bts_Exception::TICKETS_PARAMS_BAD);
+				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		if (empty($user)) {
 			throw new Bts_Exception(
-			'A user ID is needed to authorize this action',
-			Bts_Exception::TICKETS_UNAUTHORIZED);
+				'A user ID is needed to authorize this action',
+				Bts_Exception::TICKETS_UNAUTHORIZED);
 		}
 		// TODO: verify the user is authorized to do so
 		// fetch the ticket row from the DB
@@ -94,30 +94,30 @@ class Bts_Model_Tickets
 	{
 		if (empty($event) || empty($batch)) {
 			throw new Bts_Exception(
-			'Missing parameters (event and batch needed)',
-			Bts_Exception::TICKETS_PARAMS_BAD);
+				'Missing parameters (event and batch needed)',
+				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		// check authentication in future
 		if (is_int($status) && ! in_array($status, $this->statuses)) {
 			throw new Bts_Exception('Bad status code',
-			Bts_Exception::TICKETS_PARAMS_BAD);
+				Bts_Exception::TICKETS_PARAMS_BAD);
 		} else
 			if (is_string($status)) {
 				$status = $this->getStatusCode($status);
 			}
 		// first create this row
 		$newTicket = $this->TicketsTable->createRow(
-		array(
-			'batch' => (int) $batch,
-			'event_id' => (int) $event,
-			'status' => $status));
+			array(
+				'batch' => (int) $batch,
+				'event_id' => (int) $event,
+				'status' => $status));
 		$ticketId = (string) $newTicket->save();
 		if (is_null($this->Barcodes)) {
 			$this->Barcodes = Bts_Model_Barcodes::getInstance();
 		}
 		// then update the row with the checksum
 		$checksum = $this->Barcodes->generateChecksum($event, $batch,
-		$ticketId);
+			$ticketId);
 		$newTicket->checksum = $checksum;
 		return $newTicket->save();
 	}
@@ -130,8 +130,8 @@ class Bts_Model_Tickets
 	{
 		if (empty($params['event']) || empty($params['ticket'])) {
 			throw new Bts_Exception(
-			'Missing parameters (event and ticket needed)',
-			Bts_Exception::TICKETS_PARAMS_BAD);
+				'Missing parameters (event and ticket needed)',
+				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		// fetch a row from the DB matching the event ID and ticket ID
 		$select = $this->TicketsTable->select()
@@ -161,8 +161,8 @@ class Bts_Model_Tickets
 	{
 		if (empty($params['event']) || empty($params['ticket'])) {
 			throw new Bts_Exception(
-			'Missing parameters (event and ticket needed)',
-			Bts_Exception::TICKETS_PARAMS_BAD);
+				'Missing parameters (event and ticket needed)',
+				Bts_Exception::TICKETS_PARAMS_BAD);
 		}
 		// fetch a row from the DB matching the event ID and ticket ID
 		$select = $this->TicketsTable->select()
@@ -179,96 +179,114 @@ class Bts_Model_Tickets
 		// if we got a valid row, mark it as checked in
 		if (! is_null($row) && $row->ticket_id == $params['ticket']) {
 			if ($row->status != $this->getStatusCode('active') &&
-			 $row->status != $this->getStatusCode('unlimited')) {
-				// oops, bad ticket -- probably already activated
+				 $row->status != $this->getStatusCode('unlimited')) {
+					// oops, bad ticket -- probably already activated
+					$row->setReadOnly(true);
+					return array(
+						$row);
+				}
+				if ($row->status != $this->getStatusCode('unlimited')) {
+					$row->status = $this->getStatusCode('checkedin');
+				}
+				$row->checkin_time = new Zend_Db_Expr('UTC_TIMESTAMP()');
+				$row->save();
 				$row->setReadOnly(true);
-				return array(
-					$row);
+				return $row;
+			} else
+				return false;
+		}
+		public function invalidate ($event = null, $ticket = null, array $params)
+		{
+			if (is_null($event)) {
+				if (empty($params['event']))
+					throw new Bts_Exception('Missing parameters (event needed)',
+						Bts_Exception::TICKETS_PARAMS_BAD);
+				else
+					$event = $params['event'];
 			}
-			if ($row->status != $this->getStatusCode('unlimited')) {
-				$row->status = $this->getStatusCode('checkedin');
+			if (is_null($ticket)) {
+				if (empty($params['ticket']))
+					throw new Bts_Exception('Missing parameters (ticket needed)',
+						Bts_Exception::TICKETS_PARAMS_BAD);
+				else
+					$ticket = $params['ticket'];
 			}
-			$row->checkin_time = new Zend_Db_Expr('UTC_TIMESTAMP()');
-			$row->save();
-			$row->setReadOnly(true);
-			return $row;
-		} else
-			return false;
-	}
-	public function invalidate ($event = null, $ticket = null, array $params)
-	{
-		if (is_null($event)) {
-			if (empty($params['event']))
+			if (empty($params['reasonCode'])) {
+				throw new Bts_Exception(
+					'A reason must be provided for invalidation',
+					Bts_Exception::TICKETS_PARAMS_BAD);
+			}
+			if (empty($params['userId'])) {
+				throw new Bts_Exception(
+					'A user ID is needed to authorize this action',
+					Bts_Exception::TICKETS_UNAUTHORIZED);
+			}
+			// ensure that there is at least a key named ['comment'] even if empty
+			$params['comment'] = (empty($params['comment'])) ? '' : $params['comment'];
+				// TODO
+		}
+		public function getMaxBatch ($event)
+		{
+			if (empty($event)) {
 				throw new Bts_Exception('Missing parameters (event needed)',
-				Bts_Exception::TICKETS_PARAMS_BAD);
-			else
-				$event = $params['event'];
+					Bts_Exception::TICKETS_PARAMS_BAD);
+			}
+			$select = $this->TicketsTable->select(false)
+				->from('bts_tickets',
+				array(
+					new Zend_Db_Expr('MAX(batch)')))
+				->where('event_id = ?', $event);
+			$result = $select->query()->fetchColumn();
+			if (empty($result)) {
+				return 0;
+			} else
+				return (int) $result;
 		}
-		if (is_null($ticket)) {
-			if (empty($params['ticket']))
-				throw new Bts_Exception('Missing parameters (ticket needed)',
-				Bts_Exception::TICKETS_PARAMS_BAD);
-			else
-				$ticket = $params['ticket'];
+		public function getByAttendee ($attendee)
+		{
+			if (empty($attendee)) {
+				throw new Bts_Exception('Missing parameters (attendee needed)',
+					Bts_Exception::TICKETS_PARAMS_BAD);
+			}
+			$select = $this->TicketsTable->select(true)->where(
+				'attendee_id = ?', $attendee);
+			$rows = $this->TicketsTable->fetchAll($select);
+			foreach ($rows as $row) {
+				$row->setReadOnly(true);
+			}
+			return $rows;
 		}
-		if (empty($params['reasonCode'])) {
-			throw new Bts_Exception('A reason must be provided for invalidation',
-			Bts_Exception::TICKETS_PARAMS_BAD);
+		public function getEverythingByEvent ($event)
+		{
+			if (empty($event)) {
+				throw new Bts_Exception('Missing parameters (event needed)',
+					Bts_Exception::TICKETS_PARAMS_BAD);
+			}
+			$select = $this->TicketsTable->getAdapter()
+				->select()
+				->from(array('t' => 'bts_tickets'))
+				->where('t.event_id = ?', (int) $event)
+				->joinLeft(array('a' => 'bts_attendees'), 't.attendee_id = a.attendee_id', array('first_name', 'last_name'));
+			$rows = $select->query()->fetchAll();
+			return $rows;
 		}
-		if (empty($params['userId'])) {
-			throw new Bts_Exception(
-			'A user ID is needed to authorize this action',
-			Bts_Exception::TICKETS_UNAUTHORIZED);
+		public function getStatusText ($status)
+		{
+			if (isset($this->statuses[$status])) {
+				return $this->statuses[$status];
+			} else {
+				return end($this->statuses);
+			}
 		}
-		// ensure that there is at least a key named ['comment'] even if empty
-		$params['comment'] = (empty($params['comment'])) ? '' : $params['comment'];
-			// TODO
-	}
-	public function getMaxBatch ($event)
-	{
-		if (empty($event)) {
-			throw new Bts_Exception('Missing parameters (event needed)',
-			Bts_Exception::TICKETS_PARAMS_BAD);
-		}
-		$select = $this->TicketsTable->select(false)
-			->from('bts_tickets', array(new Zend_Db_Expr('MAX(batch)')))
-			->where('event_id = ?', $event);
-		$result = $select->query()->fetchColumn();
-		if (empty($result)) {
-			return 0;
-		} else
-			return (int) $result;
-	}
-	public function getByAttendee ($attendee)
-	{
-		if (empty($attendee)) {
-			throw new Bts_Exception('Missing parameters (attendee needed)',
-			Bts_Exception::TICKETS_PARAMS_BAD);
-		}
-		$select = $this->TicketsTable->select(true)
-			->where('attendee_id = ?', $attendee);
-		$rows = $this->TicketsTable->fetchAll($select);
-		foreach ($rows as $row) {
-			$row->setReadOnly(true);
-		}
-		return $rows;
-	}
-	public function getStatusText ($status)
-	{
-		if (isset($this->statuses[$status])) {
-			return $this->statuses[$status];
-		} else {
-			return end($this->statuses);
-		}
-	}
-	public function getStatusCode ($text)
-	{
-		$search = array_search($text, $this->statuses);
-		if ($search === false) {
-			// not found, return the 'other' status code
-			return array_search('invalidother', $this->statuses);
-		} else {
-			return $search;
+		public function getStatusCode ($text)
+		{
+			$search = array_search($text, $this->statuses);
+			if ($search === false) {
+				// not found, return the 'other' status code
+				return array_search('invalidother',
+					$this->statuses);
+			} else {
+				return $search;
+			}
 		}
 	}
-}

@@ -13,6 +13,13 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 			Zend_Registry::set('db', $dbResource->getDbAdapter());
 		}
 	}
+	/**
+	 * Defines a constant for the launch time of this application.
+	 */
+	protected function _initTimer ()
+	{
+		defined('BTS_START_TIME') || define('BTS_START_TIME', microtime(true));
+	}
 	protected function _initException ()
 	{
 		require 'Exception.php';

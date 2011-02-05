@@ -1,0 +1,19 @@
+<?php
+// this needs to be fixed to reflect actual login status and other useful tools
+$this->loginLink = $this->url(
+	array(
+		'module' => 'panel',
+		'controller' => 'login'));
+$this->registrationLink = $this->url(
+	array(
+		'module' => 'panel',
+		'controller' => 'login'));
+?>
+<div id="header-bar"><span class="left"><a
+	href="<?php
+	echo $this->loginLink;
+	?>">Login</a>&nbsp;&nbsp;&nbsp;|
+&nbsp;&nbsp;&nbsp;<a href="<?php
+echo $this->registrationLink;
+?>">Register</a></span>
+<span class="right">Development Installation</span></div>

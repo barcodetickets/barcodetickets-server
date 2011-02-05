@@ -1,0 +1,93 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Manage Tickets');
+$this->headTitle('Manage Tickets');
+$this->headScript()->appendFile(
+	'//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js');
+$inactivateBgImage = $this->baseUrl('img/lock_closed_24.png');
+$this->headStyle(<<<STYLESHEET
+table, td {
+	border: 1px solid #ccc;
+	border-collapse: collapse;
+}
+thead th {
+	background-color: #888;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgb(180,
+		178, 180) ), color-stop(1, #777) );
+	background: -moz-linear-gradient(center top, rgb(180, 178, 180) 0%, #777
+		100% );
+	text-shadow: 1px 1px 5px #333;
+	color: #eee;
+}
+td, th {
+	padding: 0.2em 0.5em;
+}
+tbody tr:nth-child(odd) {
+	background-color: #eee;
+}
+tr {
+	text-align: center;
+}
+th.ticket_number {
+	width: 10%;
+}
+th.attendee {
+	width: 30%;
+}
+th.label {
+	width: 15%;
+}
+td.label {
+	font-family: monospace;
+	text-transform: uppercase;
+}
+th.status {
+	width: 10%;
+}
+th.actions {
+	width: 10%;
+}
+td.actions a {
+	display: inline-block;
+	width: 24px; height: 24px;
+	overflow: hidden; text-indent: -10000em;
+	background-position: top center;
+	border-bottom: none;
+}
+td.actions a.inactivate {
+	background-image: url($inactivateBgImage);
+}
+STYLESHEET
+);
+?>
+<div id="body" class="row">
+<div class="column grid_10">
+<p>An explanatory paragraph here.</p>
+<table>
+	<thead>
+		<tr>
+			<th class="ticket_number">Ticket #</th>
+			<th class="attendee">Attendee</th>
+			<th class="label">Label</th>
+			<th class="status">Status</th>
+			<th class="actions"></th>
+		</tr>
+	</thead>
+	<tbody>
+<?php
+foreach ($this->tickets as $t) {
+	echo <<<TICKET
+		<tr>
+			<td class="ticket_number">{$t['ticket_id']}</td>
+			<td class="attendee">{$t['first_name']} {$t['last_name']}</td>
+			<td class="label">{$t['event_id']}-{$t['batch']}-{$t['ticket_id']}-{$t['checksum']}</td>
+			<td class="status">{$this->ticketStatuses[$t['ticket_id']]}</td>
+			<td class="actions">
+				<a href="#" title="Inactivate" id="inactivate_{$t['ticket_id']}" class="inactivate">Inactivate</a></td>
+		</tr>
+TICKET;
+}
+?>
+</tbody>
+</table>
+</div>
+</div>

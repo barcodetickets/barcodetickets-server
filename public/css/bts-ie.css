@@ -1,0 +1,5 @@
+@charset "utf-8";
+
+#header-bar,#wrapper {
+	behavior: url(../scripts/PIE.htc);
+}

@@ -1,61 +1,22 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Barcode Ticket System | Import CSV</title>
-<style type="text/css">
-<!--
-body {
-	margin: 0; padding: 0;
-	background-color: #206080;
-	font-family: Helvetica, Arial, sans-serif;
-	font-size: 100%;
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Import Ticket Sales');
+$this->headTitle('Import Ticket Sales');
+$this->headScript()->appendFile(
+	'//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js');
+$inactivateBgImage = $this->baseUrl('img/lock_closed_24.png');
+$this->headStyle(
+<<<STYLESHEET
+dt {
+	float: left; clear: both;
+	width: 20%;
+	padding: 0.5em;
 }
-div {
-	padding: 0; margin: 0;
+dd {
+	float: left;
+	padding: 0.5em;
 }
-p {
-	line-height: 1.75;
-	font-size: 0.875em;
-	width: 40em;
-	margin-top: 1.75em; margin-bottom: 1.75em;
-}
-li {
-	font-size: 0.875em;
-	line-height: 1.75;
-}
-div#wrapper {
-	background-color: #FEFEFE;
-	width: 45em;
-	margin: 1em auto;
-	padding: 10px;
-	border-radius: 10px;
-	-moz-border-radius: 10px;
-	-webkit-border-radius: 10px;
-}
-div#header {
-	border-bottom: 1px #444 solid;
-	width: 35em;
-	text-align: center;
-	margin: 0 auto 2em auto;
-}
-div#body {
-	width: 30em;
-	margin: 1em auto;
-}
-h1 {
-	font-family: Helvetica, Arial, sans-serif;
-	font-weight: bold;
-	text-transform: uppercase;
-	font-size: 2.25em;
-	margin: 1em 0;
-}
-h2, h3, h4, h5 {
-	font-weight: bold;
-}
-h2 {
-	font-size: 1.5em;
+div.zend_form {
+	background-color: #efefef;
 }
 label {
     font-weight: bold;
@@ -87,19 +48,29 @@ p.error {
 	margin-left: 10em;
 	border: 1px solid #CA4455;
 }
--->
-</style>
-</head>
-<body>
-<div id="wrapper">
-	<div id="header">
-		<h1>Import CSV</h1>
-	</div>
-	<div id="body">
-		<div>
-			<?php echo $this->form; ?>
-		</div>
-	</div>
+
+STYLESHEET
+);
+?>
+
+<div id="body" class="row">
+<div class="column grid_5">
+	<h2>Instructions</h2>
+	<p>To import a spreadsheet of tickets sold outside the BTS system, upload a
+	comma-separated values file (.csv) that contains these columns only:</p>
+	<ol>
+		<li>Ticket Number</li>
+		<li>First Name</li>
+		<li>Last Name</li>
+	</ol>
 </div>
-</body>
-</html>
+<div class="column grid_5">
+<h2>Upload a CSV</h2>
+<div class="zend_form">
+<?php
+echo $this->form;
+?>
+<br class="clear" />
+</div>
+</div>
+</div>
