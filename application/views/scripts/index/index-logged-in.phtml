@@ -1,0 +1,19 @@
+<?php
+$links = array(
+	'<a href="' . $this->url(
+		array(
+			'module' => 'panel',
+			'controller' => 'import-sales')) . '">Import Ticket Sales</a>',
+	'<a href="' . $this->url(
+		array(
+			'module' => 'panel',
+			'controller' => 'tickets')) . '">Manage Tickets</a>');
+?>
+<div id="body" class="row">
+<h2>Welcome to the Barcode Ticket System</h2>
+<p>As an authorized user of this system, you have access to the
+following tools:</p>
+<?php
+echo $this->htmlList($links, null, null, false);
+?>
+</div>

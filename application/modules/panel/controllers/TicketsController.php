@@ -25,10 +25,8 @@ class Panel_TicketsController extends Zend_Controller_Action
 				'isLoggedIn', true);
 		} else {
 			// redirect to login page if not logged in
-			return $this->_helper->redirector->gotoRouteAndExit(
-				array(
-					'module' => 'panel',
-					'controller' => 'login'));
+			return $this->_helper->redirector->gotoSimpleAndExit(
+				'index', 'login', 'panel');
 		}
 		$this->Tickets = new Bts_Model_Tickets();
 	}
@@ -37,11 +35,29 @@ class Panel_TicketsController extends Zend_Controller_Action
 	 */
 	public function indexAction ()
 	{
+		$requestedEvent = $this->_getParam('event_id');
+		$Events = new Bts_Model_Events();
+		if (is_null($requestedEvent)) {
+			// no event selected, show selection
+			$listEvents = $Events->getEventsForUser(
+				$this->Session->userRow['user_id']);
+			$this->view->assign('listEvents', $listEvents);
+			return $this->render('pick-event');
+		} else {
+			// TODO: check access level
+			$event = $Events->getEvent(
+				$requestedEvent);
+			if(is_null($event)) {
+				return $this->render('bad-event');
+			}
+			$this->view->eventRow = $event;
+		}
 		$this->view->tickets = $this->Tickets->getEverythingByEvent(
-			$this->_getParam('event_id', 1));
+			$requestedEvent);
 		$_statuses = array();
-		foreach($this->view->tickets as $t) {
-			$_statuses[$t['ticket_id']] = $this->Tickets->getStatusText($t['status']);
+		foreach ($this->view->tickets as $t) {
+			$_statuses[$t['ticket_id']] = $this->Tickets->getStatusText(
+				$t['status']);
 		}
 		$this->view->assign('ticketStatuses', $_statuses);
 	}

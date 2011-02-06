@@ -2,7 +2,8 @@
 $this->assign('pageTitle', 'BTS &raquo; Manage Tickets');
 $this->headTitle('Manage Tickets');
 $this->headScript()->appendFile(
-	'//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js');
+	'//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js')
+->appendFile('//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js');
 $inactivateBgImage = $this->baseUrl('img/lock_closed_24.png');
 $this->headStyle(<<<STYLESHEET
 table, td {
@@ -56,12 +57,45 @@ td.actions a {
 td.actions a.inactivate {
 	background-image: url($inactivateBgImage);
 }
+#dialog-form { display: none; }
+.ui-widget {
+	font-size: 1em;
+	font-family: "Palatino Linotype", Palatino, Georgia, Times,
+		"Times New Roman", serif;
+}
+.ui-widget-content a {
+	border-bottom: none;
+}
+.ui-widget fieldset {
+	border: none;
+}
 STYLESHEET
 );
+$this->headLink()->appendStylesheet('//ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css');
+$this->headScript()->appendScript('$(document).ready(function() {
+	$( ".inactivate" ).click(function() {
+		$( "#dialog-form" ).dialog( "open" );
+	});
+	$( "#dialog-form" ).dialog({
+			autoOpen: false,
+			height: 300,
+			width: 350,
+			modal: true,
+			buttons: {
+				"Update":function(){},
+				"Cancel": function() {
+					$(this).dialog("close");
+				}
+			},
+			close: function() {
+				$("#dialog-form input").val( "" ).removeClass( "ui-state-error" );
+			}
+	});
+});');
 ?>
 <div id="body" class="row">
 <div class="column grid_10">
-<p>An explanatory paragraph here.</p>
+<p>You are viewing the ticket list for the event named <strong><?php echo $this->eventRow->name; ?></strong>.</p>
 <table>
 	<thead>
 		<tr>
@@ -90,4 +124,16 @@ TICKET;
 </tbody>
 </table>
 </div>
+</div>
+
+
+<div id="dialog-form" title="Invalidate ticket">
+	<p class="validateTips">All form fields are required.</p>
+
+	<form>
+	<fieldset>
+		<label for="salesperson">Salesperson</label>
+		<input type="text" name="salesperson" id="salesperson" value="" class="text ui-widget-content ui-corner-all" />
+	</fieldset>
+	</form>
 </div>

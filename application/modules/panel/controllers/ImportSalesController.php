@@ -18,10 +18,8 @@ class Panel_ImportSalesController extends Zend_Controller_Action
 				'isLoggedIn', true);
 		} else {
 			// redirect to login page if not logged in
-			return $this->_helper->redirector->gotoRouteAndExit(
-				array(
-					'module' => 'panel',
-					'controller' => 'login'));
+			return $this->_helper->redirector->gotoSimpleAndExit(
+				'index', 'login', 'panel');
 		}
 		$this->Importer = new Panel_Model_SalesImporter();
 	}
@@ -32,11 +30,8 @@ class Panel_ImportSalesController extends Zend_Controller_Action
 	public function importProcessAction ()
 	{
 		if (! $this->getRequest()->isPost()) {
-			return $this->_helper->redirector->gotoUrlAndExit(
-				array(
-					'module' => 'panel',
-					'controller' => 'import-sales',
-					'action' => 'index'));
+			return $this->_helper->redirector->gotoSimpleAndExit('index',
+				'import-sales');
 		}
 		$form = $this->form();
 		if ($form->isValid($_POST)) {

@@ -15,7 +15,9 @@ class IndexController extends Zend_Controller_Action
 	}
 	public function indexAction ()
 	{
-		// action body
+		if(isset($this->AuthSession->loggedIn) && $this->AuthSession->loggedIn) {
+			return $this->render('index-logged-in');
+		}
 	}
 }
 
