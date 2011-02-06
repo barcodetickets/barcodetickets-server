@@ -6,8 +6,8 @@
 class Panel_Form_Login extends Zend_Form
 {
 	private $_defaultInputDecorators = array(
-		'viewhelper',
-		'htmltag');
+		'ViewHelper',
+		'HtmlTag');
 	public function __construct ($options = array())
 	{
 		$options['method'] = 'post';
@@ -58,14 +58,14 @@ class Panel_Form_Login extends Zend_Form
 				'name' => 'redir',
 				'id' => 'redir-to',
 				'decorators' => array(
-					'viewhelper')));
+					'ViewHelper')));
 		$submit = new Zend_Form_Element_Submit(
 			array(
 				'name' => 'submit',
 				'tabindex' => 3,
 				'label' => 'login',
 				'decorators' => array(
-					'viewhelper')));
+					'ViewHelper')));
 		$this->addElement('hash', 'loginanticsrf');
 		$this->addElement($username, 'username');
 		$this->addElement($password, 'password');
