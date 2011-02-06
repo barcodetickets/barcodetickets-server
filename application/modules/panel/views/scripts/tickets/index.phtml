@@ -70,7 +70,44 @@ td.actions a.inactivate {
 	border: none;
 }
 STYLESHEET
-);
+)->appendStyle(<<<STYLESHEET
+body {
+	font-family: "Palatino Linotype", Palatino, Georgia, Times,
+		"Times New Roman", serif;
+}
+th.ticket_number {
+	width: 10%;
+}
+th.attendee {
+	width: 30%;
+}
+th.label {
+	width: 15%;
+}
+td.label {
+	font-family: monospace;
+	text-transform: uppercase;
+	font-size: 1.15em;
+}
+th.status {
+	width: 10%;
+}
+table, td, th {
+	border: 1px solid #999;
+	border-collapse: collapse;
+}
+td, th {
+	padding: 0.2em 0.5em;
+}
+th {
+	background-color: #cacaca;
+}
+tbody tr:nth-child(odd) {
+	background-color: #eee;
+}
+#header-bar, #footer, td.actions, th.actions, td.actions a { display: none; }
+STYLESHEET
+, array('media' => 'print'));
 $this->headLink()->appendStylesheet('//ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/smoothness/jquery-ui.css');
 $this->headScript()->appendScript('$(document).ready(function() {
 	$( ".inactivate" ).click(function() {
