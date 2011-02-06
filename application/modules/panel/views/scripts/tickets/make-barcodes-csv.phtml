@@ -1,0 +1,6 @@
+<?php
+foreach ($this->tickets as $t) {
+	echo <<<TICKET
+{$t['ticket_id']},{$t['batch']},"{$this->ticketBarcodes[$t['ticket_id']]}",{$t['event_id']}-{$t['batch']}-{$t['ticket_id']}-{$t['checksum']}\n
+TICKET;
+}

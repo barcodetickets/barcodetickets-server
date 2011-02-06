@@ -1,0 +1,91 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Manage Tickets');
+$this->headTitle('Manage Tickets');
+$this->headScript()->appendFile(
+	'//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js')
+->appendFile('//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js');
+
+$csvLink = $this->url(array(
+	'format' => 'csv'
+));
+
+$this->headStyle(<<<STYLESHEET
+table, td {
+	border: 1px solid #ccc;
+	border-collapse: collapse;
+}
+table { width: 100%; }
+thead th {
+	background-color: #888;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgb(180,
+		178, 180) ), color-stop(1, #777) );
+	background: -moz-linear-gradient(center top, rgb(180, 178, 180) 0%, #777
+		100% );
+	text-shadow: 1px 1px 5px #333;
+	color: #eee;
+}
+td, th {
+	padding: 0.2em 0.5em;
+}
+tbody tr:nth-child(odd) {
+	background-color: #eee;
+}
+tr {
+	text-align: center;
+}
+th.ticket_number {
+	width: 10%;
+}
+th.batch {
+	width: 5%;
+}
+th.barcode {
+	width: 70%;
+}
+th.label {
+	width: 15%;
+}
+td.barcode {
+	font-family: monospace;
+}
+td.label {
+	font-family: monospace;
+	text-transform: uppercase;
+}
+p.print-link {
+	text-align: center;
+}
+STYLESHEET
+);
+?>
+<div id="body" class="row">
+<div class="column grid_10">
+<p>You are viewing the ticket list for the event named <strong><?php echo $this->eventRow->name; ?></strong>.</p>
+<p class="print-link"><a href="<?php echo $csvLink; ?>">Download as CSV</a></p>
+<table>
+	<thead>
+		<tr>
+			<th class="ticket_number">Ticket #</th>
+			<th class="batch">Batch</th>
+			<th class="barcode">Barcode</th>
+			<th class="label">Label</th>
+		</tr>
+	</thead>
+	<tbody>
+<?php
+foreach ($this->tickets as $t) {
+	echo <<<TICKET
+		<tr>
+			<td class="ticket_number">{$t['ticket_id']}</td>
+			<td class="batch">{$t['batch']}</td>
+			<td class="barcode">{$this->ticketBarcodes[$t['ticket_id']]}</td>
+			<td class="label">{$t['event_id']}-{$t['batch']}-{$t['ticket_id']}-{$t['checksum']}</td>
+		</tr>
+TICKET;
+}
+?>
+</tbody>
+</table>
+<p class="print-link"><a href="<?php echo $csvLink; ?>">Download as CSV</a></p>
+</div>
+</div>
