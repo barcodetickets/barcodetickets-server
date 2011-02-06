@@ -73,7 +73,7 @@ class Panel_ImportSalesController extends Zend_Controller_Action
 			->addElement('hash', 'loginanticsrf',
 			array(
 				'decorators' => array(
-					'viewhelper')));
+					'ViewHelper')));
 		$form->setAction(
 			$this->view->url(
 				array(
