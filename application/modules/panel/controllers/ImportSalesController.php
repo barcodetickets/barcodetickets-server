@@ -39,7 +39,7 @@ class Panel_ImportSalesController extends Zend_Controller_Action
 			$filename = $form->getElement('CSV')->getFileName();
 			$csv = $this->Importer->readCsv($filename);
 			$log = $this->Importer->activateTickets($form->getValue('Event'),
-				$this->AuthSession->userId, $csv);
+				$this->Session->userRow['user_id'], $csv);
 			$this->view->assign('result', 'ok');
 			$this->view->assign('log', $log);
 		} else {
