@@ -60,7 +60,7 @@ class Panel_TicketsController extends Zend_Controller_Action
 		}
 		$this->view->assign('ticketStatuses', $_statuses);
 	}
-	public function makeBarcodesAction ()
+	public function manageBarcodesAction ()
 	{
 		$requestedEvent = $this->_getParam('event_id');
 		$Events = new Bts_Model_Events();
@@ -90,9 +90,44 @@ class Panel_TicketsController extends Zend_Controller_Action
 		// allow for CSV download
 		if ($this->_getParam('format') == 'csv') {
 			$this->_response->setHeader('Content-Type', 'text/csv');
-			$this->_response->setHeader('Content-Disposition', 'attachment; filename=' . $requestedEvent . '.csv');
+			$this->_response->setHeader('Content-Disposition',
+				'attachment; filename=' . $requestedEvent . '.csv');
 			$this->_helper->layout()->disableLayout();
-			return $this->render('make-barcodes-csv');
+			return $this->render('manage-barcodes-csv');
 		}
+	}
+	public function generateBarcodesAction ()
+	{
+		$requestedEvent = $this->_getParam('event_id');
+		$Events = new Bts_Model_Events();
+		if (is_null($requestedEvent)) {
+			// no event selected, take us back to barcodes start
+			return $this->_helper->redirector->gotoSimpleAndExit(
+				'make-barcodes', 'tickets', 'panel');
+		} else {
+			// TODO: check access level
+			$event = $Events->getEvent($requestedEvent);
+			if (is_null($event)) {
+				return $this->render('bad-event');
+			}
+			$this->view->eventRow = $event;
+		}
+		$maxBatch = $this->Tickets->getMaxBatch($requestedEvent);
+		$Generate = new Panel_Form_Generate(
+			array(
+				'action' => $this->_helper->url->url(),
+				'batchNumber' => $maxBatch + 1));
+		if ($_SERVER['REQUEST_METHOD'] == 'POST' && $Generate->isValid($_POST)) {
+			$formValues = $Generate->getValues();
+			try {
+				$Events->generateBatch($requestedEvent, $formValues['count'],
+					$this->Session->userRow['user_id'], $this->Tickets);
+				$this->view->assign('count', $formValues['count']);
+				return $this->render('generate-successful');
+			} catch (Zend_Exception $e) {
+				$Generate->addError($e->getMessage());
+			}
+		}
+		$this->view->form = $Generate;
 	}
 }

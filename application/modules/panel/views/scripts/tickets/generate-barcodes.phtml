@@ -1,0 +1,79 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Generate Tickets');
+$this->headTitle('Generate Tickets');
+$this->headScript()->appendFile(
+	'//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js');
+$inactivateBgImage = $this->baseUrl('img/lock_closed_24.png');
+$this->headStyle(
+<<<STYLESHEET
+dt {
+	float: left; clear: both;
+	width: 20%;
+	padding: 0.5em;
+}
+dd {
+	float: left;
+	padding: 0.5em;
+}
+div.zend_form {
+	background-color: #efefef;
+}
+label {
+    font-weight: bold;
+}
+p+input, p+select {
+    margin-left: 10em;
+    margin-top: -3.75em;
+    width: 20em;
+    font-family: Helvetica, Arial, sans-serif;
+    padding: 0.5em;
+    font-size: 0.875em;
+    display: block;
+}
+p.beforeinput {
+	margin-left: 2em;
+}
+input.submit {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 0.875em;
+	margin-right: 3em; margin-left: auto; margin-top: 1em;
+	padding: 0.5em; width: 5em;
+	display: block;
+}
+p.error {
+	padding: 0.5em;
+	color: #500000;
+	background-color: #f5afb0;
+	width: 20em;
+	margin-left: 10em;
+	border: 1px solid #CA4455;
+}
+input[readonly] {
+	background-color: #efefef;
+	border: none;
+}
+
+STYLESHEET
+);
+?>
+
+<div id="body" class="row">
+<div class="column grid_5">
+	<h2>Instructions</h2>
+	<p>In the Barcode Ticket System, tickets are generated before being	sold.
+	This interface makes it easier for you to create new batches of tickets.</p>
+	<ol>
+		<li>Batch Number: the sequential count of the next batch</li>
+		<li>Batch Size: how many tickets do you want?</li>
+	</ol>
+</div>
+<div class="column grid_5">
+<h2>Make a new batch</h2>
+<div class="zend_form">
+<?php
+echo $this->form;
+?>
+<br class="clear" />
+</div>
+</div>
+</div>

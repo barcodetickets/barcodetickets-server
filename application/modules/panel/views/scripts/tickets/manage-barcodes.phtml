@@ -8,6 +8,9 @@ $this->headScript()->appendFile(
 $csvLink = $this->url(array(
 	'format' => 'csv'
 ));
+$generateLink = $this->url(array(
+	'action' => 'generate-barcodes'
+));
 
 $this->headStyle(<<<STYLESHEET
 table, td {
@@ -86,6 +89,7 @@ TICKET;
 ?>
 </tbody>
 </table>
-<p class="print-link"><a href="<?php echo $csvLink; ?>">Download as CSV</a></p>
+<p class="print-link"><a href="<?php echo $csvLink; ?>">Download as CSV</a>
+&nbsp;|&nbsp;<a href="<?php echo $generateLink; ?>">Generate more tickets</a></p>
 </div>
 </div>

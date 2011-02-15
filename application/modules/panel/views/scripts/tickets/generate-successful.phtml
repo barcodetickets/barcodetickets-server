@@ -1,0 +1,19 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Generate Tickets');
+$this->headTitle('Generate Tickets');
+$this->declareVars(array(
+	'count' => 0
+));
+$this->manageLink = $this->url(array(
+	'action' => 'manage-barcodes'));
+?>
+<div id="body" class="row">
+	<div class="column grid_10">
+		<?php if($this->result == 'forminvalid') { ?>
+		<p>Oops, something went wrong.</p>
+		<?php } else { ?>
+		<p><?php echo $this->count; ?> tickets generated successfully!
+		<a href="<?php echo $this->manageLink; ?>">Manage barcodes now.</a></p>
+		<?php } ?>
+	</div>
+</div>

@@ -4,9 +4,11 @@ $this->logoutLink = $this->url(
 	array(
 		'module' => 'panel',
 		'controller' => 'login',
-		'action' => 'logout'));
+		'action' => 'logout'), null, true);
 $this->homeLink = $this->url(
-	array('controller' => 'index', 'action' => 'index', 'module' => 'default'));
+	array('controller' => 'index',
+		'action' => 'index',
+		'module' => 'default'), null, true);
 ?>
 <div id="header-bar"><span class="left">Hey, <?php
 echo $this->authSession->username;
