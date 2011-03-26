@@ -44,7 +44,6 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 					'Cache-Control' => 'private,no-cache', 
 					'Expires' => 'Sat, 26 Jul 1997 05:00:00 GMT'), 
 				'callbacks' => array(
-					'init' => 'initJsonContext', 
 					'post' => array(
 						$this, 
 						'jsonContext'))), 
@@ -58,6 +57,8 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 					'post' => array(
 						$this, 
 						'xmlContext')))));
+		$this->layout = Zend_Controller_Action_HelperBroker::getStaticHelper(
+		'layout');
 	}
 	/**
 	 * Upon predispatch, determines whether we will be sending in XML or
@@ -69,6 +70,9 @@ class Api_Action_Helper_FormatResponse extends Zend_Controller_Action_Helper_Abs
 			$this->responseType = $this->contextSwitch->getCurrentContext();
 		} else 
 			if ($this->getRequest()->getModuleName() == 'api') {
+				$this->layout = Zend_Controller_Action_HelperBroker::
+					getStaticHelper('layout');
+				$this->layout->disableLayout();
 				$requestedFormat = $this->getRequest()->getParam('format');
 				switch ($requestedFormat) {
 					case 'xml':
