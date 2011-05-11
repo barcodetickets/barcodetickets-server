@@ -1,0 +1,14 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Event Created');
+$this->headTitle('Event Created');
+$this->manageLink = $this->url(array(
+	'controller' => 'tickets',
+	'action' => 'manage-barcodes',
+	'event_id' => $this->eventId));
+?>
+<div id="body" class="row">
+	<div class="column grid_10">
+		<p>Your event, <em><?php echo $this->formValues['name']; ?></em>, was created successfully!
+		<a href="<?php echo $this->manageLink; ?>">Manage barcodes now.</a></p>
+	</div>
+</div>

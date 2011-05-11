@@ -27,10 +27,10 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 	protected function _initConfig ()
 	{
 		$btsConfig = new Zend_Config_Ini(
-		APPLICATION_PATH . '/configs/bts.default.ini', 'bts', true);
+			APPLICATION_PATH . '/configs/bts.ini.dist', 'bts', true);
 		if (file_exists(APPLICATION_PATH . '/configs/bts.ini')) {
 			$btsConfig->merge(
-			new Zend_Config_Ini(APPLICATION_PATH . '/configs/bts.ini', 'bts'));
+				new Zend_Config_Ini(APPLICATION_PATH . '/configs/bts.ini', 'bts'));
 		}
 		Zend_Registry::set('bts-config', $btsConfig);
 	}

@@ -1,0 +1,15 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Manage Events');
+$this->headTitle('Manage Events');
+$createLink = $this->url(array('action' => 'create'));
+?>
+<div id="body" class="row">
+<div class="column grid_5">
+	<h2>Instructions</h2>
+	<p>Use this controller to add and manage events.</p>
+	<?php // TODO: description ?>
+</div>
+<div class="column grid_5">
+<h2><a href="<?php echo $createLink; ?>">Create an Event</a></h2>
+</div>
+</div>
