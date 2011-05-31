@@ -42,7 +42,8 @@ class Panel_Model_SalesImporter
 		fclose($file);
 		return $data;
 	}
-	public function getListEvents($user) {
+	public function getListEvents ($user)
+	{
 		return $this->Events->getEventsForUser($user);
 	}
 	public function activateTickets ($event, $user, array $importedData)
@@ -66,26 +67,30 @@ class Panel_Model_SalesImporter
 			if ($exists instanceof Zend_Db_Table_Rowset_Abstract) {
 				if ($exists->count() == 0) {
 					// not found; make one
-					$attendeeId = $this->Attendees->create(
+					/* $attendeeId = $this->Attendees->create(
 					$row[1], $row[2], 'bts-gen-' . sha1($row[1] . ' ' . $row[2]));
 					if ($attendeeId == - 1) {
 						// failed!
 						$log .= 'Attendee ' . $row[1] .
-						 ' ' . $row[2] . " could not be created.\n";
-						$log .= 'Ticket ' . $row[0] . " could not be activated.";
-						continue;
-					}
-				} else
-					if ($exists->count() >= 1) {
-						// found
-						$attendeeId = $exists[0]->attendee_id;
-					}
+						 ' ' . $row[2] . " could not be created.\n"; */
+					$log .= 'Ticket ' . $row[0] . " could not be activated.\n";
+					continue;
+					/* } */
+				} elseif ($exists->count() == 1) {
+					// found
+					$attendeeId = $exists[0]->attendee_id;
+				} elseif ($exists->count() > 1) {
+					// uh oh multiple people, error and skip this ticket
+					$log .= 'Ticket ' . $row[0] .
+						 " could not be activated. Duplicate name?\n";
+					continue;
+				}
 				// now activate tickets
-				$activation = $this->Tickets->activate($event,
-				(int) $row[0], $attendeeId, $user);
+				$activation = $this->Tickets->activate(
+					$event, (int) $row[0], $attendeeId, $user);
 				if ($activation != $this->Tickets->getStatusCode('active')) {
 					$log .= 'Ticket ' . $row[0] .
-					 " was not activated successfully. Code $activation\n";
+						 " was not activated successfully. Code $activation\n";
 				}
 			} else {
 				$log .= "Something went wrong with {$row[0]} {$row[1]} {$row[2]}.\n";

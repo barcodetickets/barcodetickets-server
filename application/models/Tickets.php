@@ -27,6 +27,7 @@ class Bts_Model_Tickets
 		4 => 'lostunsold',  // lost by ticket sellers
 		5 => 'lostsold',  // lost by ticket holder
 		6 => 'stolen',  // same as #5 but specifies theft
+		7 => 'duplicate', // was misnumbered and had to be reissued
 		254 => 'unlimited',  // active permanently
 		255 => 'invalidother'); // 255 = unknown status but nevertheless invalid -- must be last
 	public function __construct ()
