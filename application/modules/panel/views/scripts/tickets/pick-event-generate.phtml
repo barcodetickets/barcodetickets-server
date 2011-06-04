@@ -1,0 +1,19 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Generate Label Sheets');
+$this->headTitle('Generate Label Sheets');
+$this->headScript()->appendFile(
+	'//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js');
+?>
+<div id="body" class="row">
+<div class="column grid_10">
+<p>Pick an event for which you want to generate barcode labels.</p>
+<?php
+$items = array();
+foreach($this->listEvents as $e) {
+	$items[] = '<a href="' . $this->url(array('event_id' => $e->event_id)) . '">' . $e->name . '</a>';
+}
+echo $this->htmlList($items, null, null, false);
+?>
+</ul>
+</div>
+</div>

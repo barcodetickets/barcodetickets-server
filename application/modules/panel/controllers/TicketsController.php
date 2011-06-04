@@ -143,7 +143,7 @@ class Panel_TicketsController extends Zend_Controller_Action
 				$this->Session->userRow['user_id']);
 			$this->view->assign('listEvents', $listEvents);
 			$this->_helper->layout()->enableLayout();
-			return $this->render('pick-event');
+			return $this->render('pick-event-generate');
 		} elseif(is_null($requestedBatch)) {
 			// no batch selected, show selection
 			$event = $Events->getEvent($requestedEvent);
@@ -151,7 +151,7 @@ class Panel_TicketsController extends Zend_Controller_Action
 			$this->view->assign('event', $event);
 			$this->view->assign('listBatches', $batches);
 			$this->_helper->layout()->enableLayout();
-			return $this->render('pick-batch');
+			return $this->render('pick-batch-generate');
 		} else {
 			// TODO: check access level
 			$event = $Events->getEvent($requestedEvent);
