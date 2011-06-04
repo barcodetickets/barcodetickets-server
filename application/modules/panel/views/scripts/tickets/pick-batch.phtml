@@ -1,0 +1,30 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Generate Label Sheets');
+$this->headTitle('Generate Label Sheets');
+$this->headScript()->appendFile(
+	'//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js');
+$this->inlineScript()->appendScript('$(document).ready(function() {
+	$("p.warning").hide();
+	$("li a").click(function() {
+		$("p.warning").slideDown();
+	});
+});');
+?>
+<div id="body" class="row">
+<div class="column grid_10">
+<p>You've selected the <?php
+echo $this->event->name;
+?> event. Now pick a batch.</p>
+<?php
+$items = array();
+foreach ($this->listBatches as $b) {
+	$items[] = '<a href="' . $this->url(array(
+		'batch_id' => $b['batch'])) . '">' . $b['batch'] . '</a>';
+}
+echo $this->htmlList($items, null, null, false);
+?>
+</ul>
+<p class="warning">Please be patient. <br /><small>PDF label sheets will take some
+time to generate, especially with batches of over 20 barcodes.</small></p>
+</div>
+</div>

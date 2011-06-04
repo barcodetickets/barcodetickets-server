@@ -130,4 +130,44 @@ class Panel_TicketsController extends Zend_Controller_Action
 		}
 		$this->view->form = $Generate;
 	}
+	public function generatePdfAction ()
+	{
+		$this->_helper->layout()->disableLayout();
+		$this->_helper->viewRenderer->setNoRender(true);
+		$requestedEvent = $this->_getParam('event_id');
+		$requestedBatch = $this->_getParam('batch_id');
+		$Events = new Bts_Model_Events();
+		if (is_null($requestedEvent)) {
+			// no event selected, show selection
+			$listEvents = $Events->getEventsForUser(
+				$this->Session->userRow['user_id']);
+			$this->view->assign('listEvents', $listEvents);
+			$this->_helper->layout()->enableLayout();
+			return $this->render('pick-event');
+		} elseif(is_null($requestedBatch)) {
+			// no batch selected, show selection
+			$event = $Events->getEvent($requestedEvent);
+			$batches = $this->Tickets->getBatches($requestedEvent);
+			$this->view->assign('event', $event);
+			$this->view->assign('listBatches', $batches);
+			$this->_helper->layout()->enableLayout();
+			return $this->render('pick-batch');
+		} else {
+			// TODO: check access level
+			$event = $Events->getEvent($requestedEvent);
+			if (is_null($event)) {
+				return $this->render('bad-event');
+			}
+		}
+		$tickets = $this->Tickets->getForPdf($requestedEvent, $requestedBatch);
+		$_barcodes = array();
+		$Barcodes = Bts_Model_Barcodes::getInstance();
+		foreach ($tickets as $t) {
+			$_barcodes[$t['ticket_id']] = array(
+				$Barcodes->encryptBarcode($t['event_id'], $t['batch'],
+					$t['ticket_id']), $t['label']);
+		}
+		$PdfGenerator = new Panel_Model_PdfGenerator($_barcodes);
+		$PdfGenerator->render();
+	}
 }

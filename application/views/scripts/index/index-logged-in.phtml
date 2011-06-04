@@ -12,7 +12,12 @@ $links = array(
 	'<a href="' . $this->url(
 		array(
 			'module' => 'panel',
-			'controller' => 'tickets')) . '">Manage Tickets</a>');
+			'controller' => 'tickets')) . '">Manage Tickets</a>',
+	'<a href="' . $this->url(
+		array(
+			'module' => 'panel',
+			'controller' => 'tickets',
+			'action' => 'generate-pdf')) . '">Print Label Sheets</a>');
 ?>
 <div id="body" class="row">
 <h2>Welcome to the Barcode Ticket System</h2>

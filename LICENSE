@@ -215,7 +215,7 @@ For the bundled CSS3 PIE library:
 
 	Used under the Apache License 2.0, identical to the main BTS project.
 
-For the bundled Zend Framework library and Zend_Matrixcode library:
+For the bundled Zend Framework library:
 
 	Copyright (c) 2005-2010, Zend Technologies USA, Inc.
 	All rights reserved.
@@ -304,3 +304,13 @@ For the bundled IE9.js library:
 	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE.
+	
+The bundled tcpdf library is used under an LGPL license. See 
+library/tcpdf/LICENSE.txt for the full licence text.
+
+	 TCPDF is free software: you can redistribute it and/or modify it
+	 under the terms of the GNU Lesser General Public License as
+	 published by the Free Software Foundation, either version 3 of the
+	 License, or (at your option) any later version. Additionally, 
+	 YOU CAN'T REMOVE ANY TCPDF COPYRIGHT NOTICE OR LINK FROM THE 
+	 GENERATED PDF DOCUMENTS.

@@ -27,7 +27,7 @@ class Bts_Model_Tickets
 		4 => 'lostunsold',  // lost by ticket sellers
 		5 => 'lostsold',  // lost by ticket holder
 		6 => 'stolen',  // same as #5 but specifies theft
-		7 => 'duplicate', // was misnumbered and had to be reissued
+		7 => 'duplicate',  // was misnumbered and had to be reissued
 		254 => 'unlimited',  // active permanently
 		255 => 'invalidother'); // 255 = unknown status but nevertheless invalid -- must be last
 	public function __construct ()
@@ -243,6 +243,19 @@ class Bts_Model_Tickets
 			} else
 				return (int) $result;
 		}
+		public function getBatches ($event)
+		{
+			if (empty($event)) {
+				throw new Bts_Exception('Missing parameters (event needed)',
+					Bts_Exception::TICKETS_PARAMS_BAD);
+			}
+			$select = $this->TicketsTable->select(false)
+				->from('bts_tickets', 'batch')
+				->where('event_id = ?', $event)
+				->group('batch');
+			$result = $select->query()->fetchAll();
+			return $result;
+		}
 		public function getByAttendee ($attendee)
 		{
 			if (empty($attendee)) {
@@ -265,9 +278,40 @@ class Bts_Model_Tickets
 			}
 			$select = $this->TicketsTable->getAdapter()
 				->select()
-				->from(array('t' => 'bts_tickets'))
+				->from(array(
+				't' => 'bts_tickets'))
 				->where('t.event_id = ?', (int) $event)
-				->joinLeft(array('a' => 'bts_attendees'), 't.attendee_id = a.attendee_id', array('first_name', 'last_name'));
+				->joinLeft(array(
+				'a' => 'bts_attendees'), 't.attendee_id = a.attendee_id',
+				array(
+					'first_name',
+					'last_name'));
+			$rows = $select->query()->fetchAll();
+			return $rows;
+		}
+		public function getForPdf ($event, $batch, $html = true)
+		{
+			if (empty($event)) {
+				throw new Bts_Exception('Missing parameters (event needed)',
+					Bts_Exception::TICKETS_PARAMS_BAD);
+			}
+			if (empty($batch)) {
+				throw new Bts_Exception('Missing parameters (batch needed)',
+					Bts_Exception::TICKETS_PARAMS_BAD);
+			}
+			$select = $this->TicketsTable->getAdapter()
+				->select()
+				->from('bts_tickets',
+				array(
+					'event_id',
+					'batch',
+					'ticket_id',
+					'checksum' => 'UPPER(checksum)',
+					'label' => ($html) ? new Zend_Db_Expr(
+						'CONCAT(event_id,"-",batch,"-<b>",ticket_id,"</b>-",UPPER(checksum))') : new Zend_Db_Expr(
+						'CONCAT_WS("-",event_id,batch,ticket_id,UPPER(checksum))')))
+				->where('event_id = ?', (int) $event)
+				->where('batch = ?', (int) $batch);
 			$rows = $select->query()->fetchAll();
 			return $rows;
 		}

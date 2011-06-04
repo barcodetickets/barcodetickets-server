@@ -3,7 +3,7 @@ class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
 {
 	protected function _initVersion ()
 	{
-		defined('BTS_VERSION') || define('BTS_VERSION', '0.0.4-alpha');
+		defined('BTS_VERSION') || define('BTS_VERSION', '0.1.0-alpha');
 		defined('ZF_VERSION') || define('ZF_VERSION', Zend_Version::VERSION);
 	}
 	protected function _initDb ()
