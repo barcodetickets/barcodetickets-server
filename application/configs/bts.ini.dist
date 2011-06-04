@@ -8,3 +8,7 @@ secureHash = ""
 ; serverName = ""
 ; URI to the /public folder, e.g. /bts
 ; serverPublicPath = ""
+
+[pdf]
+grid = Off
+html = On

@@ -1,6 +1,53 @@
 <?php
 $this->assign('pageTitle', 'BTS &raquo; Create an Event');
 $this->headTitle('Create an Event');
+$this->headStyle(
+<<<STYLESHEET
+dt {
+	float: left; clear: both;
+	width: 20%;
+	padding: 0.5em;
+}
+dd {
+	float: left;
+	padding: 0.5em;
+}
+div.zend_form {
+	background-color: #efefef;
+}
+label {
+    font-weight: bold;
+}
+p+input, p+select {
+    margin-left: 10em;
+    margin-top: -3.75em;
+    width: 20em;
+    font-family: Helvetica, Arial, sans-serif;
+    padding: 0.5em;
+    font-size: 0.875em;
+    display: block;
+}
+p.beforeinput {
+	margin-left: 2em;
+}
+input.submit {
+	font-family: Helvetica, Arial, sans-serif;
+	font-size: 0.875em;
+	margin-right: 3em; margin-left: auto; margin-top: 1em;
+	padding: 0.5em; width: 5em;
+	display: block;
+}
+p.error {
+	padding: 0.5em;
+	color: #500000;
+	background-color: #f5afb0;
+	width: 20em;
+	margin-left: 10em;
+	border: 1px solid #CA4455;
+}
+
+STYLESHEET
+);
 ?>
 <div id="body" class="row">
 <div class="column grid_5">

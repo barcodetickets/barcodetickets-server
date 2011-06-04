@@ -160,15 +160,15 @@ class Panel_TicketsController extends Zend_Controller_Action
 				return $this->render('bad-event');
 			}
 		}
-		$tickets = $this->Tickets->getForPdf($requestedEvent, $requestedBatch);
-		$_barcodes = array();
+		$PdfGenerator = new Panel_Model_PdfGenerator();
 		$Barcodes = Bts_Model_Barcodes::getInstance();
+		$tickets = $this->Tickets->getForPdf($requestedEvent, $requestedBatch, $PdfGenerator->getLabelsAreHtml());
+		$_barcodes = array();
 		foreach ($tickets as $t) {
 			$_barcodes[$t['ticket_id']] = array(
 				$Barcodes->encryptBarcode($t['event_id'], $t['batch'],
 					$t['ticket_id']), $t['label']);
 		}
-		$PdfGenerator = new Panel_Model_PdfGenerator($_barcodes);
-		$PdfGenerator->render();
+		$PdfGenerator->setData($_barcodes)->render();
 	}
 }
