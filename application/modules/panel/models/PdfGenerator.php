@@ -13,7 +13,7 @@ class Panel_Model_PdfGenerator
 	private $_labels = array();
 	private $_barcodes = array();
 	private $_labelsAreHtml = false;
-	private $_font = 'dejavusansmono';
+	private $_font = 'DejaVuSansMono';
 	public function __construct (array $data)
 	{
 		$this->_document = new TCPDF('L', 'mm', 'Letter', true, 'UTF-8', false);
