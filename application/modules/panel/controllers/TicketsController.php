@@ -156,6 +156,7 @@ class Panel_TicketsController extends Zend_Controller_Action
 			// TODO: check access level
 			$event = $Events->getEvent($requestedEvent);
 			if (is_null($event)) {
+				$this->_helper->layout()->enableLayout();
 				return $this->render('bad-event');
 			}
 		}
