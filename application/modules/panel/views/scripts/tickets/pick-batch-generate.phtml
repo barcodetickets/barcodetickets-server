@@ -12,9 +12,9 @@ $this->inlineScript()->appendScript('$(document).ready(function() {
 ?>
 <div id="body" class="row">
 <div class="column grid_10">
-<p>You've selected the <?php
-echo $this->event->name;
-?> event. Now pick a batch.</p>
+<p>You've selected the <strong><?php
+echo htmlspecialchars($this->event->name);
+?></strong> event. Now pick a batch.</p>
 <?php
 $items = array();
 foreach ($this->listBatches as $b) {

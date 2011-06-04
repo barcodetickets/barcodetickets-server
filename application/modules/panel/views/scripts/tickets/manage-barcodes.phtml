@@ -1,6 +1,6 @@
 <?php
-$this->assign('pageTitle', 'BTS &raquo; Manage Tickets');
-$this->headTitle('Manage Tickets');
+$this->assign('pageTitle', 'BTS &raquo; Manage Barcodes');
+$this->headTitle('Manage Barcodes');
 $this->headScript()->appendFile(
 	'//ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js')
 ->appendFile('//ajax.googleapis.com/ajax/libs/jqueryui/1.8.9/jquery-ui.min.js');
@@ -10,6 +10,9 @@ $csvLink = $this->url(array(
 ));
 $generateLink = $this->url(array(
 	'action' => 'generate-barcodes'
+));
+$pdfLink = $this->url(array(
+	'action' => 'generate-pdf'
 ));
 
 $this->headStyle(<<<STYLESHEET
@@ -64,7 +67,9 @@ STYLESHEET
 <div id="body" class="row">
 <div class="column grid_10">
 <p>You are viewing the ticket list for the event named <strong><?php echo $this->eventRow->name; ?></strong>.</p>
-<p class="print-link"><a href="<?php echo $csvLink; ?>">Download as CSV</a></p>
+<p class="print-link"><a href="<?php echo $csvLink; ?>">Download (CSV)</a>
+&nbsp;|&nbsp;<a href="<?php echo $pdfLink; ?>">Generate labels (PDF)</a>
+&nbsp;|&nbsp;<a href="<?php echo $generateLink; ?>">Generate more tickets</a></p>
 <table>
 	<thead>
 		<tr>
@@ -89,7 +94,8 @@ TICKET;
 ?>
 </tbody>
 </table>
-<p class="print-link"><a href="<?php echo $csvLink; ?>">Download as CSV</a>
+<p class="print-link"><a href="<?php echo $csvLink; ?>">Download (CSV)</a>
+&nbsp;|&nbsp;<a href="<?php echo $pdfLink; ?>">Generate labels (PDF)</a>
 &nbsp;|&nbsp;<a href="<?php echo $generateLink; ?>">Generate more tickets</a></p>
 </div>
 </div>
