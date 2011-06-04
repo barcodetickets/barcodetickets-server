@@ -215,7 +215,7 @@ For the bundled CSS3 PIE library:
 
 	Used under the Apache License 2.0, identical to the main BTS project.
 
-For the bundled Zend Framework library:
+For the bundled Zend Framework library and Zend_Matrixcode library:
 
 	Copyright (c) 2005-2010, Zend Technologies USA, Inc.
 	All rights reserved.
