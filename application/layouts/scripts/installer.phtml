@@ -1,0 +1,73 @@
+<?php
+$this->headMeta()->setHttpEquiv('Content-Type', 'text/html; charset=utf-8');
+$this->headLink()
+	->prependStylesheet($this->baseUrl('css/bts.css'))
+	->prependStylesheet($this->baseUrl('css/grid.css'))
+	->appendStylesheet($this->baseUrl('css/bts-ie.css'), 'screen',
+	'lt IE 9');
+$this->headScript()->appendFile($this->baseUrl('scripts/IE9.js'),
+	'text/javascript', array(
+		'conditional' => 'lt IE 9'));
+$this->declareVars(
+	array(
+		'pageTitle' => 'BTS',
+		'headerBarHidden' => false,
+		'isLoggedIn' => false,
+		'headerBarCustom' => null));
+echo $this->doctype();
+?>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<?php
+echo $this->headTitle('BTS', 'PREPEND')->setSeparator(' - ');
+echo "\n";
+echo $this->headMeta();
+echo "\n";
+echo $this->headLink();
+echo "\n";
+echo $this->headScript();
+echo "\n";
+echo $this->headStyle();
+?>
+
+
+</head>
+<body>
+<?php
+if (! empty($this->headerBarCustom)) {
+	echo $this->partial($this->headerBarCustom,
+		array(
+			'authSession' => $this->authSession));
+} else
+	if (! $this->headerBarHidden) {
+		if ($this->isLoggedIn)
+			echo $this->partial('logged-in-header.phtml',
+				array(
+					'authSession' => $this->authSession));
+		else
+			echo $this->partial('common-header.phtml');
+	}
+?>
+<div id="wrapper">
+<div id="header" class="row">
+<div class="column grid_10">
+<h1 class="logotype"><?php
+echo $this->pageTitle;
+?></h1>
+</div>
+</div>
+
+<?php
+echo $this->layout()->content;
+?>
+<?php
+echo $this->partial('common-footer.phtml');
+?>
+<?php
+echo $this->inlineScript();
+?>
+
+</div>
+</body>
+</html>
