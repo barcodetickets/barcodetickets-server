@@ -1,4 +1,5 @@
 <?php
+
 /**
  * TicketsController
  *
@@ -7,14 +8,19 @@
  */
 class Panel_TicketsController extends Zend_Controller_Action
 {
+
 	/**
+	 *
 	 * @var Bts_Model_Tickets
 	 */
 	private $Tickets = null;
+
 	/**
+	 *
 	 * @var Zend_Session_Namespace
 	 */
 	private $Session = null;
+
 	public function init ()
 	{
 		$this->Session = new Zend_Session_Namespace('bts-auth');
@@ -22,14 +28,15 @@ class Panel_TicketsController extends Zend_Controller_Action
 		// ALWAYS check if authenticated
 		if (isset($this->Session->loggedIn) && $this->Session->loggedIn) {
 			$this->view->assign('authSession', $this->Session)->assign(
-				'isLoggedIn', true);
+					'isLoggedIn', true);
 		} else {
 			// redirect to login page if not logged in
-			return $this->_helper->redirector->gotoSimpleAndExit(
-				'index', 'login', 'panel');
+			return $this->_helper->redirector->gotoSimpleAndExit('index', 
+					'login', 'panel');
 		}
 		$this->Tickets = new Bts_Model_Tickets();
 	}
+
 	/**
 	 * The default action - show the home page
 	 */
@@ -40,7 +47,7 @@ class Panel_TicketsController extends Zend_Controller_Action
 		if (is_null($requestedEvent)) {
 			// no event selected, show selection
 			$listEvents = $Events->getEventsForUser(
-				$this->Session->userRow['user_id']);
+					$this->Session->userRow['user_id']);
 			$this->view->assign('listEvents', $listEvents);
 			return $this->render('pick-event');
 		} else {
@@ -52,14 +59,15 @@ class Panel_TicketsController extends Zend_Controller_Action
 			$this->view->eventRow = $event;
 		}
 		$this->view->tickets = $this->Tickets->getEverythingByEvent(
-			$requestedEvent);
+				$requestedEvent);
 		$_statuses = array();
 		foreach ($this->view->tickets as $t) {
 			$_statuses[$t['ticket_id']] = $this->Tickets->getStatusText(
-				$t['status']);
+					$t['status']);
 		}
 		$this->view->assign('ticketStatuses', $_statuses);
 	}
+
 	public function manageBarcodesAction ()
 	{
 		$requestedEvent = $this->_getParam('event_id');
@@ -67,7 +75,7 @@ class Panel_TicketsController extends Zend_Controller_Action
 		if (is_null($requestedEvent)) {
 			// no event selected, show selection
 			$listEvents = $Events->getEventsForUser(
-				$this->Session->userRow['user_id']);
+					$this->Session->userRow['user_id']);
 			$this->view->assign('listEvents', $listEvents);
 			return $this->render('pick-event');
 		} else {
@@ -79,23 +87,24 @@ class Panel_TicketsController extends Zend_Controller_Action
 			$this->view->eventRow = $event;
 		}
 		$this->view->tickets = $this->Tickets->getEverythingByEvent(
-			$requestedEvent);
+				$requestedEvent);
 		$_barcodes = array();
 		$Barcodes = Bts_Model_Barcodes::getInstance();
 		foreach ($this->view->tickets as $t) {
 			$_barcodes[$t['ticket_id']] = $Barcodes->encryptBarcode(
-				$t['event_id'], $t['batch'], $t['ticket_id']);
+					$t['event_id'], $t['batch'], $t['ticket_id']);
 		}
 		$this->view->assign('ticketBarcodes', $_barcodes);
 		// allow for CSV download
 		if ($this->_getParam('format') == 'csv') {
 			$this->_response->setHeader('Content-Type', 'text/csv');
-			$this->_response->setHeader('Content-Disposition',
-				'attachment; filename=' . $requestedEvent . '.csv');
+			$this->_response->setHeader('Content-Disposition', 
+					'attachment; filename=' . $requestedEvent . '.csv');
 			$this->_helper->layout()->disableLayout();
 			return $this->render('manage-barcodes-csv');
 		}
 	}
+
 	public function generateBarcodesAction ()
 	{
 		$requestedEvent = $this->_getParam('event_id');
@@ -103,7 +112,7 @@ class Panel_TicketsController extends Zend_Controller_Action
 		if (is_null($requestedEvent)) {
 			// no event selected, take us back to barcodes start
 			return $this->_helper->redirector->gotoSimpleAndExit(
-				'make-barcodes', 'tickets', 'panel');
+					'make-barcodes', 'tickets', 'panel');
 		} else {
 			// TODO: check access level
 			$event = $Events->getEvent($requestedEvent);
@@ -114,14 +123,15 @@ class Panel_TicketsController extends Zend_Controller_Action
 		}
 		$maxBatch = $this->Tickets->getMaxBatch($requestedEvent);
 		$Generate = new Panel_Form_Generate(
-			array(
-				'action' => $this->_helper->url->url(),
-				'batchNumber' => $maxBatch + 1));
+				array(
+						'action' => $this->_helper->url->url(),
+						'batchNumber' => $maxBatch + 1
+				));
 		if ($_SERVER['REQUEST_METHOD'] == 'POST' && $Generate->isValid($_POST)) {
 			$formValues = $Generate->getValues();
 			try {
-				$Events->generateBatch($requestedEvent, $formValues['count'],
-					$this->Session->userRow['user_id'], $this->Tickets);
+				$Events->generateBatch($requestedEvent, $formValues['count'], 
+						$this->Session->userRow['user_id'], $this->Tickets);
 				$this->view->assign('count', $formValues['count']);
 				return $this->render('generate-successful');
 			} catch (Zend_Exception $e) {
@@ -130,6 +140,7 @@ class Panel_TicketsController extends Zend_Controller_Action
 		}
 		$this->view->form = $Generate;
 	}
+
 	public function generatePdfAction ()
 	{
 		$this->_helper->layout()->disableLayout();
@@ -140,11 +151,11 @@ class Panel_TicketsController extends Zend_Controller_Action
 		if (is_null($requestedEvent)) {
 			// no event selected, show selection
 			$listEvents = $Events->getEventsForUser(
-				$this->Session->userRow['user_id']);
+					$this->Session->userRow['user_id']);
 			$this->view->assign('listEvents', $listEvents);
 			$this->_helper->layout()->enableLayout();
 			return $this->render('pick-event-generate');
-		} elseif(is_null($requestedBatch)) {
+		} elseif (is_null($requestedBatch)) {
 			// no batch selected, show selection
 			$event = $Events->getEvent($requestedEvent);
 			$batches = $this->Tickets->getBatches($requestedEvent);
@@ -162,12 +173,15 @@ class Panel_TicketsController extends Zend_Controller_Action
 		}
 		$PdfGenerator = new Panel_Model_PdfGenerator();
 		$Barcodes = Bts_Model_Barcodes::getInstance();
-		$tickets = $this->Tickets->getForPdf($requestedEvent, $requestedBatch, $PdfGenerator->getLabelsAreHtml());
+		$tickets = $this->Tickets->getForPdf($requestedEvent, $requestedBatch, 
+				$PdfGenerator->getLabelsAreHtml());
 		$_barcodes = array();
 		foreach ($tickets as $t) {
 			$_barcodes[$t['ticket_id']] = array(
-				$Barcodes->encryptBarcode($t['event_id'], $t['batch'],
-					$t['ticket_id']), $t['label']);
+					$Barcodes->encryptBarcode($t['event_id'], $t['batch'], 
+							$t['ticket_id']),
+					$t['label']
+			);
 		}
 		$PdfGenerator->setData($_barcodes)->render();
 	}

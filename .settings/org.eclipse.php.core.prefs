@@ -1,5 +1,5 @@
 eclipse.preferences.version=1
-include_path=
+include_path=0;/BTS Barcode Ticket System/library\u00055;org.zend.php.framework.CONTAINER
 org.eclipse.php.core.phpForamtterIndentationSize=1
 org.eclipse.php.core.phpForamtterUseTabs=true
 phpVersion=php5.4

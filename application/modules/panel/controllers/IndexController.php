@@ -1,4 +1,5 @@
 <?php
+
 /**
  * IndexController
  *
@@ -7,12 +8,14 @@
  */
 class Panel_IndexController extends Zend_Controller_Action
 {
+
 	/**
 	 * The default action - show the home page
 	 */
 	public function indexAction ()
 	{
 		// send to homepage
-		return $this->_helper->redirector->gotoSimpleAndExit('index', 'index', 'default');
+		return $this->_helper->redirector->gotoSimpleAndExit('index', 'index', 
+				'default');
 	}
 }

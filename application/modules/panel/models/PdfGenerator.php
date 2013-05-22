@@ -1,23 +1,35 @@
 <?php
 require_once 'tcpdf/config/lang/eng.php';
 require_once 'tcpdf/tcpdf.php';
+
 class Panel_Model_PdfGenerator
 {
+
 	/**
+	 *
 	 * @var TCPDF
 	 */
 	private $_document;
+
 	/**
+	 *
 	 * @var Zend_Config
 	 */
 	private $_config;
+
 	private $_preferences = array(
-		'PrintScaling' => 'None',
-		'Duplex' => 'Simplex');
+			'PrintScaling' => 'None',
+			'Duplex' => 'Simplex'
+	);
+
 	private $_labels = array();
+
 	private $_barcodes = array();
+
 	private $_font = 'DejaVuSansMono';
+
 	private $_count = 0;
+
 	public function __construct (array $data = array())
 	{
 		$this->_initConfig();
@@ -27,20 +39,23 @@ class Panel_Model_PdfGenerator
 		$this->_setBoundaries();
 		$this->_setData($data);
 	}
+
 	protected function _initConfig ()
 	{
 		$this->_config = new Zend_Config_Ini(
-			APPLICATION_PATH . '/configs/bts.ini.dist', 'pdf', true);
+				APPLICATION_PATH . '/configs/bts.ini.dist', 'pdf', true);
 		if (file_exists(APPLICATION_PATH . '/configs/bts.ini')) {
 			$this->_config->merge(
-				new Zend_Config_Ini(APPLICATION_PATH . '/configs/bts.ini', 'pdf'));
+					new Zend_Config_Ini(APPLICATION_PATH . '/configs/bts.ini', 
+							'pdf'));
 		}
 	}
+
 	private function _setData (array $data)
 	{
 		if (count(next($data)) != 2)
 			return false;
-				// process $data into labels and barcodes
+			// process $data into labels and barcodes
 		foreach ($data as $d) {
 			$this->_labels[] = $d[1];
 			$this->_barcodes[] = $d[0];
@@ -48,17 +63,19 @@ class Panel_Model_PdfGenerator
 		$this->_count = count($data);
 		return true;
 	}
+
 	public function setData (array $data)
 	{
 		if ($this->_count > 0)
-			throw new Bts_Exception('Cannot set data when there is already data',
-				Bts_Exception::BARCODES_DATA_BAD);
+			throw new Bts_Exception('Cannot set data when there is already data', 
+					Bts_Exception::BARCODES_DATA_BAD);
 		$result = $this->_setData($data);
 		if (! $result)
-			throw new Bts_Exception('Invalid data format',
-				Bts_Exception::BARCODES_DATA_BAD);
+			throw new Bts_Exception('Invalid data format', 
+					Bts_Exception::BARCODES_DATA_BAD);
 		return $this;
 	}
+
 	private function _setBoundaries ()
 	{
 		$this->_document->SetPrintHeader(false);
@@ -66,6 +83,7 @@ class Panel_Model_PdfGenerator
 		$this->_document->SetMargins(13, 4.1, 13);
 		$this->_document->SetAutoPageBreak(true, 4.1);
 	}
+
 	private function _setMetadata ()
 	{
 		$d = $this->_document;
@@ -74,30 +92,38 @@ class Panel_Model_PdfGenerator
 		$d->SetDisplayMode('fullpage');
 		$d->setViewerPreferences($this->_preferences);
 	}
+
 	private function _drawGrid ()
 	{
 		$d = $this->_document;
 		for ($i = 0; $i < 5; $i ++) {
 			// divide each label in two
 			$lineStyle = array(
-				'color' => array(
-					150,
-					150,
-					150));
-			$d->Rect($i * 50.8 + 13, 4.1, 50.8, 50.8, '',
-				array(
-					'all' => $lineStyle));
-			$d->Rect($i * 50.8 + 13, 54.9, 50.8, 50.8, '',
-				array(
-					'all' => $lineStyle));
-			$d->Rect($i * 50.8 + 13, 109.7, 50.8, 50.8, '',
-				array(
-					'all' => $lineStyle));
-			$d->Rect($i * 50.8 + 13, 160.5, 50.8, 50.8, '',
-				array(
-					'all' => $lineStyle));
+					'color' => array(
+							150,
+							150,
+							150
+					)
+			);
+			$d->Rect($i * 50.8 + 13, 4.1, 50.8, 50.8, '', 
+					array(
+							'all' => $lineStyle
+					));
+			$d->Rect($i * 50.8 + 13, 54.9, 50.8, 50.8, '', 
+					array(
+							'all' => $lineStyle
+					));
+			$d->Rect($i * 50.8 + 13, 109.7, 50.8, 50.8, '', 
+					array(
+							'all' => $lineStyle
+					));
+			$d->Rect($i * 50.8 + 13, 160.5, 50.8, 50.8, '', 
+					array(
+							'all' => $lineStyle
+					));
 		}
 	}
+
 	private function _drawTextLabels (array $_array)
 	{
 		$d = $this->_document;
@@ -120,13 +146,14 @@ class Panel_Model_PdfGenerator
 			$col = $counter % 5;
 			$d->SetX(13 + $col * 50.8);
 			if ($this->_config->html)
-				$d->writeHtmlCell(50.8, 8, $d->GetX(), $d->GetY() + 1.3, $s, 0, 0,
-					false, true, 'C');
+				$d->writeHtmlCell(50.8, 8, $d->GetX(), $d->GetY() + 1.3, $s, 0, 
+						0, false, true, 'C');
 			else
 				$d->Cell(50.8, 10, $s, 0, 0, 'C');
 			$counter ++;
 		}
 	}
+
 	private function _drawBarcodes (array $_array)
 	{
 		$d = $this->_document;
@@ -151,18 +178,19 @@ class Panel_Model_PdfGenerator
 			$col = $counter % 5;
 			$x = 20.5 + $col * 50.8;
 			// $d->Cell(50.8, 10, $s, 0, 0, 'C');
-			$d->write2DBarcode($s, 'QRCODE', $x, $y, 35, 35,
-				array(), 'M');
+			$d->write2DBarcode($s, 'QRCODE', $x, $y, 35, 35, array(), 'M');
 			$counter ++;
 		}
 	}
+
 	public function render ()
 	{
 		if ($this->_count == 0) {
 			$this->_document->AddPage();
 			$this->_config->html = false;
 			$this->_drawTextLabels(array(
-				'No barcodes exist.'));
+					'No barcodes exist.'
+			));
 		} elseif ($this->_count <= 20) { // decide if we need multiple pages
 			$this->_document->AddPage();
 			if ($this->_config->grid)
@@ -175,13 +203,14 @@ class Panel_Model_PdfGenerator
 				if ($this->_config->grid)
 					$this->_drawGrid();
 				$this->_drawTextLabels(
-					array_slice($this->_labels, $i, 20, true));
+						array_slice($this->_labels, $i, 20, true));
 				$this->_drawBarcodes(
-					array_slice($this->_barcodes, $i, 20, true));
+						array_slice($this->_barcodes, $i, 20, true));
 			}
 		}
 		$this->_document->Output('pdf.pdf');
 	}
+
 	public function getLabelsAreHtml ()
 	{
 		return $this->_config->html;
