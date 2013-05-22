@@ -11,7 +11,7 @@ $this->headScript()->appendFile($this->baseUrl('scripts/IE9.js'),
 $this->declareVars(
 	array(
 		'pageTitle' => 'BTS',
-		'headerBarHidden' => false,
+		'headerBarHidden' => true,
 		'isLoggedIn' => false,
 		'headerBarCustom' => null));
 echo $this->doctype();
@@ -34,21 +34,7 @@ echo $this->headStyle();
 
 </head>
 <body>
-<?php
-if (! empty($this->headerBarCustom)) {
-	echo $this->partial($this->headerBarCustom,
-		array(
-			'authSession' => $this->authSession));
-} else
-	if (! $this->headerBarHidden) {
-		if ($this->isLoggedIn)
-			echo $this->partial('logged-in-header.phtml',
-				array(
-					'authSession' => $this->authSession));
-		else
-			echo $this->partial('common-header.phtml');
-	}
-?>
+
 <div id="wrapper">
 <div id="header" class="row">
 <div class="column grid_10">
