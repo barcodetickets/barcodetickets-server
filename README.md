@@ -18,4 +18,6 @@ This product includes code by [Dean Edwards](http://code.google.com/p/ie7-js/).
 
 This product includes code by [Jason Johnston](http://css3pie.com/).
 
+This product includes [Entypo pictograms by Daniel Bruce](http://www.entypo.com/).
+
 This product includes code by Nicola Asuni and contributors of [the TCPDF project](http://www.tcpdf.org/).

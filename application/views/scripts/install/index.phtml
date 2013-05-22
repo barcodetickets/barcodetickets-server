@@ -3,7 +3,7 @@ $this->assign('pageTitle', 'BTS &raquo; Installer');
 $this->headTitle('Installer');
 ?>
 <div id="body" class="row">
-	<h2>Welcome to the Barcode Ticket System</h2>
+	<h2>Welcome</h2>
 	<p>Welcome to your soon-to-be installation of the Barcode Ticket System
 		(BTS). BTS integrates with API clients to enable convenient and secure
 		electronic tickets for events.</p>
@@ -15,12 +15,12 @@ $this->headTitle('Installer');
 		<li>PDO MySQL, or MySQLi</li>
 		<li>Write access to the filesystem</li>
 	</ul>
-	<p><?php
-	echo '<a href="' . $this->url(
+	<?php
+	echo '<a class="next" href="' . $this->url(
 			array(
 					'module' => 'default',
 					'controller' => 'install',
 					'action' => 'test'
-			)) . '">begin install</a>';
-	?></p>
+			)) . '">&#10145;</a>';
+	?>
 </div>

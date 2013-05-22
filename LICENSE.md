@@ -304,6 +304,8 @@ For the bundled IE9.js library:
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 	THE SOFTWARE.
 	
+The bundled Entypo webfont is used under the [SIL Open Font License](http://scripts.sil.org/OFL) ([Category B list](http://www.apache.org/legal/resolved.html#category-b)).
+
 The bundled tcpdf library is used under an LGPL license. See `library/tcpdf/LICENSE.txt` for the full licence text.
 
 	TCPDF is free software: you can redistribute it and/or modify it

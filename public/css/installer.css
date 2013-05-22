@@ -1,8 +1,28 @@
 @charset "utf-8";
+@font-face {
+	font-family: "Entypo";
+	src: url("fonts/entypo.eot");
+	src: url('fonts/entypo.eot?#iefix') format('embedded-opentype'),
+	url("fonts/entypo.woff") format("woff"),
+	url("fonts/entypo.ttf") format("truetype");
+}
 body.installer {
 	background-color: #206080;
 }
 .installer #wrapper {
 	box-shadow: 3px 3px 15px #222;
 	-webkit-box-shadow: 3px 3px 20px #222;
+}
+.installer a.prev, .installer a.next {
+	display: block;
+	width: 88px;
+	height: 89px;
+	font-family: Entypo;
+	font-size: 36px;
+}
+a.prev { 
+	
+}
+a.next {
+	margin-left:30em;
 }
