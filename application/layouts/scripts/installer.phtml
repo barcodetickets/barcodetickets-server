@@ -3,20 +3,17 @@ $this->headMeta()->setHttpEquiv('Content-Type', 'text/html; charset=utf-8');
 $this->headLink()
 	->prependStylesheet($this->baseUrl('css/bts.css'))
 	->prependStylesheet($this->baseUrl('css/grid.css'))
-	->appendStylesheet($this->baseUrl('css/bts-ie.css'), 'screen',
-	'lt IE 9');
-$this->headScript()->appendFile($this->baseUrl('scripts/IE9.js'),
-	'text/javascript', array(
-		'conditional' => 'lt IE 9'));
-$this->declareVars(
-	array(
-		'pageTitle' => 'BTS',
-		'headerBarHidden' => true,
-		'isLoggedIn' => false,
-		'headerBarCustom' => null));
+	->appendStylesheet($this->baseUrl('css/installer.css'))
+	->appendStylesheet($this->baseUrl('css/bts-ie.css'), 'screen', 'lt IE 9');
+$this->headScript()->appendFile($this->baseUrl('scripts/IE9.js'), 
+		'text/javascript', array(
+				'conditional' => 'lt IE 9'
+		));
+$this->declareVars(array(
+		'pageTitle' => 'BTS'
+));
 echo $this->doctype();
 ?>
-
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <?php
@@ -30,19 +27,16 @@ echo $this->headScript();
 echo "\n";
 echo $this->headStyle();
 ?>
-
-
 </head>
-<body>
-
-<div id="wrapper">
-<div id="header" class="row">
-<div class="column grid_10">
-<h1 class="logotype"><?php
-echo $this->pageTitle;
-?></h1>
-</div>
-</div>
+<body class="installer">
+	<div id="wrapper">
+		<div id="header" class="row">
+			<div class="column grid_10">
+				<h1 class="logotype"><?php
+				echo $this->pageTitle;
+				?></h1>
+			</div>
+		</div>
 
 <?php
 echo $this->layout()->content;
@@ -54,6 +48,6 @@ echo $this->partial('common-footer.phtml');
 echo $this->inlineScript();
 ?>
 
-</div>
+	</div>
 </body>
 </html>
