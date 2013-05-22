@@ -16,8 +16,5 @@ class InstallController extends Zend_Controller_Action
 	{
 		// TODO
 		$this->_helper->layout->setLayout('installer');
-		$this->_helper->viewRenderer->setNoRender();
-		$this->view->assign('pageTitle', 'BTS &raquo; Installer');
-		$this->view->headTitle('Installer');
 	}
 }

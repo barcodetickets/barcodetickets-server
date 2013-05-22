@@ -1,0 +1,26 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Installer');
+$this->headTitle('Installer');
+?>
+<div id="body" class="row">
+	<h2>Welcome to the Barcode Ticket System</h2>
+	<p>Welcome to your soon-to-be installation of the Barcode Ticket System
+		(BTS). BTS integrates with API clients to enable convenient and secure
+		electronic tickets for events.</p>
+	<p>It looks like you need to set up the BTS server for the first time.
+		Before we begin, please make sure that your web host meets these
+		minimum requirements:</p>
+	<ul>
+		<li>PHP 5.3</li>
+		<li>PDO MySQL, or MySQLi</li>
+		<li>Write access to the filesystem</li>
+	</ul>
+	<p><?php
+	echo '<a href="' . $this->url(
+			array(
+					'module' => 'default',
+					'controller' => 'install',
+					'action' => 'test'
+			)) . '">begin install</a>';
+	?>.</p>
+</div>
