@@ -11,8 +11,13 @@ $this->headTitle('Installer');
 		Before we begin, please make sure that your web host meets these
 		minimum requirements:</p>
 	<ul>
-		<li>PHP 5.3</li>
-		<li>PDO MySQL, or MySQLi</li>
+		<li>PHP 5.3+<br />
+			with <a href="http://pear.php.net/">PEAR</a>, 
+			<a href="http://php.net/manual/en/book.mcrypt.php">mcrypt</a>, and 
+			<a href="http://php.net/manual/en/ref.pdo-mysql.php">PDO MySQL</a> 
+			(preferred) or 
+			<a href="http://php.net/manual/en/book.mysqli.php">MySQLi</a></li>
+		<li>MySQL 5+ database with InnoDB</li>
 		<li>Write access to the filesystem</li>
 	</ul>
 	<?php
