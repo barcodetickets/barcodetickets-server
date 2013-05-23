@@ -1,0 +1,9 @@
+@charset "utf-8";
+body.installer a.prev:before {
+	content: "←";
+	font-family: Entypo;
+}
+body.installer a.next:after {
+	content: "→";
+	font-family: Entypo;
+}

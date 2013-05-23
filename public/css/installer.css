@@ -1,10 +1,10 @@
 @charset "utf-8";
 @font-face {
 	font-family: "Entypo";
-	src: url("fonts/entypo.eot");
-	src: url('fonts/entypo.eot?#iefix') format('embedded-opentype'),
-	url("fonts/entypo.woff") format("woff"),
-	url("fonts/entypo.ttf") format("truetype");
+	src: url('fonts/entypo.eot');
+	src: local('☺'),
+	url('fonts/entypo.woff') format('woff'),
+	url('fonts/entypo.ttf') format('truetype');
 }
 body.installer {
 	background-color: #206080;

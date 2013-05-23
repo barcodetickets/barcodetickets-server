@@ -4,7 +4,8 @@ $this->headLink()
 	->prependStylesheet($this->baseUrl('css/bts.css'))
 	->prependStylesheet($this->baseUrl('css/grid.css'))
 	->appendStylesheet($this->baseUrl('css/installer.css'))
-	->appendStylesheet($this->baseUrl('css/bts-ie.css'), 'screen', 'lt IE 9');
+	->appendStylesheet($this->baseUrl('css/bts-ie.css'), 'screen', 'lt IE 9')
+	->appendStylesheet($this->baseUrl('css/installer-ie.css'), 'screen', 'lt IE 8');
 $this->headScript()->appendFile($this->baseUrl('scripts/IE9.js'), 
 		'text/javascript', array(
 				'conditional' => 'lt IE 9'
