@@ -11,13 +11,9 @@ This is the **server** component of BTS -- the PHP application that hosts the XM
 This product includes software developed by [Zend](http://www.zend.com/) and the [Zend Framework](http://framework.zend.com/) community.
 
 This product includes code by [Toni Van de Voorde](http://www.devexp.eu/).
-
 This product includes code by [Chuck Burgess](http://pear.php.net/user/ashnazg) and [Stephan Schmidt](http://pear.php.net/user/schst).
-
 This product includes code by [Dean Edwards](http://code.google.com/p/ie7-js/).
-
 This product includes code by [Jason Johnston](http://css3pie.com/).
-
+This product includes code by [Anthony Ferrera](https://github.com/ircmaxell).
 This product includes [Entypo pictograms by Daniel Bruce](http://www.entypo.com/).
-
 This product includes code by Nicola Asuni and contributors of [the TCPDF project](http://www.tcpdf.org/).
