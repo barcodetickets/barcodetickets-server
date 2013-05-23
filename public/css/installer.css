@@ -9,20 +9,42 @@
 body.installer {
 	background-color: #206080;
 }
+.installer a {
+	color: #206080;
+}
 .installer #wrapper {
 	box-shadow: 3px 3px 15px #222;
 	-webkit-box-shadow: 3px 3px 20px #222;
 }
 .installer a.prev, .installer a.next {
-	display: block;
-	width: 88px;
-	height: 89px;
+	display: inline-block;
+	width: auto;
+	font-size: 150%;
+	border: none;
+	line-height: 1em;
+}
+.installer a.prev span, .installer a.next span {
+	display: inline-block;
+	position: relative;
+	bottom: 1em;
+}
+.installer a.prev { 
+	text-align: left;
+	float: left;
+}
+.installer a.prev:before {
+	content: "\E759";
 	font-family: Entypo;
-	font-size: 36px;
+	font-size: 500%;
+	padding-right: 0.1em;
 }
-a.prev { 
-	
+.installer a.next {
+	float: right;
+	text-align: right;
 }
-a.next {
-	margin-left:30em;
+.installer a.next:after {
+	content: "\E75A";
+	font-family: Entypo;
+	font-size: 500%;
+	padding-left: 0.1em;
 }
