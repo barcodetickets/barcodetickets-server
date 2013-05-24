@@ -1,0 +1,26 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Installer');
+$this->headTitle('Installer Step 1');
+?>
+<div id="body" class="row">
+	<h2>Test your server</h2>
+	<p>The installer has checked your server for required modules.</p>
+	<table style="width: 500px">
+		<tbody>
+<?php foreach($this->tests as $test => $result) : ?>
+			<tr>
+				<td><?php echo $test; ?></td>
+				<td><?php echo ($result ? 'pass' : 'fail')?></td>
+			</tr>
+<?php endforeach; ?>
+		</tbody>
+	</table>	
+	<?php
+	echo '<a class="next" href="' . $this->url(
+			array(
+					'module' => 'default',
+					'controller' => 'install',
+					'action' => 'hash'
+			)) . '"><span>Begin</span></a>';
+	?>
+</div>
