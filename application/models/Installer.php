@@ -45,6 +45,23 @@ class Bts_Model_Installer
 		return $hash;
 	}
 
+	/**
+	 * Runs a series of boolean tests that are required for installation.
+	 * 
+	 * php-version: PHP 5.3+
+	 * php-safe: safe mode is off
+	 * php-pear: presence of PEAR
+	 * ext-hash: hash extension
+	 * ext-mcrypt: mcrypt extension
+	 * ext-pdo: PDO extension
+	 * ext-pdomysql: PDO MySQL
+	 * ext-mysqli: mysqli extension
+	 * files-btsdist: existence of bts.ini.dist
+	 * files-dbdist: existence of database.ini.dist
+	 * files-writable: configs directory writable
+	 * 
+	 * @return array
+	 */
 	public static function testEnvironment ()
 	{
 		@include_once ('System.php');
@@ -54,8 +71,8 @@ class Bts_Model_Installer
 				'php-safe' => ! ((bool) ini_get('safe_mode')),
 				'php-pear' => class_exists('System'),
 				'ext-hash' => extension_loaded('hash'),
-				'ext-pdo' => extension_loaded('pdo'),
 				'ext-mcrypt' => extension_loaded('mcrypt'),
+				'ext-pdo' => extension_loaded('pdo'),
 				'ext-pdomysql' => extension_loaded('pdo_mysql'),
 				'ext-mysqli' => extension_loaded('mysqli'),
 				'files-btsdist' => @file_exists(
