@@ -45,4 +45,25 @@ class Bts_Model_Installer
 		return $hash;
 	}
 
+	public static function testEnvironment ()
+	{
+		@include_once ('System.php');
+		// for each test, TRUE = pass, FALSE = fail
+		$tests = array(
+				'php-version' => version_compare(PHP_VERSION, '5.3.0', '>='),
+				'php-safe' => ! ((bool) ini_get('safe_mode')),
+				'php-pear' => class_exists('System'),
+				'ext-hash' => extension_loaded('hash'),
+				'ext-pdo' => extension_loaded('pdo'),
+				'ext-mcrypt' => extension_loaded('mcrypt'),
+				'ext-pdomysql' => extension_loaded('pdo_mysql'),
+				'ext-mysqli' => extension_loaded('mysqli'),
+				'files-btsdist' => @file_exists(
+						APPLICATION_PATH . '/configs/bts.ini.dist'),
+				'files-dbdist' => @file_exists(
+						APPLICATION_PATH . '/configs/database.ini.dist'),
+				'files-writable' => is_writable(APPLICATION_PATH . '/configs')
+		);
+		return $tests;
+	}
 }
