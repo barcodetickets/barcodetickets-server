@@ -2,15 +2,12 @@
 
 /* CSS Document */
 html,body {
-	margin: 0;
-	padding: 0;
+	margin: 0; padding: 0;
 }
 
 body {
 	font-family: "Palatino Linotype", Palatino, Georgia, Times,
-		"Times New Roman", serif;
-	background-color: #e9e9e9;
-	color: #333;
+		"Times New Roman", serif; background-color: #e9e9e9; color: #333;
 	font-size: 16px;
 }
 
@@ -21,30 +18,19 @@ pre,monospace,code,var,tt {
 
 #header-bar {
 	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
-	font-size: 75%;
-	height: 2.5em;
-	line-height: 2.5em;
+	font-size: 75%; height: 2.5em; line-height: 2.5em;
 	background-color: #888;
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0, rgb(180,
 		178, 180) ), color-stop(1, #777) );
 	background: -moz-linear-gradient(center top, rgb(180, 178, 180) 0%, #777
-		100% );
-	text-shadow: 1px 1px 5px #333;
-	color: #eee;
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	box-shadow: 0px 0px 25px #999;
-	-webkit-box-shadow: 0px 0px 25px #999;
-	border-bottom: 1px solid #eee;
+		100% ); text-shadow: 1px 1px 5px #333; color: #eee; position: fixed;
+	top: 0; left: 0; right: 0; box-shadow: 0px 0px 25px #999;
+	-webkit-box-shadow: 0px 0px 25px #999; border-bottom: 1px solid #eee;
 	background-color: #888;
 }
 
 #header-bar a {
-	text-decoration: none;
-	border: none;
-	color: inherit !important;
+	text-decoration: none; border: none; color: inherit !important;
 }
 
 #header-bar a:hover {
@@ -52,30 +38,22 @@ pre,monospace,code,var,tt {
 }
 
 #header-bar span.right {
-	float: right;
-	margin-right: 0.5em;
+	float: right; margin-right: 0.5em;
 }
 
 #header-bar span.left {
-	float: left;
-	margin-left: 0.5em;
+	float: left; margin-left: 0.5em;
 }
 
 #wrapper {
-	background-color: #ffffff;
-	border-radius: 10px;
-	-webkit-border-radius: 10px;
-	-moz-border-radius: 10px;
-	box-shadow: 3px 3px 15px #ccc;
-	-webkit-box-shadow: 3px 3px 20px #ccc;
-	width: 850px;
-	margin: 4em auto 1em auto;
-	padding: 10px;
+	background-color: #ffffff; border-radius: 10px;
+	-webkit-border-radius: 10px; -moz-border-radius: 10px;
+	box-shadow: 3px 3px 15px #ccc; -webkit-box-shadow: 3px 3px 20px #ccc;
+	width: 850px; margin: 4em auto 1em auto; padding: 10px;
 }
 
 a {
-	border-bottom: 1px dotted #1E5CB5;
-	text-decoration: none;
+	border-bottom: 1px dotted #1E5CB5; text-decoration: none;
 	color: #1E5CB5;
 }
 
@@ -84,31 +62,23 @@ a:hover,a:active {
 }
 
 div.error,div.warning {
-	text-align: center;
-	padding-top: 0.5em;
-	padding-bottom: 0.5em;
+	text-align: center; padding-top: 0.5em; padding-bottom: 0.5em;
 }
 
 div.error {
-	background-color: #C00;
-	color: #ffffff;
+	background-color: #C00; color: #ffffff;
 }
 
 p.error,ul.error,.zend_form ul.errors {
-	color: #C00;
-	background-color: #ffeeee;
-	padding: 0.5em;
+	color: #C00; background-color: #ffeeee; padding: 0.5em;
 }
 
 div.warning {
-	background-color: #ffeeee;
-	color: #000;
+	background-color: #ffeeee; color: #000;
 }
 
 p.warning {
-	padding: 0.5em;
-	background-color: #fcffe3;
-	color: #F60;
+	padding: 0.5em; background-color: #fcffe3; color: #F60;
 }
 
 form div {
@@ -143,19 +113,15 @@ dt {
 }
 
 .row {
-	margin-top: 1em;
-	margin-bottom: 1em;
+	margin-top: 1em; margin-bottom: 1em;
 }
 
 #header {
-	text-align: center;
-	border-bottom: 1px solid #999;
+	text-align: center; border-bottom: 1px solid #999;
 }
 
 #footer {
-	border-top: 1px solid #999;
-	padding-top: 1em;
-	font-size: 66%;
+	border-top: 1px solid #999; padding-top: 1em; font-size: 66%;
 	font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
 }
 
@@ -181,5 +147,4 @@ input.has-error {
 
 .clear {
 	clear: both;
-}
 }

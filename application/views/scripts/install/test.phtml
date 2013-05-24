@@ -9,9 +9,13 @@ $this->headTitle('Installer Step 1');
 		<tbody>
 <?php foreach($this->tests as $test => $result) : ?>
 			<tr>
-				<td><?php echo $this->testReadable[$test][0]; ?></td>
-				<td><?php echo ($result ? $this->testReadable[$test][1] : 
-						$this->testReadable[$test][2]); ?></td>
+				<td>
+					<?php echo $this->testReadable[$test][0]; ?>
+				</td>
+				<td class="<?php echo ($result ? 'good' : 'bad'); ?>">
+					<?php echo ($result ? $this->testReadable[$test][1] : 
+						$this->testReadable[$test][2]); ?>
+				</td>
 			</tr>
 <?php endforeach; ?>
 		</tbody>

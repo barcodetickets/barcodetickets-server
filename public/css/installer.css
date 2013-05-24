@@ -1,50 +1,58 @@
 @charset "utf-8";
+
 @font-face {
-	font-family: "Entypo";
-	src: url('fonts/entypo.eot');
-	src: local('☺'),
-	url('fonts/entypo.woff') format('woff'),
-	url('fonts/entypo.ttf') format('truetype');
+	font-family: "Entypo"; src: url('fonts/entypo.eot');
+	src: local('☺'), url('fonts/entypo.woff') format('woff'),
+		url('fonts/entypo.ttf') format('truetype');
 }
+
 body.installer {
 	background-color: #206080;
 }
+
 .installer a {
 	color: #206080;
 }
+
 .installer #wrapper {
-	box-shadow: 3px 3px 15px #222;
-	-webkit-box-shadow: 3px 3px 20px #222;
+	box-shadow: 3px 3px 15px #222; -webkit-box-shadow: 3px 3px 20px #222;
 }
-.installer a.prev, .installer a.next {
-	display: inline-block;
-	width: auto;
-	font-size: 150%;
-	border: none;
+
+.installer table.tests {
+	width: 75%;
+}
+
+.installer .good {
+	color: #1E7B0D;
+}
+
+.installer .bad {
+	color: #900;
+}
+
+.installer a.prev,.installer a.next {
+	display: inline-block; width: auto; font-size: 150%; border: none;
 	line-height: 1em;
 }
-.installer a.prev span, .installer a.next span {
-	display: inline-block;
-	position: relative;
-	bottom: 1em;
+
+.installer a.prev span,.installer a.next span {
+	display: inline-block; position: relative; bottom: 1em;
 }
-.installer a.prev { 
-	text-align: left;
-	float: left;
+
+.installer a.prev {
+	text-align: left; float: left;
 }
+
 .installer a.prev:before {
-	content: "\E759";
-	font-family: Entypo;
-	font-size: 500%;
+	content: "\E759"; font-family: Entypo; font-size: 500%;
 	padding-right: 0.1em;
 }
+
 .installer a.next {
-	float: right;
-	text-align: right;
+	float: right; text-align: right;
 }
+
 .installer a.next:after {
-	content: "\E75A";
-	font-family: Entypo;
-	font-size: 500%;
+	content: "\E75A"; font-family: Entypo; font-size: 500%;
 	padding-left: 0.1em;
 }
