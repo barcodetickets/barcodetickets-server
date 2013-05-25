@@ -11,6 +11,69 @@
 class Bts_Model_Installer
 {
 
+	public $tests = array(
+			'php-version' => array(
+					'PHP version',
+					PHP_VERSION,
+					PHP_VERSION
+			),
+			'php-safe' => array(
+					'PHP safe mode',
+					'off',
+					'on'
+			),
+			'php-pear' => array(
+					'PEAR',
+					'installed',
+					'not installed'
+			),
+			'ext-hash' => array(
+					'Hash extension',
+					'supported',
+					'not supported'
+			),
+			'ext-json' => array(
+					'JSON extension',
+					'supported',
+					'not supported'
+			),
+			'ext-mcrypt' => array(
+					'mcrypt extension',
+					'supported',
+					'not supported'
+			),
+			'ext-pdo' => array(
+					'PHP Data Objects',
+					'supported',
+					'not supported'
+			),
+			'ext-pdomysql' => array(
+					'PDO MySQL',
+					'supported',
+					'not supported'
+			),
+			'ext-mysqli' => array(
+					'MySQLi extension',
+					'supported',
+					'not supported'
+			),
+			'files-btsdist' => array(
+					'bts.ini.dist file',
+					'exists',
+					'not found'
+			),
+			'files-dbdist' => array(
+					'database.ini.dist',
+					'exists',
+					'not found'
+			),
+			'files-writable' => array(
+					'Configuration files',
+					'writable',
+					'not writable'
+			)
+	);
+
 	/**
 	 * Generates a pseudorandom 256-bit installation hash.
 	 *
@@ -26,7 +89,7 @@ class Bts_Model_Installer
 	 * @since 0.2.0
 	 * @return string
 	 */
-	public static function generateHash ()
+	public function generateHash ()
 	{
 		$hash = '';
 		if (extension_loaded('openssl') &&
@@ -47,22 +110,10 @@ class Bts_Model_Installer
 
 	/**
 	 * Runs a series of boolean tests that are required for installation.
-	 * 
-	 * php-version: PHP 5.3+
-	 * php-safe: safe mode is off
-	 * php-pear: presence of PEAR
-	 * ext-hash: hash extension
-	 * ext-mcrypt: mcrypt extension
-	 * ext-pdo: PDO extension
-	 * ext-pdomysql: PDO MySQL
-	 * ext-mysqli: mysqli extension
-	 * files-btsdist: existence of bts.ini.dist
-	 * files-dbdist: existence of database.ini.dist
-	 * files-writable: configs directory writable
-	 * 
+	 *
 	 * @return array
 	 */
-	public static function testEnvironment ()
+	public function testEnvironment ()
 	{
 		@include_once ('System.php');
 		// for each test, TRUE = pass, FALSE = fail
@@ -71,6 +122,7 @@ class Bts_Model_Installer
 				'php-safe' => ! ((bool) ini_get('safe_mode')),
 				'php-pear' => class_exists('System'),
 				'ext-hash' => extension_loaded('hash'),
+				'ext-json' => extension_loaded('json'),
 				'ext-mcrypt' => extension_loaded('mcrypt'),
 				'ext-pdo' => extension_loaded('pdo'),
 				'ext-pdomysql' => extension_loaded('pdo_mysql'),
@@ -82,5 +134,28 @@ class Bts_Model_Installer
 				'files-writable' => is_writable(APPLICATION_PATH . '/configs')
 		);
 		return $tests;
+	}
+
+	/**
+	 * Looks up the readable text representation for a given test.
+	 * 
+	 * @param string $test        	
+	 * @param bool $success        	
+	 * @return array
+	 */
+	public function getTestReadable ($test, $success)
+	{
+		if (array_key_exists($test, $this->tests)) {
+			$name = $this->tests[$test][0];
+			$text = ($success ? $this->tests[$test][1] : $this->tests[$test][2]);
+			return array(
+					$name,
+					$text
+			);
+		} else
+			return array(
+					'',
+					''
+			);
 	}
 }
