@@ -42,6 +42,11 @@ class Bts_Model_Installer
 					'supported',
 					'not supported'
 			),
+			'ext-openssl' => array(
+					'OpenSSL extension',
+					'supported',
+					'not supported'
+			),
 			'ext-pdo' => array(
 					'PHP Data Objects',
 					'supported',
@@ -63,7 +68,7 @@ class Bts_Model_Installer
 					'not found'
 			),
 			'files-dbdist' => array(
-					'database.ini.dist',
+					'database.ini.dist file',
 					'exists',
 					'not found'
 			),
@@ -124,6 +129,7 @@ class Bts_Model_Installer
 				'ext-hash' => extension_loaded('hash'),
 				'ext-json' => extension_loaded('json'),
 				'ext-mcrypt' => extension_loaded('mcrypt'),
+				'ext-openssl' => extension_loaded('openssl'),
 				'ext-pdo' => extension_loaded('pdo'),
 				'ext-pdomysql' => extension_loaded('pdo_mysql'),
 				'ext-mysqli' => extension_loaded('mysqli'),
@@ -138,7 +144,7 @@ class Bts_Model_Installer
 
 	/**
 	 * Looks up the readable text representation for a given test.
-	 * 
+	 *
 	 * @param string $test        	
 	 * @param bool $success        	
 	 * @return array
