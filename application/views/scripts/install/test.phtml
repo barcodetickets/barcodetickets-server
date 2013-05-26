@@ -3,7 +3,7 @@ $this->assign('pageTitle', 'BTS &raquo; Installer');
 $this->headTitle('Installer Step 1');
 ?>
 <div id="body" class="row">
-	<h2>Test your server</h2>
+	<h2>1. Test your server</h2>
 	<p>The installer has checked your server for required modules.</p>
 	<table style="width: 500px">
 		<tbody>
@@ -19,13 +19,19 @@ $this->headTitle('Installer Step 1');
 			</tr>
 <?php endforeach; ?>
 		</tbody>
-	</table>	
+	</table>
 	<?php
+	echo '<a class="prev" href="' . $this->url(
+			array(
+					'module' => 'default',
+					'controller' => 'install',
+					'action' => 'index'
+			)) . '"><span>Back</span></a>';
 	echo '<a class="next" href="' . $this->url(
 			array(
 					'module' => 'default',
 					'controller' => 'install',
 					'action' => 'hash'
-			)) . '"><span>Begin</span></a>';
+			)) . '"><span>Next</span></a>';
 	?>
 </div>
