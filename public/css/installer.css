@@ -64,3 +64,7 @@ body.installer {
 .installer .notice.good {
 	background-color: #c1f7a8; color: #003c00; padding: 0.5em;
 }
+
+.installer pre {
+    background-color: #f8f8f8;
+}
