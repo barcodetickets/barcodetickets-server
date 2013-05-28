@@ -1,0 +1,34 @@
+<?php
+$this->assign('pageTitle', 'BTS &raquo; Installer');
+$this->headTitle('Installer Step 2');
+?>
+<div id="body" class="row">
+	<h2>2. Initialize cryptography</h2>
+<?php if(isset($this->error) && $this->error == 'write') { ?>
+	<p class="notice bad">We weren't able to write a new configuration file to 
+	<code>configs/bts.ini</code>, but you can set it up yourself by copying the 
+	contents below to a new file there. The secret hash is used to seed 
+	encryption in BTS.</p>
+	<pre><?php echo $this->config; ?></pre>
+<?php } else { ?>
+	<p class="notice good">We've set up your configuration file with a new 
+	secret hash, which is used to seed encryption in BTS. You may want to keep 
+	this in a safe place.</p>
+	<pre><?php echo $this->hash; ?></pre>
+<?php } ?>
+
+	<?php
+	echo '<a class="prev" href="' . $this->url(
+			array(
+					'module' => 'default',
+					'controller' => 'install',
+					'action' => 'test'
+			)) . '"><span>Back</span></a>';
+	echo '<a class="next" href="' . $this->url(
+			array(
+					'module' => 'default',
+					'controller' => 'install',
+					'action' => 'database'
+			)) . '"><span>Next</span></a>';
+	?>
+</div>

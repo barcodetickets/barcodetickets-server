@@ -7,9 +7,16 @@
  *
  * @author	Frederick Ding
  * @package	Bts
+ * @since 0.2.0
  */
 class Bts_Model_Installer
 {
+
+	/**
+	 *
+	 * @var Zend_Config_Ini
+	 */
+	protected $BtsConfig = null;
 
 	public $tests = array(
 			'php-version' => array(
@@ -110,6 +117,37 @@ class Bts_Model_Installer
 			$hash = hash('sha256', $plaintext);
 		}
 		return $hash;
+	}
+
+	/**
+	 * Writes a new bts.ini configuration file with the supplied hash.
+	 *
+	 * @param string $hash
+	 *        	a 64-char hex string, such as from `generateHash()`
+	 * @throws Bts_Exception if supplied parameter is not a 64-char hex string
+	 * @throws Zend_Config_Exception if writing the new config file fails
+	 * @return Zend_Config_Writer
+	 */
+	public function saveHash ($hash)
+	{
+		// we only like hashes with enough length and in hex
+		if (! preg_match('/^[A-Fa-f0-9]{64}$/', $hash)) {
+			throw new Bts_Exception(
+					'Provided installation hash is not in valid 64-char hex', 
+					Bts_Exception::INSTALLER_HASH_BAD);
+		}
+		
+		$this->BtsConfig = Zend_Registry::get('bts-config');
+		$this->BtsConfig->secureHash = $hash;
+		
+		// this can throw a Zend_Config_Exception
+		$config = new Zend_Config_Writer_Ini(
+				array(
+						'config' => $this->BtsConfig,
+						'filename' => APPLICATION_PATH . '/configs/bts.ini'
+				));
+		$config->write();
+		return $config;
 	}
 
 	/**

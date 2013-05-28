@@ -56,3 +56,11 @@ body.installer {
 	content: "\E75A"; font-family: Entypo; font-size: 500%;
 	padding-left: 0.1em;
 }
+
+.installer .notice.bad {
+	background-color: #f5afb0; color: #500000; padding: 0.5em;
+}
+
+.installer .notice.good {
+	background-color: #c1f7a8; color: #003c00; padding: 0.5em;
+}

@@ -30,4 +30,19 @@ class InstallController extends Zend_Controller_Action
 		 */
 		$this->view->testReadable = $Installer->tests;
 	}
+
+	public function hashAction ()
+	{
+		$Installer = new Bts_Model_Installer();
+		$hash = $Installer->generateHash();
+		$this->view->hash = $hash;
+		try {
+			$config = $Installer->saveHash($hash);
+		} catch (Zend_Config_Exception $e) {
+			// could not write to file
+			$this->view->error = 'write';
+			$this->view->exception = $e;
+			$this->view->config = $config->render();
+		}
+	}
 }

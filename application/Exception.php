@@ -29,4 +29,6 @@ class Bts_Exception extends Zend_Exception
 	const TICKETS_UNAUTHORIZED = - 341;
 
 	const EVENTS_PARAMS_BAD = - 360;
+
+	const INSTALLER_HASH_BAD = - 400;
 }
