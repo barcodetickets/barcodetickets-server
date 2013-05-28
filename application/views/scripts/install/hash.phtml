@@ -1,14 +1,20 @@
 <?php
 $this->assign('pageTitle', 'BTS &raquo; Installer');
 $this->headTitle('Installer Step 2');
+$this->declareVars('config', 'hash', array('error' => false), 'exception');
 ?>
 <div id="body" class="row">
 	<h2>2. Initialize cryptography</h2>
-<?php if(isset($this->error) && $this->error == 'write') { ?>
+<?php if($this->error == 'write') { ?>
 	<p class="notice bad">We weren't able to write a new configuration file to 
 	<code>configs/bts.ini</code>, but you can set it up yourself by copying the 
-	contents below to a new file there. The secret hash is used to seed 
-	encryption in BTS.</p>
+	contents below to a new file there.</p>
+	<pre><?php echo $this->config; ?></pre>
+<?php } elseif($this->error == 'exists') { ?>
+	<p class="notice bad">Looks like you've already set up your configuration  
+	in <code>configs/bts.ini</code>. The installer won't automatically overwrite 
+	it, but you can set it up again yourself by copying the contents below 
+	to it.</p>
 	<pre><?php echo $this->config; ?></pre>
 <?php } else { ?>
 	<p class="notice good">We've set up your configuration file with a new 
@@ -24,11 +30,13 @@ $this->headTitle('Installer Step 2');
 					'controller' => 'install',
 					'action' => 'test'
 			)) . '"><span>Back</span></a>';
-	echo '<a class="next" href="' . $this->url(
-			array(
-					'module' => 'default',
-					'controller' => 'install',
-					'action' => 'database'
-			)) . '"><span>Next</span></a>';
+	if($this->error != 'write') {
+		echo '<a class="next" href="' . $this->url(
+				array(
+						'module' => 'default',
+						'controller' => 'install',
+						'action' => 'database'
+				)) . '"><span>Next</span></a>';
+	}
 	?>
 </div>

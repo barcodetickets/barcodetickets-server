@@ -122,13 +122,22 @@ class Bts_Model_Installer
 	/**
 	 * Writes a new bts.ini configuration file with the supplied hash.
 	 *
+	 * Use saveHash($hash, true) to overwrite the existing file.
+	 * Use saveHash($hash, false, true) to return the object instead of
+	 * attempting any kind of write.
+	 *
 	 * @param string $hash
 	 *        	a 64-char hex string, such as from `generateHash()`
+	 * @param boolean $overwrite
+	 *        	set to true to overwrite an existing bts.ini
+	 * @param boolean $return
+	 *        	set to true to return config instead of writing it
 	 * @throws Bts_Exception if supplied parameter is not a 64-char hex string
-	 * @throws Zend_Config_Exception if writing the new config file fails
+	 * @throws Bts_Exception if config already exists and $overwrite is false
+	 * @throws Bts_Exception if writing the new config file fails
 	 * @return Zend_Config_Writer
 	 */
-	public function saveHash ($hash)
+	public function saveHash ($hash, $overwrite = false, $return = false)
 	{
 		// we only like hashes with enough length and in hex
 		if (! preg_match('/^[A-Fa-f0-9]{64}$/', $hash)) {
@@ -136,17 +145,36 @@ class Bts_Model_Installer
 					'Provided installation hash is not in valid 64-char hex', 
 					Bts_Exception::INSTALLER_HASH_BAD);
 		}
+		if (file_exists(APPLICATION_PATH . '/configs/bts.ini') && ! $overwrite) {
+			if (! $return) {
+				// we can't overwrite
+				throw new Bts_Exception('bts.ini already exists', 
+						Bts_Exception::INSTALLER_CONFIG_EXISTS);
+			}
+		}
 		
 		$this->BtsConfig = Zend_Registry::get('bts-config');
 		$this->BtsConfig->secureHash = $hash;
 		
 		// this can throw a Zend_Config_Exception
-		$config = new Zend_Config_Writer_Ini(
-				array(
-						'config' => $this->BtsConfig,
-						'filename' => APPLICATION_PATH . '/configs/bts.ini'
-				));
-		$config->write();
+		try {
+			$config = new Zend_Config_Writer_Ini(
+					array(
+							'config' => $this->BtsConfig,
+							'filename' => APPLICATION_PATH . '/configs/bts.ini'
+					));
+			$config->write();
+		} catch (Zend_Config_Exception $e) {
+			if ($return) {
+				// handle the exception here and return a config object
+				return $config;
+			} else {
+				throw new Bts_Exception('bts.ini could not be written', 
+						Bts_Exception::INSTALLER_CONFIG_WRITE_FAILURE);
+			}
+		}
+		
+		// or, if the write worked, we'll still get to here
 		return $config;
 	}
 

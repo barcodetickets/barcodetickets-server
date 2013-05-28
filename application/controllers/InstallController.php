@@ -38,11 +38,18 @@ class InstallController extends Zend_Controller_Action
 		$this->view->hash = $hash;
 		try {
 			$config = $Installer->saveHash($hash);
-		} catch (Zend_Config_Exception $e) {
-			// could not write to file
-			$this->view->error = 'write';
+		} catch (Bts_Exception $e) {
+			if ($e->getCode() == Bts_Exception::INSTALLER_CONFIG_EXISTS) {
+				$this->view->error = 'exists';
+			} elseif ($e->getCode() == Bts_Exception::INSTALLER_CONFIG_WRITE_FAILURE) {
+				$this->view->error = 'write';
+			}
 			$this->view->exception = $e;
-			$this->view->config = $config->render();
+			// generate the config string for manual user installation
+			$config = $Installer->saveHash($hash, false, true);
+			if ($config instanceof Zend_Config_Writer) {
+				$this->view->config = $config->render();
+			}
 		}
 	}
 }

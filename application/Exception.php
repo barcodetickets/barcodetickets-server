@@ -31,4 +31,8 @@ class Bts_Exception extends Zend_Exception
 	const EVENTS_PARAMS_BAD = - 360;
 
 	const INSTALLER_HASH_BAD = - 400;
+	
+	const INSTALLER_CONFIG_EXISTS = -401;
+	
+	const INSTALLER_CONFIG_WRITE_FAILURE = -402;
 }
