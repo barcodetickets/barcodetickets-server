@@ -5,9 +5,9 @@ class Panel_Model_UserAuthentication extends Zend_Auth_Adapter_DbTable
 
 	/**
 	 *
-	 * @var BtsX_PasswordHash
+	 * @var Bts_Model_Users
 	 */
-	protected $Hash = null;
+	protected $Users = null;
 
 	/**
 	 *
@@ -17,7 +17,7 @@ class Panel_Model_UserAuthentication extends Zend_Auth_Adapter_DbTable
 
 	/**
 	 * Builds a new instance of the authentication adapter.
-	 * 
+	 *
 	 * @param Zend_Db_Adapter_Abstract $zendDb        	
 	 * @param string $tableName        	
 	 * @param string $identityColumn        	
@@ -33,7 +33,7 @@ class Panel_Model_UserAuthentication extends Zend_Auth_Adapter_DbTable
 		$credentialColumn = ! empty($credentialColumn) ? $credentialColumn : 'password';
 		parent::__construct($zendDb, $tableName, $identityColumn, 
 				$credentialColumn);
-		$this->Hash = new BtsX_PasswordHash(8, true);
+		$this->Users = new Bts_Model_Users();
 		$this->Session = new Zend_Session_Namespace('bts-auth');
 	}
 
@@ -53,7 +53,8 @@ class Panel_Model_UserAuthentication extends Zend_Auth_Adapter_DbTable
 
 	protected function _authenticateValidateResult ($resultIdentity)
 	{
-		$valid = $this->Hash->checkPassword($this->_credential, 
+		
+		$valid = $this->Users->checkPassword($this->_credential, 
 				$resultIdentity[$this->_credentialColumn]);
 		if (! $valid) {
 			$this->_authenticateResultInfo['code'] = Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID;

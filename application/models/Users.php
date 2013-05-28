@@ -13,14 +13,14 @@ class Bts_Model_Users
 
 	/**
 	 * An instance of the Users table.
-	 * 
+	 *
 	 * @var Bts_Model_DbTable_Users
 	 */
 	private $UsersTable = null;
 
 	/**
 	 * An instance of the phpass library class.
-	 * 
+	 *
 	 * @var BtsX_PasswordHash
 	 */
 	private $PasswordHash = null;
@@ -39,6 +39,10 @@ class Bts_Model_Users
 	public function __construct ()
 	{
 		$this->UsersTable = new Bts_Model_DbTable_Users();
+		if (version_compare(PHP_VERSION, '5.5.0', '<')) {
+			// new password_hash() doesn't exist yet; need to load compat
+			require_once 'BtsX/PasswordCompat.php';
+		}
 		$this->PasswordHash = new BtsX_PasswordHash(8, TRUE);
 	}
 
@@ -46,7 +50,7 @@ class Bts_Model_Users
 	 * Checks whether the username is a valid one by checking its length (max.
 	 * in database is 45) and looking for permitted characters (alphanumeric,
 	 * period, hyphen and underscore).
-	 * 
+	 *
 	 * @param string $username        	
 	 * @return int
 	 */
@@ -64,21 +68,17 @@ class Bts_Model_Users
 	 * Changes a given user's password in the database.
 	 *
 	 * @param string $username        	
-	 * @param string $old_password        	
 	 * @param string $new_password        	
 	 * @return boolean true on success and false on failure
 	 */
-	public function changePassword ($username, $old_password, $new_password)
+	public function changePassword ($username, $new_password)
 	{
 		$select = $this->UsersTable->select()->where('username = ?', $username);
 		$row = $this->UsersTable->fetchRow($select);
 		if (! $row instanceof Zend_Db_Table_Row_Abstract) {
 			return false;
 		}
-		if (! $this->PasswordHash->checkPassword($old_password, $row->password)) {
-			return false;
-		}
-		$row->password = $this->PasswordHash->hashPassword($new_password);
+		$row->password = password_hash($new_password, PASSWORD_BCRYPT);
 		return (boolean) $row->save();
 	}
 
@@ -96,7 +96,19 @@ class Bts_Model_Users
 		if (! $row instanceof Zend_Db_Table_Row_Abstract) {
 			return false;
 		}
-		return $this->PasswordHash->checkPassword($password, $row->password);
+		if (strpos($row->password, '$P$') === 0) {
+			// we have a legacy password from phpass
+			$identical = $this->PasswordHash->checkPassword($password, 
+					$row->password);
+			if ($identical) {
+				// if the password matches, we need to rehash it with bcrypt
+				// should only run once
+				$this->changePassword($username, $password);
+			}
+		} else {
+			$identical = password_verify($password, $row->password);
+		}
+		return $identical;
 	}
 
 	/**
@@ -148,7 +160,7 @@ class Bts_Model_Users
 		}
 		$insertData = array(
 				'username' => $username,
-				'password' => $this->PasswordHash->hashPassword($password),
+				'password' => password_hash($password, PASSWORD_BCRYPT),
 				'email' => $meta['email'],
 				'status' => (is_integer($meta['status'])) ? $meta['status'] : 0,
 				'nickname' => (isset($meta['nickname'])) ? $meta['nickname'] : '',
